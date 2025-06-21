@@ -1,11 +1,12 @@
+part of dashboard;
 
 class ApiEndpoints {
-  static const String _baseUrl = "https://fastapi-java-backend-production.up.railway.app"; // آدرس سرورت
+  static const String _baseUrl = "https://fastapi-java-backend-production.up.railway.app";
 
   static const String login = "$_baseUrl/users/login";
   static const String register = "$_baseUrl/register";
   static const String getProfile = "$_baseUrl/user/profile";
-
+  static const String getAllProfile = "$_baseUrl/users/all";
 }
 
 

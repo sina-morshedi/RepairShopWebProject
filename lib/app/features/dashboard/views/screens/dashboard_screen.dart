@@ -22,6 +22,13 @@ import 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:fluttertoast/fluttertoast.dart';
+
+//backend_services
+part '../../backend_services/ApiEndpoints.dart';
+part '../../backend_services/backend_services.dart';
 
 // binding
 part '../../bindings/dashboard_binding.dart';
@@ -31,6 +38,8 @@ part '../../controllers/dashboard_controller.dart';
 
 // models
 part '../../models/profile.dart';
+part '../../models/users.dart';
+
 
 // component
 part '../components/active_project_card.dart';

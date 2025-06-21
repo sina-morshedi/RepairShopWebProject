@@ -1,6 +1,6 @@
 {
-    "name": "untitled1",
-    "short_name": "untitled1",
+    "name": "repair_shop_web",
+    "short_name": "repair_shop_web",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -33,7 +33,7 @@ flutter:
     - assets/images/vector/
     - assets/background.jpg
     - assets/Welcome.jpg
-    - assets/logo.png
+    - assets/images/raster/logo-1.png
 #    - assets/header_background.png
 
   fonts:

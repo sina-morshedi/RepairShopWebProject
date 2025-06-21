@@ -51,7 +51,7 @@ class _ActiveProjectCard extends StatelessWidget {
       onPressed: onPressed,
       child: const Text("See All"),
       style: TextButton.styleFrom(
-        foregroundColor: kFontColorPallets[1], // تغییر داده شده
+        foregroundColor: kFontColorPallets[1],
       ),
     );
   }

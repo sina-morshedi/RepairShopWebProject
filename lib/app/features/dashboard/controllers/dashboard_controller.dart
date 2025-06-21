@@ -1,6 +1,7 @@
 part of dashboard;
 
 class DashboardController extends GetxController {
+
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   void openDrawer() {
@@ -94,7 +95,13 @@ class DashboardController extends GetxController {
     ];
   }
 
+
   List<ImageProvider> getMember() {
+
+    backend_services().fetchAllProfile().then((userList){
+      print(userList[0].lastName);
+      print(userList.length);
+    });
     return const [
       AssetImage(ImageRasterPath.avatar1),
       AssetImage(ImageRasterPath.avatar2),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:repair_shop_web/ApiEndpoints.dart';
+import 'app/features/dashboard/views/screens/dashboard_screen.dart';
 import 'package:repair_shop_web/MainPage.dart';
 import 'MainPage.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
@@ -21,7 +21,7 @@ class LoginApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: MainPage(),
     );
   }
 }
