@@ -1,5 +1,3 @@
-part of dashboard;
-
 class ApiEndpoints {
   static const String _baseUrl = "https://fastapi-java-backend-production.up.railway.app";
 
@@ -7,6 +5,9 @@ class ApiEndpoints {
   static const String register = "$_baseUrl/register";
   static const String getProfile = "$_baseUrl/user/profile";
   static const String getAllProfile = "$_baseUrl/users/all";
+  static const String getAllRoles = "$_baseUrl/roles/all";
+  static const String getAllPermissions = "$_baseUrl/permissions/all";
+  static const String registerUser = "$_baseUrl/auth/register";
 }
 
 

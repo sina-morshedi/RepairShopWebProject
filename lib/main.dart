@@ -6,7 +6,7 @@ import 'app/features/dashboard/views/screens/dashboard_screen.dart';
 import 'package:repair_shop_web/MainPage.dart';
 import 'MainPage.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-
+import 'app/features/dashboard/backend_services/ApiEndpoints.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -21,7 +21,7 @@ class LoginApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainPage(),
+      home: LoginPage(),//MainPage(),
     );
   }
 }
@@ -66,6 +66,23 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     super.dispose();
   }
 
+  void showErrorDialog(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Hata:'),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('TAMAM'),
+            ),
+          ],
+        );
+      },
+    );
+  }
   void _login() async{
     // Your login logic
     String username = _usernameController.text.trim();
@@ -88,12 +105,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         String lastName = data['lastName'] ?? '';
         String rolesStr = data['roleName'] ?? [];
 
-        Fluttertoast.showToast(
-          msg: '$message\nWelcome $firstName $lastName\nRoles: $rolesStr',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 5,
-        );
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -101,12 +112,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         );
 
       } else {
-        final data = jsonDecode(response.body);
-        String error = data['error'] ?? 'Login failed';
-        Fluttertoast.showToast(msg: error);
+
+        showErrorDialog(context, response.body);
       }
     } catch (e) {
       Fluttertoast.showToast(msg: 'Error: ${e.toString()}');
+      showErrorDialog(context, 'Error: ${e.toString()}');
     }
 
   }

@@ -18,17 +18,14 @@ import 'package:repair_shop_web/app/shared_components/selection_button.dart';
 import 'package:repair_shop_web/app/shared_components/task_card.dart';
 import 'package:repair_shop_web/app/shared_components/today_text.dart';
 import 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
+import '../../backend_services/backend_services.dart';
+import '../../models/roles.dart';
+import '../../models/users.dart';
+import '../../models/permissions.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:fluttertoast/fluttertoast.dart';
-
-//backend_services
-part '../../backend_services/ApiEndpoints.dart';
-part '../../backend_services/backend_services.dart';
 
 // binding
 part '../../bindings/dashboard_binding.dart';
@@ -38,7 +35,6 @@ part '../../controllers/dashboard_controller.dart';
 
 // models
 part '../../models/profile.dart';
-part '../../models/users.dart';
 
 
 // component
@@ -81,7 +77,7 @@ class DashboardScreen extends GetView<DashboardController> {
             const SizedBox(height: kSpacing),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-              child: GetPremiumCard(onPressed: () {}),
+              child: GetPremiumCard(/*onPressed: () {}*/),
             ),
             const SizedBox(height: kSpacing * 2),
             _buildTaskOverview(
@@ -155,7 +151,7 @@ class DashboardScreen extends GetView<DashboardController> {
                     const SizedBox(height: kSpacing),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-                      child: GetPremiumCard(onPressed: () {}),
+                      child: GetPremiumCard(/*onPressed: () {}*/),
                     ),
                     const SizedBox(height: kSpacing),
                     const Divider(thickness: 1),
@@ -216,7 +212,7 @@ class DashboardScreen extends GetView<DashboardController> {
                     const SizedBox(height: kSpacing),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-                      child: GetPremiumCard(onPressed: () {}),
+                      child: GetPremiumCard(/*onPressed: () {}*/),
                     ),
                     const SizedBox(height: kSpacing),
                     const Divider(thickness: 1),

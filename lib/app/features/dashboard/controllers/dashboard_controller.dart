@@ -97,11 +97,7 @@ class DashboardController extends GetxController {
 
 
   List<ImageProvider> getMember() {
-
-    backend_services().fetchAllProfile().then((userList){
-      print(userList[0].lastName);
-      print(userList.length);
-    });
+    //TODO Have to modify
     return const [
       AssetImage(ImageRasterPath.avatar1),
       AssetImage(ImageRasterPath.avatar2),

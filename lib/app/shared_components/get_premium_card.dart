@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:repair_shop_web/app/constans/app_constants.dart';
+import '../features/dashboard/models/UserProfileDTO.dart';
+import '../features/dashboard/models/users.dart';
+import '../features/dashboard/backend_services/backend_services.dart';
 
 class GetPremiumCard extends StatelessWidget {
-  const GetPremiumCard({
-    required this.onPressed,
-    this.backgroundColor,
+  GetPremiumCard({
     Key? key,
+    this.backgroundColor,
   }) : super(key: key);
 
   final Color? backgroundColor;
-  final Function() onPressed;
+
+  // Test data: sample list of users
+  final List<UserProfileDTO> users = [
+    UserProfileDTO(username: "sina", firstName: "Sina", lastName: "Morshedi", roleName: "Admin"),
+    UserProfileDTO(username: "ali", firstName: "Ali", lastName: "Ahmadi", roleName: "User"),
+    UserProfileDTO(username: "fatemeh", firstName: "Fatemeh", lastName: "Moradi", roleName: "Manager"),
+    UserProfileDTO(username: "zahra", firstName: "Zahra", lastName: "Rahimi", roleName: "Guest"),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -20,33 +29,35 @@ class GetPremiumCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(kBorderRadius),
         onTap: () {
-          debugPrint('Card tapped');
           showDialog(
             context: context,
-            builder: (context) => const PremiumAccountDialog(),
+            builder: (context) => UsersListDialog(),
           );
         },
         child: Container(
           width: double.infinity,
-          height: double.infinity,
-          constraints: const BoxConstraints(
-            minWidth: 250,
-            maxWidth: 350,
-            minHeight: 200,
-            maxHeight: 200,
-          ),
+          height: 200,
           padding: const EdgeInsets.all(10),
           child: Stack(
             children: [
               Align(
                 alignment: Alignment.topRight,
-                child: SvgPicture.asset(
-                  ImageVectorPath.wavyAddUser,
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.contain,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  child: ClipOval(
+                    child: SvgPicture.asset(
+                      ImageVectorPath.wavyAllMembers,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
               ),
+
               const Padding(
                 padding: EdgeInsets.all(15),
                 child: _Info(),
@@ -56,7 +67,6 @@ class GetPremiumCard extends StatelessWidget {
         ),
       ),
     );
-
   }
 }
 
@@ -70,226 +80,78 @@ class _Info extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Premium\nHesap Alın",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          "Daha fazla üye eklemek için",
-          style: Theme.of(context).textTheme.bodySmall,
+          "Tüm kullanıcılar",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 }
 
-
-class PremiumAccountDialog extends StatefulWidget {
-  const PremiumAccountDialog({Key? key}) : super(key: key);
-
-  @override
-  State<PremiumAccountDialog> createState() => _PremiumAccountDialogState();
-}
-
-class _PremiumAccountDialogState extends State<PremiumAccountDialog> {
-  final _formKey = GlobalKey<FormState>();
-
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-
-  String? _selectedRole;
-  String? _selectedPermission;
-
-  final List<String> _roles = ['Yönetici', 'Teknisyen', 'Müşteri'];
-  final List<String> _permissions = ['Tam erişim', 'Sınırlı erişim', 'Görüntüleme'];
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    super.dispose();
-  }
+class UsersListDialog extends StatelessWidget {
+  const UsersListDialog({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 80),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
+      insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.25),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.5,
+        constraints: const BoxConstraints(
+          maxHeight: 500,
+          minHeight: 200,
+        ),
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView( // اضافه‌شده برای جلوگیری از خطای overflow در صفحه‌های کوچک
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Yeni Personel Bilgileri",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-
-                // Username
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Kullanıcı Adı',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lütfen kullanıcı adını girin';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-
-                // Password
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Şifre',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lütfen şifreyi girin';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-
-                // First Name
-                TextFormField(
-                  controller: _firstNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Adı',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lütfen adı girin';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-
-                // Last Name
-                TextFormField(
-                  controller: _lastNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Soyadı',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lütfen soyadı girin';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-
-                // Role ComboBox
-                DropdownButtonFormField<String>(
-                  value: _selectedRole,
-                  items: _roles.map((role) {
-                    return DropdownMenuItem<String>(
-                      value: role,
-                      child: Text(role),
-                    );
-                  }).toList(),
-                  decoration: const InputDecoration(
-                    labelText: 'Rol Seçin',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedRole = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Lütfen bir rol seçin';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 15),
-
-                // Permission ComboBox
-                DropdownButtonFormField<String>(
-                  value: _selectedPermission,
-                  items: _permissions.map((perm) {
-                    return DropdownMenuItem<String>(
-                      value: perm,
-                      child: Text(perm),
-                    );
-                  }).toList(),
-                  decoration: const InputDecoration(
-                    labelText: 'Yetki Seviyesi',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedPermission = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Lütfen yetki seviyesi seçin';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 30),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('İptal'),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          final username = _usernameController.text;
-                          final password = _passwordController.text;
-                          final firstName = _firstNameController.text;
-                          final lastName = _lastNameController.text;
-
-                          print('Kullanıcı: $username');
-                          print('Şifre: $password');
-                          print('Adı: $firstName');
-                          print('Soyadı: $lastName');
-                          print('Rol: $_selectedRole');
-                          print('Yetki: $_selectedPermission');
-
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      child: const Text('Onayla'),
-                    ),
-                  ],
-                )
-              ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Tüm kullanıcılar",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-          ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: FutureBuilder<List<users>>(
+                future: backend_services().fetchAllProfile(context: context),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No users found.'));
+                  } else {
+                    final usersList = snapshot.data!;
+                    return ListView.separated(
+                      itemCount: usersList.length,
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final user = usersList[index];
+                        return ListTile(
+                          leading: const Icon(Icons.person),
+                          title: Text(user.username ?? 'No Username'),
+                          subtitle: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
+                          trailing: Text(user.roleName ?? ''),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("Close"),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
 
