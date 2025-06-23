@@ -1,5 +1,8 @@
+import 'package:repair_shop_web/app/features/dashboard/views/screens/insert_car_info_screen.dart';
+
 import '../../features/dashboard/views/screens/dashboard_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/bindings/dashboard_binding.dart';
+import 'package:repair_shop_web/app/features/dashboard/bindings/insertcarinfo_binding.dart';
 import 'package:get/get.dart';
 
 part 'app_routes.dart';
@@ -14,6 +17,11 @@ class AppPages {
       name: _Paths.dashboard,
       page: () => const DashboardScreen(),
       binding: DashboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.insertCarInfo,
+      page: () => const InsertCarInfoScreen(),
+      binding: InsertcarinfoBinding(),
     ),
   ];
 }

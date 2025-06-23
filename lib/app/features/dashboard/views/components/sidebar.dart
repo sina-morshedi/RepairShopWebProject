@@ -5,6 +5,9 @@ import 'package:repair_shop_web/app/constans/app_constants.dart';
 import 'package:repair_shop_web/app/shared_components/upgrade_premium_card.dart';
 import 'package:repair_shop_web/app/shared_components/project_card.dart';
 import 'package:repair_shop_web/app/shared_components/selection_button.dart';
+import 'package:repair_shop_web/app/config/routes/app_pages.dart';
+import 'package:repair_shop_web/app/config/themes/app_theme.dart';
+import 'package:get/get.dart';
 
 import 'package:flutter/material.dart';
 
@@ -67,6 +70,9 @@ class Sidebar extends StatelessWidget {
               ],
               onSelected: (index, value) {
                 log("index : $index | label : ${value.label}");
+                if (value.label == "Calendar") {
+                  Get.toNamed(Routes.insertCarInfo);
+                }
               },
             ),
             const Divider(thickness: 1),
