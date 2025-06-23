@@ -3,24 +3,6 @@ library insert_car_info;
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 
-// binding
-// part '../../bindings/dashboard_binding.dart';
-
-// controller
-// part '../../controllers/dashboard_controller.dart';
-
-// models
-// part '../../models/profile.dart';
-
-
-// component
-// part '../components/active_project_card.dart';
-// part '../components/header.dart';
-// part '../components/overview_header.dart';
-// part '../components/profile_tile.dart';
-// part '../components/recent_messages.dart';
-
-// part '../components/team_member.dart';
 
 class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
   const InsertCarInfoScreen({Key? key}) : super(key: key);
@@ -47,29 +29,7 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
             const Divider(),
             _buildProfile(data: controller.getProfil()),
             const SizedBox(height: kSpacing),
-            _buildProgress(axis: Axis.vertical),
-            const SizedBox(height: kSpacing),
-            _buildTeamMember(data: controller.getMember()),
-            const SizedBox(height: kSpacing),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-              child: GetPremiumCard(/*onPressed: () {}*/),
-            ),
-            const SizedBox(height: kSpacing * 2),
-            _buildTaskOverview(
-              data: controller.getAllTask(),
-              headerAxis: Axis.vertical,
-              crossAxisCount: 6,
-              crossAxisCellCount: 6,
-            ),
-            const SizedBox(height: kSpacing * 2),
-            _buildActiveProject(
-              data: controller.getActiveProject(),
-              crossAxisCount: 6,
-              crossAxisCellCount: 6,
-            ),
-            const SizedBox(height: kSpacing),
-            _buildRecentMessages(data: controller.getChatting()),
+
           ]);
         },
         tabletBuilder: (context, constraints) {
@@ -83,35 +43,9 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
                     const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
                     _buildHeader(onPressedMenu: () => controller.openDrawer()),
                     const SizedBox(height: kSpacing * 2),
-                    _buildProgress(
-                      axis: (constraints.maxWidth < 950)
-                          ? Axis.vertical
-                          : Axis.horizontal,
-                    ),
+
                     const SizedBox(height: kSpacing * 2),
-                    _buildTaskOverview(
-                      data: controller.getAllTask(),
-                      headerAxis: (constraints.maxWidth < 850)
-                          ? Axis.vertical
-                          : Axis.horizontal,
-                      crossAxisCount: 6,
-                      crossAxisCellCount: (constraints.maxWidth < 950)
-                          ? 6
-                          : (constraints.maxWidth < 1100)
-                              ? 3
-                              : 2,
-                    ),
-                    const SizedBox(height: kSpacing * 2),
-                    _buildActiveProject(
-                      data: controller.getActiveProject(),
-                      crossAxisCount: 6,
-                      crossAxisCellCount: (constraints.maxWidth < 950)
-                          ? 6
-                          : (constraints.maxWidth < 1100)
-                              ? 3
-                              : 2,
-                    ),
-                    const SizedBox(height: kSpacing),
+
                   ],
                 ),
               ),
@@ -122,17 +56,7 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
                     const SizedBox(height: kSpacing * (kIsWeb ? 0.5 : 1.5)),
                     _buildProfile(data: controller.getProfil()),
                     const Divider(thickness: 1),
-                    const SizedBox(height: kSpacing),
-                    _buildTeamMember(data: controller.getMember()),
-                    const SizedBox(height: kSpacing),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-                      child: GetPremiumCard(/*onPressed: () {}*/),
-                    ),
-                    const SizedBox(height: kSpacing),
-                    const Divider(thickness: 1),
-                    const SizedBox(height: kSpacing),
-                    _buildRecentMessages(data: controller.getChatting()),
+
                   ],
                 ),
               )
