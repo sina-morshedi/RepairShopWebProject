@@ -1,11 +1,12 @@
-part of dashboard;
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 
-class _ProfilTile extends StatelessWidget {
-  const _ProfilTile(
+class ProfilTile extends StatelessWidget {
+  const ProfilTile(
       {required this.data, required this.onPressedNotification, Key? key})
       : super(key: key);
 
-  final _Profile data;
+  final Profile data;
   final Function() onPressedNotification;
 
   @override

@@ -1,7 +1,7 @@
-part of dashboard;
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 
-class _OverviewHeader extends StatelessWidget {
-  const _OverviewHeader({
+class OverviewHeader extends StatelessWidget {
+  const OverviewHeader({
     required this.onSelected,
     this.axis = Axis.horizontal,
     Key? key,

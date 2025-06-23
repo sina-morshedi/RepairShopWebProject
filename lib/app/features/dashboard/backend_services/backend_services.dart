@@ -37,6 +37,7 @@ class backend_services {
     }
   }
 
+
   Future<List<permissions>> fetchAllPermissions({BuildContext? context}) async {
     final String backendUrl = ApiEndpoints.getAllPermissions;
 
@@ -94,6 +95,28 @@ class backend_services {
       return [];
     }
   }
+
+  Future<int> countAllMembers({BuildContext? context}) async {
+    final String backendUrl = ApiEndpoints.countAllMembers;
+
+    try {
+      final response = await http.get(Uri.parse(backendUrl));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data != null && data['count'] != null) {
+          return data['count'] as int;
+        } else {
+          return -1;
+        }
+      } else {
+        return -1;
+      }
+    } catch (e) {
+      return -1;
+    }
+  }
+
 
   Future<String> registerUser({
     required String username,

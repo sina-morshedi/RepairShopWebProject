@@ -1,7 +1,7 @@
-part of dashboard;
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 
-class _RecentMessages extends StatelessWidget {
-  const _RecentMessages({
+class RecentMessages extends StatelessWidget {
+  const RecentMessages({
     required this.onPressedMore,
     Key? key,
   }) : super(key: key);

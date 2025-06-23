@@ -99,11 +99,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       final response = await http.get(Uri.parse(backendUrl));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        String message = data['message'] ?? 'Login successful';
-        String firstName = data['firstName'] ?? '';
-        String lastName = data['lastName'] ?? '';
-        String rolesStr = data['roleName'] ?? [];
+        print('response.body: ${response.body}');
+        // final data = jsonDecode(response.body);
+        // String message = data['message'] ?? 'Login successful';
+        // String firstName = data['firstName'] ?? '';
+        // String lastName = data['lastName'] ?? '';
+        // String rolesStr = data['roleName'] ?? [];
 
         if (!mounted) return;
         Navigator.pushReplacement(

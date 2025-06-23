@@ -1,7 +1,7 @@
-part of dashboard;
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 
-class _ActiveProjectCard extends StatelessWidget {
-  const _ActiveProjectCard({
+class ActiveProjectCard extends StatelessWidget {
+  const ActiveProjectCard({
     required this.child,
     required this.onPressedSeeAll,
     Key? key,

@@ -13,14 +13,6 @@ class GetPremiumCard extends StatelessWidget {
 
   final Color? backgroundColor;
 
-  // Test data: sample list of users
-  final List<UserProfileDTO> users = [
-    UserProfileDTO(username: "sina", firstName: "Sina", lastName: "Morshedi", roleName: "Admin"),
-    UserProfileDTO(username: "ali", firstName: "Ali", lastName: "Ahmadi", roleName: "User"),
-    UserProfileDTO(username: "fatemeh", firstName: "Fatemeh", lastName: "Moradi", roleName: "Manager"),
-    UserProfileDTO(username: "zahra", firstName: "Zahra", lastName: "Rahimi", roleName: "Guest"),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -131,7 +123,7 @@ class UsersListDialog extends StatelessWidget {
                           leading: const Icon(Icons.person),
                           title: Text(user.username ?? 'No Username'),
                           subtitle: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
-                          trailing: Text(user.roleName ?? ''),
+                          trailing: Text(user.role.roleName ?? ''),
                         );
                       },
                     );

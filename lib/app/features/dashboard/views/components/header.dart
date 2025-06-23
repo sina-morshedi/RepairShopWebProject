@@ -1,7 +1,7 @@
-part of dashboard;
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 
-class _Header extends StatelessWidget {
-  const _Header({Key? key}) : super(key: key);
+class Header extends StatelessWidget {
+  const Header({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

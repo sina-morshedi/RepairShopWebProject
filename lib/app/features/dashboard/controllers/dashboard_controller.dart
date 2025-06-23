@@ -1,4 +1,6 @@
-part of dashboard;
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+
 
 class DashboardController extends GetxController {
 
@@ -11,8 +13,8 @@ class DashboardController extends GetxController {
   }
 
   // Data
-  _Profile getProfil() {
-    return const _Profile(
+  Profile getProfil() {
+    return const Profile(
       photo: AssetImage(ImageRasterPath.avatar1),
       name: "Firgia",
       email: "flutterwithgia@gmail.com",

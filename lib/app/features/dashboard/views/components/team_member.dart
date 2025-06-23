@@ -1,14 +1,26 @@
-part of dashboard;
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 
-class _TeamMember extends StatelessWidget {
-  const _TeamMember({
-    required this.totalMember,
-    required this.onPressedAdd,
-    Key? key,
-  }) : super(key: key);
+class TeamMemberWidget extends StatefulWidget {
+  final VoidCallback onPressedAdd;
+  const TeamMemberWidget({required this.onPressedAdd, Key? key}) : super(key: key);
 
-  final int totalMember;
-  final Function() onPressedAdd;
+  @override
+  _TeamMemberWidgetState createState() => _TeamMemberWidgetState();
+}
+
+class _TeamMemberWidgetState extends State<TeamMemberWidget> {
+  int totalMember = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    backend_services().countAllMembers().then((count) {
+      setState(() {
+        totalMember = count;
+      });
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
