@@ -112,12 +112,12 @@ class _AddAccountDialog extends State<AddAccountDialog> {
 
     roles? foundRole = _rolesList.firstWhere(
       (p) => p.roleName == _selectedRole,
-      orElse: () => roles(id: "null", roleName: "NotFound"),
+      orElse: () => roles(roleId: "null", roleName: "NotFound"),
     );
 
     permissions? foundPermission = _permissionsList.firstWhere(
       (p) => p.permissionName == _selectedPermission,
-      orElse: () => permissions(id: "null", permissionName: "NotFound"),
+      orElse: () => permissions(permissionId: "null", permissionName: "NotFound"),
     );
 
     String response = await backend_services().registerUser(
@@ -125,8 +125,8 @@ class _AddAccountDialog extends State<AddAccountDialog> {
       password: password,
       firstName: firstName,
       lastName: lastName,
-      roleId: foundRole.id,
-      permissionId: foundPermission.id,
+      roleId: foundRole.roleId,
+      permissionId: foundPermission.permissionId,
     );
 
     return response;

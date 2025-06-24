@@ -15,13 +15,13 @@ class ProfilTile extends StatelessWidget {
       contentPadding: const EdgeInsets.all(0),
       leading: CircleAvatar(backgroundImage: data.photo),
       title: Text(
-        data.name,
+        data.first_name,
         style: TextStyle(fontSize: 14, color: kFontColorPallets[0]),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        data.email,
+        data.last_name,
         style: TextStyle(fontSize: 12, color: kFontColorPallets[2]),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'app/config/routes/app_pages.dart';
 import 'app/config/themes/app_theme.dart';
-import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
-void main() {
-  Get.put(UserController());
-  runApp(const RepairShopApp());
-}
+import 'package:get/get.dart';
 
-class RepairShopApp extends StatelessWidget {
-  const RepairShopApp({super.key});
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+class _MainPageState extends State<MainPage>{
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,3 +23,4 @@ class RepairShopApp extends StatelessWidget {
     );
   }
 }
+

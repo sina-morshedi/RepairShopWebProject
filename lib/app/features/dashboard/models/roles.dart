@@ -1,22 +1,28 @@
 
 class roles {
-  final String id;
+  final String roleId;
   final String roleName;
 
   const roles({
-    required this.id,
+    required this.roleId,
     required this.roleName,
   });
 
   factory roles.fromJson(Map<String, dynamic> json) {
     return roles(
-      id: json['id'] ?? '',
+      roleId: json['roleId'] ?? '',
       roleName: json['roleName'] ?? '',
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'roleId': roleId,
+      'roleName': roleName,
+    };
+  }
   @override
   String toString() {
-    return 'id: $id, roleName: $roleName';
+    return 'id: $roleId, roleName: $roleName';
   }
 }

@@ -6,6 +6,7 @@ import '../models/permissions.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'ApiEndpoints.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/CarInfo.dart';
 
 class backend_services {
   Future<List<users>> fetchAllProfile({BuildContext? context}) async {
@@ -27,7 +28,6 @@ class backend_services {
         }
       } else {
         final data = jsonDecode(response.body);
-        String error = data['error'] ?? 'Fetch failed';
         //TODO Return the appropriate error.
         return [];
       }
@@ -36,7 +36,6 @@ class backend_services {
       return [];
     }
   }
-
 
   Future<List<permissions>> fetchAllPermissions({BuildContext? context}) async {
     final String backendUrl = ApiEndpoints.getAllPermissions;
@@ -57,7 +56,6 @@ class backend_services {
         }
       } else {
         final data = jsonDecode(response.body);
-        String error = data['error'] ?? 'Fetch failed';
         //TODO Return the appropriate error.
         return [];
       }
@@ -86,7 +84,6 @@ class backend_services {
         }
       } else {
         final data = jsonDecode(response.body);
-        String error = data['error'] ?? 'Fetch failed';
         //TODO Return the appropriate error.
         return [];
       }
@@ -117,6 +114,92 @@ class backend_services {
     }
   }
 
+  Future<ApiResponse<CarInfo>> getCarInfoByLicensePlate(String licensePlate) async {
+    final uri = Uri.parse('${ApiEndpoints.getCarInfo}/$licensePlate');
+
+    try {
+      final response = await http.get(uri);
+
+      final data = jsonDecode(response.body);
+      final jsonData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return ApiResponse<CarInfo>(
+          status: jsonData['status'] ?? 'successful',
+          data: CarInfo.fromJson(jsonData),
+          message: jsonData['idOrMessage'] ?? '',
+        );
+      } else {
+        return ApiResponse(
+          status: data['status'] ?? 'error',
+          message: data['idOrMessage'] ?? 'Bilinmeyen hata',
+        );
+      }
+    } catch (e) {
+      return ApiResponse(status: "error", message: "Sunucuya erişilemedi: $e");
+    }
+  }
+
+
+  Future<ApiResponse<void>> updateCarInfoByLicensePlate(String licensePlate, CarInfo updatedCar) async {
+    final response = await http.put(
+      Uri.parse('${ApiEndpoints.updateCarInfo}/$licensePlate'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(updatedCar.toJson()),
+    );
+
+    try {
+      final jsonData = jsonDecode(response.body);
+
+      return ApiResponse<void>(
+        status: jsonData['status'] ?? (response.statusCode == 200 ? 'successful' : 'error'),
+        message: jsonData['idOrMessage'] ?? '',
+      );
+    } catch (e) {
+      return ApiResponse<void>(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
+
+  Future<ApiResponse> insertCarInfo(CarInfo carInfo) async {
+    final String url = ApiEndpoints.registerCar;
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(carInfo.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return ApiResponse.fromJson(data);
+      } else {
+        // For non-200 status code, try to parse error message from body if any
+        try {
+          final data = jsonDecode(response.body);
+          return ApiResponse(
+            status: data['status'] ?? 'error',
+            message: data['idOrMessage'] ?? 'Unknown error',
+          );
+        } catch (_) {
+          return ApiResponse(
+            status: 'error',
+            message: 'Failed with status code ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
+
 
   Future<String> registerUser({
     required String username,
@@ -126,7 +209,7 @@ class backend_services {
     required String roleId,
     required String permissionId,
   }) async {
-    final String backendUrl = ApiEndpoints.registerUser;  // مثلا "https://.../auth/register"
+    final String backendUrl = ApiEndpoints.registerUser;
 
     final Map<String, dynamic> requestBody = {
       "username": username,
@@ -152,4 +235,5 @@ class backend_services {
       return "Error in registerUser: $e";
     }
   }
+
 }

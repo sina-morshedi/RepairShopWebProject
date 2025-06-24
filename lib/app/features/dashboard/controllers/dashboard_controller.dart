@@ -1,5 +1,6 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 
 class DashboardController extends GetxController {
@@ -14,10 +15,12 @@ class DashboardController extends GetxController {
 
   // Data
   Profile getProfil() {
-    return const Profile(
+    final userController = Get.find<UserController>();
+    final user = userController.user.value;
+    return Profile(
       photo: AssetImage(ImageRasterPath.avatar1),
-      name: "Firgia",
-      email: "flutterwithgia@gmail.com",
+      first_name: user!.firstName,
+      last_name: user!.lastName,
     );
   }
 

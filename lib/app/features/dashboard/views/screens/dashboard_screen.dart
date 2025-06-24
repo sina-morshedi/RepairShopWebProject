@@ -2,31 +2,15 @@ library dashboard;
 
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
-
-// binding
-// part '../../bindings/dashboard_binding.dart';
-
-// controller
-// part '../../controllers/dashboard_controller.dart';
-
-// models
-// part '../../models/profile.dart';
-
-
-// component
-// part '../components/active_project_card.dart';
-// part '../components/header.dart';
-// part '../components/overview_header.dart';
-// part '../components/profile_tile.dart';
-// part '../components/recent_messages.dart';
-
-// part '../components/team_member.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 class DashboardScreen extends GetView<DashboardController> {
   const DashboardScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final UserController userController = Get.find<UserController>();
+    final user = userController.user.value;
     return Scaffold(
       key: controller.scaffoldKey,
       drawer: (ResponsiveBuilder.isDesktop(context))

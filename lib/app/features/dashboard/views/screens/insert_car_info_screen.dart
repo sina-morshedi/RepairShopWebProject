@@ -12,7 +12,7 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: controller.scaffoldKey,
+      key: controller.scaffoldKeyCarInfo,
       drawer: (ResponsiveBuilder.isDesktop(context))
           ? null
           : Drawer(
@@ -25,17 +25,15 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
           child: ResponsiveBuilder(
         mobileBuilder: (context, constraints) {
           return Column(children: [
-            _buildProfile(data: controller.getProfil()),
-            const SizedBox(height: kSpacing),
-            const Divider(),
             const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
             _buildHeader(onPressedMenu: () => controller.openDrawer()),
             const SizedBox(height: kSpacing),
             const Divider(),
+            _buildProfile(data: controller.getProfil()),
+            const SizedBox(height: kSpacing),
+            const Divider(),
             InsertCarInfoForm(),
             const SizedBox(height: kSpacing / 2),
-
-
 
           ]);
         },

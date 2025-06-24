@@ -20,6 +20,7 @@ export 'package:repair_shop_web/app/features/dashboard/models/users.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/permissions.dart';
 export 'package:repair_shop_web/app/features/dashboard/views/components/sidebar.dart';
 export 'package:repair_shop_web/app/features/dashboard/bindings/dashboard_binding.dart';
+export 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 // controller
 export 'package:repair_shop_web/app/features/dashboard/controllers/dashboard_controller.dart';

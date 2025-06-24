@@ -1,23 +1,26 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 
 class InsertcarinfoController extends GetxController {
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final scaffoldKeyCarInfo = GlobalKey<ScaffoldState>();
 
   void openDrawer() {
-    if (scaffoldKey.currentState != null) {
-      scaffoldKey.currentState!.openDrawer();
+    if (scaffoldKeyCarInfo.currentState != null) {
+      scaffoldKeyCarInfo.currentState!.openDrawer();
     }
   }
 
   // Data
   Profile getProfil() {
-    return const Profile(
+    final UserController userController = Get.find<UserController>();
+    final user = userController.user.value;
+    return Profile(
       photo: AssetImage(ImageRasterPath.avatar1),
-      name: "Firgia",
-      email: "flutterwithgia@gmail.com",
+      first_name: user!.firstName,
+      last_name: user!.lastName,
     );
   }
 
