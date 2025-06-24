@@ -332,7 +332,7 @@ class DashboardScreen extends GetView<DashboardController> {
           crossAxisSpacing: kSpacing,
           shrinkWrap: true,
           itemBuilder: (context, index) {
-            return ProjectCard(data: data[index]);
+            return Obx(() => ProjectCard(data: controller.selectedProject.value));
           },
           staggeredTileBuilder: (int index) =>
               StaggeredTile.fit(crossAxisCellCount),

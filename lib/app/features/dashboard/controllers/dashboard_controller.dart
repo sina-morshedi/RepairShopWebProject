@@ -5,7 +5,7 @@ import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 class DashboardController extends GetxController {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final RxInt selectedIndex = 0.obs;
   void openDrawer() {
     if (scaffoldKey.currentState != null) {
       scaffoldKey.currentState!.openDrawer();
@@ -66,13 +66,19 @@ class DashboardController extends GetxController {
   }
 
   ProjectCardData getSelectedProject() {
-    return ProjectCardData(
+    return selectedProject.value;
+  }
+
+
+  final Rx<ProjectCardData> selectedProject = Rx<ProjectCardData>(
+    ProjectCardData(
       percent: .3,
       projectImage: const AssetImage(ImageRasterPath.logo1),
       projectName: "Marketplace Mobile",
       releaseTime: DateTime.now(),
-    );
-  }
+    ),
+  );
+
 
   List<ProjectCardData> getActiveProject() {
     return [

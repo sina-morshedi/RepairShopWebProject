@@ -2,10 +2,12 @@ library insert_car_info;
 
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+import 'package:repair_shop_web/app/shared_components/InsertCarInfoForm.dart';
 
 
 class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
   const InsertCarInfoScreen({Key? key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +25,17 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
           child: ResponsiveBuilder(
         mobileBuilder: (context, constraints) {
           return Column(children: [
-            const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-            _buildHeader(onPressedMenu: () => controller.openDrawer()),
-            const SizedBox(height: kSpacing / 2),
-            const Divider(),
             _buildProfile(data: controller.getProfil()),
             const SizedBox(height: kSpacing),
+            const Divider(),
+            const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
+            _buildHeader(onPressedMenu: () => controller.openDrawer()),
+            const SizedBox(height: kSpacing),
+            const Divider(),
+            InsertCarInfoForm(),
+            const SizedBox(height: kSpacing / 2),
+
+
 
           ]);
         },
@@ -36,19 +43,6 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                flex: (constraints.maxWidth < 950) ? 6 : 9,
-                child: Column(
-                  children: [
-                    const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-                    _buildHeader(onPressedMenu: () => controller.openDrawer()),
-                    const SizedBox(height: kSpacing * 2),
-
-                    const SizedBox(height: kSpacing * 2),
-
-                  ],
-                ),
-              ),
               Flexible(
                 flex: 4,
                 child: Column(
@@ -59,7 +53,20 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
 
                   ],
                 ),
-              )
+              ),
+              Flexible(
+                flex: (constraints.maxWidth < 950) ? 6 : 9,
+                child: Column(
+                  children: [
+                    const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
+                    _buildHeader(onPressedMenu: () => controller.openDrawer()),
+                    const SizedBox(height: kSpacing * 2),
+                    InsertCarInfoForm(),
+                    const SizedBox(height: kSpacing * 2),
+
+                  ],
+                ),
+              ),
             ],
           );
         },
@@ -82,21 +89,9 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
                   children: [
                     const SizedBox(height: kSpacing),
                     _buildHeader(),
+                    InsertCarInfoForm(),
+
                     const SizedBox(height: kSpacing * 2),
-                    _buildProgress(),
-                    const SizedBox(height: kSpacing * 2),
-                    _buildTaskOverview(
-                      data: controller.getAllTask(),
-                      crossAxisCount: 6,
-                      crossAxisCellCount: (constraints.maxWidth < 1360) ? 3 : 2,
-                    ),
-                    const SizedBox(height: kSpacing * 2),
-                    _buildActiveProject(
-                      data: controller.getActiveProject(),
-                      crossAxisCount: 6,
-                      crossAxisCellCount: (constraints.maxWidth < 1360) ? 3 : 2,
-                    ),
-                    const SizedBox(height: kSpacing),
                   ],
                 ),
               ),
@@ -107,17 +102,6 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
                     const SizedBox(height: kSpacing / 2),
                     _buildProfile(data: controller.getProfil()),
                     const Divider(thickness: 1),
-                    const SizedBox(height: kSpacing),
-                    _buildTeamMember(data: controller.getMember()),
-                    const SizedBox(height: kSpacing),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-                      child: GetPremiumCard(/*onPressed: () {}*/),
-                    ),
-                    const SizedBox(height: kSpacing),
-                    const Divider(thickness: 1),
-                    const SizedBox(height: kSpacing),
-                    _buildRecentMessages(data: controller.getChatting()),
                   ],
                 ),
               )
@@ -148,122 +132,6 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
     );
   }
 
-  Widget _buildProgress({Axis axis = Axis.horizontal}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: (axis == Axis.horizontal)
-          ? Row(
-              children: [
-                Flexible(
-                  flex: 5,
-                  child: ProgressCard(
-                    data: const ProgressCardData(
-                      totalUndone: 10,
-                      totalTaskInProress: 2,
-                    ),
-                    onPressedCheck: () {},
-                  ),
-                ),
-                const SizedBox(width: kSpacing / 2),
-                const Flexible(
-                  flex: 4,
-                  child: ProgressReportCard(
-                    data: ProgressReportCardData(
-                      title: "1st Sprint",
-                      doneTask: 5,
-                      percent: .3,
-                      task: 3,
-                      undoneTask: 2,
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              children: [
-                ProgressCard(
-                  data: const ProgressCardData(
-                    totalUndone: 10,
-                    totalTaskInProress: 2,
-                  ),
-                  onPressedCheck: () {},
-                ),
-                const SizedBox(height: kSpacing / 2),
-                const ProgressReportCard(
-                  data: ProgressReportCardData(
-                    title: "1st Sprint",
-                    doneTask: 5,
-                    percent: .3,
-                    task: 3,
-                    undoneTask: 2,
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildTaskOverview({
-    required List<TaskCardData> data,
-    int crossAxisCount = 6,
-    int crossAxisCellCount = 2,
-    Axis headerAxis = Axis.horizontal,
-  }) {
-    return StaggeredGridView.countBuilder(
-      crossAxisCount: crossAxisCount,
-      itemCount: data.length + 1,
-      addAutomaticKeepAlives: false,
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        return (index == 0)
-            ? Padding(
-                padding: const EdgeInsets.only(bottom: kSpacing),
-                child: OverviewHeader(
-                  axis: headerAxis,
-                  onSelected: (task) {},
-                ),
-              )
-            : TaskCard(
-                data: data[index - 1],
-                onPressedMore: () {},
-                onPressedTask: () {},
-                onPressedContributors: () {},
-                onPressedComments: () {},
-              );
-      },
-      staggeredTileBuilder: (int index) =>
-          StaggeredTile.fit((index == 0) ? crossAxisCount : crossAxisCellCount),
-    );
-  }
-
-  Widget _buildActiveProject({
-    required List<ProjectCardData> data,
-    int crossAxisCount = 6,
-    int crossAxisCellCount = 2,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: ActiveProjectCard(
-        onPressedSeeAll: () {},
-        child: StaggeredGridView.countBuilder(
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: crossAxisCount,
-          itemCount: data.length,
-          addAutomaticKeepAlives: false,
-          mainAxisSpacing: kSpacing,
-          crossAxisSpacing: kSpacing,
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return ProjectCard(data: data[index]);
-          },
-          staggeredTileBuilder: (int index) =>
-              StaggeredTile.fit(crossAxisCellCount),
-        ),
-      ),
-    );
-  }
 
   Widget _buildProfile({required Profile data}) {
     return Padding(
@@ -275,34 +143,53 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
     );
   }
 
-  Widget _buildTeamMember({required List<ImageProvider> data}) {
+  Widget _buildCarForm(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TeamMemberWidget(
-            onPressedAdd: () {},
-          ),
-          const SizedBox(height: kSpacing / 2),
-          ListProfilImage(maxImages: 6, images: data),
-        ],
+      child: Form(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("اطلاعات خودرو", style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: kSpacing),
+
+            TextFormField(decoration: const InputDecoration(labelText: "شماره شاسی")),
+            const SizedBox(height: kSpacing / 2),
+
+            TextFormField(decoration: const InputDecoration(labelText: "شماره موتور")),
+            const SizedBox(height: kSpacing / 2),
+
+            TextFormField(decoration: const InputDecoration(labelText: "شماره پلاک")),
+            const SizedBox(height: kSpacing / 2),
+
+            TextFormField(decoration: const InputDecoration(labelText: "برند خودرو")),
+            const SizedBox(height: kSpacing / 2),
+
+            TextFormField(decoration: const InputDecoration(labelText: "مدل خودرو")),
+            const SizedBox(height: kSpacing / 2),
+
+            TextFormField(
+              decoration: const InputDecoration(labelText: "سال ساخت"),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: kSpacing / 2),
+
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(labelText: "نوع سوخت"),
+              items: const [
+                DropdownMenuItem(value: "بنزین", child: Text("بنزین")),
+                DropdownMenuItem(value: "دیزل", child: Text("دیزل")),
+                DropdownMenuItem(value: "گاز", child: Text("گاز")),
+                DropdownMenuItem(value: "برقی", child: Text("برقی")),
+              ],
+              onChanged: (value) {},
+            ),
+
+            const SizedBox(height: kSpacing * 2),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildRecentMessages({required List<ChattingCardData> data}) {
-    return Column(children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-        child: RecentMessages(onPressedMore: () {}),
-      ),
-      const SizedBox(height: kSpacing / 2),
-      ...data
-          .map(
-            (e) => ChattingCard(data: e, onPressed: () {}),
-          )
-          .toList(),
-    ]);
-  }
 }
