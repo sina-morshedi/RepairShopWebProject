@@ -1,18 +1,18 @@
-library insert_car_info;
+library settings;
 
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
-import 'package:repair_shop_web/app/shared_components/InsertCarInfoForm.dart';
+import 'package:repair_shop_web/app/shared_components/SettingsForm.dart';
 
 
-class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
-  const InsertCarInfoScreen({Key? key}) : super(key: key);
+class SettingsScreen extends GetView<SettingsController> {
+  const SettingsScreen({Key? key}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: controller.scaffoldKeyCarInfo,
+      key: controller.scaffoldKeySettings,
       drawer: (ResponsiveBuilder.isDesktop(context))
           ? null
           : Drawer(
@@ -32,7 +32,7 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
             _buildProfile(data: controller.getProfil()),
             const SizedBox(height: kSpacing),
             const Divider(),
-            InsertCarInfoForm(),
+            SettingsForm(),
             const SizedBox(height: kSpacing / 2),
 
           ]);
@@ -49,7 +49,7 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
                     const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
                     _buildHeader(onPressedMenu: () => controller.openDrawer()),
                     const SizedBox(height: kSpacing * 2),
-                    InsertCarInfoForm(),
+                    SettingsForm(),
                     const SizedBox(height: kSpacing * 2),
 
                   ],
@@ -88,7 +88,7 @@ class InsertCarInfoScreen extends GetView<InsertcarinfoController> {
                   children: [
                     const SizedBox(height: kSpacing),
                     _buildHeader(),
-                    InsertCarInfoForm(),
+                    SettingsForm(),
 
                     const SizedBox(height: kSpacing * 2),
                   ],

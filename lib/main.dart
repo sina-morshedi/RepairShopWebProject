@@ -3,7 +3,13 @@ import 'package:get/get.dart';
 import 'app/config/routes/app_pages.dart';
 import 'app/config/themes/app_theme.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
-void main() {
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('tr_TR', null);
   Get.put(UserController());
   runApp(const RepairShopApp());
 }

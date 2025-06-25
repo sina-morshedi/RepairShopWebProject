@@ -3,13 +3,13 @@ import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 
-class InsertcarinfoController extends GetxController {
+class SettingsController extends GetxController {
 
-  final scaffoldKeyCarInfo = GlobalKey<ScaffoldState>();
+  final scaffoldKeySettings = GlobalKey<ScaffoldState>();
 
   void openDrawer() {
-    if (scaffoldKeyCarInfo.currentState != null) {
-      scaffoldKeyCarInfo.currentState!.openDrawer();
+    if (scaffoldKeySettings.currentState != null) {
+      scaffoldKeySettings.currentState!.openDrawer();
     }
   }
 

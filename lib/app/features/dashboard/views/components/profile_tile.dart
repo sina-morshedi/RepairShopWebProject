@@ -1,5 +1,7 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfilTile extends StatelessWidget {
   const ProfilTile(
@@ -21,15 +23,15 @@ class ProfilTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        data.last_name,
+        '${data.last_name}    ${data.role_name}',
         style: TextStyle(fontSize: 12, color: kFontColorPallets[2]),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: IconButton(
         onPressed: onPressedNotification,
-        icon: const Icon(EvaIcons.bellOutline),
-        tooltip: "notification",
+        icon: const Icon(FontAwesomeIcons.signOutAlt),
+        tooltip: "Çıkış yap",
       ),
     );
   }

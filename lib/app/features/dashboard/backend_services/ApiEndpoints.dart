@@ -12,6 +12,10 @@ class ApiEndpoints {
   static const String registerCar = "$_baseUrl/cars/insertCarInfo";
   static const String getCarInfo = "$_baseUrl/cars/getCarInfo";
   static const String updateCarInfo = "$_baseUrl/cars/updateCarInfo";
+  static const String insertTaskStatus = "$_baseUrl/task_status";
+  static const String getAllTaskStatus = "$_baseUrl/task_status/all";
+  static const String updateTaskStatus = "$_baseUrl/task_status/updateTaskStatus";
+  static const String deleteTaskStatus = "$_baseUrl/task_status/deleteTaskStatus";
 }
 
 class ApiResponse<T> {

@@ -33,6 +33,16 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
 
   bool _carDataLoaded = false;
 
+  final List<String> tag_labelText = [
+    "ŞASE NO",
+    "MOTOR NO",
+    "PLAKA",
+    "MARKASI",
+    "TİCARİ ADI",
+    "MODEL YILI",
+    "YAKIT CİNSİ",
+  ];
+
   @override
   void dispose() {
     chassisController.dispose();
@@ -75,6 +85,101 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
     if (_mode == CarFormMode.newCar) return true;
     if (_mode == CarFormMode.searchByPlate && _carDataLoaded)return true;
     return false;
+  }
+
+  bool validateString(String tag, String str) {
+    if (str.isEmpty) {
+      StringHelper.showErrorDialog(context, "$tag'nin kutusu boş");
+      return false;
+    }
+    if (str.contains('  ')) {
+      StringHelper.showErrorDialog(context, "$tag: boşluk kullanma");
+      return false;
+    }
+
+    if (RegExp(r'[a-z]').hasMatch(str)) {
+      StringHelper.showErrorDialog(context, "$tag: küçük harf kullanma");
+      return false;
+    }
+
+    return true;
+  }
+
+  bool validateNumber(String tag, String str) {
+    if (str.isEmpty) {
+      StringHelper.showErrorDialog(context, "$tag'nin kutusu boş");
+      return false;
+    }
+    if (str.contains('  ')) {
+      StringHelper.showErrorDialog(context, "$tag: boşluk kullanma");
+      return false;
+    }
+
+    if (!RegExp(r'^\d+$').hasMatch(str)) {
+      StringHelper.showErrorDialog(context, "$tag: Sadece numarayı yazın.");
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> saveEditCarInfo() async {
+    if (validateString(tag_labelText[0], chassisController.text) == false)
+      return;
+    if (validateString(tag_labelText[1], motorController.text) == false)
+      return;
+    if (validateString(tag_labelText[2], plateController.text) ==
+        false)
+      return;
+    if (validateString(tag_labelText[3], brandController.text) == false) return;
+    if (validateString(tag_labelText[4], modelController.text) == false) return;
+    if (validateString(tag_labelText[6], fuelTypeController.text) == false)
+      return;
+    if (validateNumber(tag_labelText[5], yearController.text) == false) return;
+
+    final carInfo = CarInfo(
+      chassisNo: chassisController.text.toUpperCase(),
+      motorNo: motorController.text.toUpperCase(),
+      licensePlate: plateController.text.toUpperCase(),
+      brand: brandController.text.trim(),
+      brandModel: modelController.text.toUpperCase(),
+      modelYear: int.tryParse(yearController.text),
+      fuelType: fuelTypeController.text.toUpperCase(),
+      dateTime: DateTime.now().toIso8601String(),
+    );
+
+    if (_mode != CarFormMode.newCar){
+      final updatedCar = CarInfo(
+        chassisNo: chassisController.text.trim(),
+        motorNo: motorController.text.trim(),
+        licensePlate: plateController.text.trim(),
+        brand: brandController.text.trim(),
+        brandModel: modelController.text.trim(),
+        modelYear: int.tryParse(yearController.text.trim()),
+        fuelType: fuelTypeController.text,
+        dateTime: DateTime.now().toIso8601String(),
+      );
+
+      final ApiResponse response = await backend_services()
+          .updateCarInfoByLicensePlate(
+        plateController.text.trim(),
+        updatedCar,
+      );
+      if (response.status != 'error') {
+        StringHelper.showInfoDialog(context, 'Düzenleme yapıldı');
+      } else {
+        StringHelper.showErrorDialog(context, '${response.message}');
+      }
+    } else {
+      final ApiResponse response = await backend_services().insertCarInfo(
+        carInfo,
+      );
+      if (response.status != 'error') {
+        StringHelper.showInfoDialog(context, 'başarılı');
+      } else {
+        StringHelper.showErrorDialog(context, '${response.message}');
+      }
+    }
   }
 
   @override
@@ -167,8 +272,8 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
               children: [
                 TextFormField(
                   controller: chassisController,
-                  decoration: const InputDecoration(
-                    labelText: "Şasi Numarası",
+                  decoration: InputDecoration(
+                    labelText: tag_labelText[0],
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue, width: 2),
@@ -181,8 +286,8 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
 
                 TextFormField(
                   controller: motorController,
-                  decoration: const InputDecoration(
-                    labelText: "Motor Numarası",
+                  decoration: InputDecoration(
+                    labelText: tag_labelText[1],
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue, width: 2),
@@ -195,8 +300,8 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
 
                 TextFormField(
                   controller: plateController,
-                  decoration: const InputDecoration(
-                    labelText: "Plaka Numarası",
+                  decoration: InputDecoration(
+                    labelText: tag_labelText[2],
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue, width: 2),
@@ -209,8 +314,8 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
 
                 TextFormField(
                   controller: brandController,
-                  decoration: const InputDecoration(
-                    labelText: "Marka",
+                  decoration: InputDecoration(
+                    labelText: tag_labelText[3],
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue, width: 2),
@@ -223,8 +328,8 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
 
                 TextFormField(
                   controller: modelController,
-                  decoration: const InputDecoration(
-                    labelText: "Model",
+                  decoration: InputDecoration(
+                    labelText: tag_labelText[4],
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue, width: 2),
@@ -237,8 +342,8 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
 
                 TextFormField(
                   controller: yearController,
-                  decoration: const InputDecoration(
-                    labelText: "Yapım Yılı",
+                  decoration: InputDecoration(
+                    labelText: tag_labelText[5],
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue, width: 2),
@@ -256,8 +361,8 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
 
                 TextFormField(
                   controller: fuelTypeController,
-                  decoration: const InputDecoration(
-                    labelText: "Yakıt Türü",
+                  decoration: InputDecoration(
+                    labelText: tag_labelText[6],
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.blue, width: 2),
@@ -276,9 +381,9 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
                     onPressed: _isFormEnabled
                         ? () {
                       if (_formKey.currentState?.validate() ?? false) {
-                        debugPrint("Form doğrulandı, kayıt işlemi yapılabilir.");
+                        saveEditCarInfo();
                       } else {
-                        debugPrint("Form doğrulama başarısız.");
+                        print("Form doğrulama başarısız.");
                       }
                     }
                         : null,

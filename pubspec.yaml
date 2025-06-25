@@ -16,10 +16,12 @@ dependencies:
   carousel_slider: ^4.2.1
   flutter_svg: ^2.0.9
   get: ^4.6.6
-  intl: ^0.17.0
   percent_indicator: ^3.4.0
   flutter_staggered_grid_view: ^0.4.1
   path_drawing: ^1.0.1
+  lucide_icons: ^0.257.0
+  font_awesome_flutter: ^10.1.0
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

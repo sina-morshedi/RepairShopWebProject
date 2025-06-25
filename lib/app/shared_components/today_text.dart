@@ -12,14 +12,15 @@ class TodayText extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Today",
+            "Bugün", // "Today" به ترکی
             style: Theme.of(context).textTheme.bodySmall,
           ),
           Text(
-            DateFormat.yMMMEd().format(DateTime.now()),
+            DateFormat.yMMMEd('tr_TR').format(DateTime.now()), // نمایش تاریخ ترکی
           )
         ],
       ),
     );
   }
+
 }

@@ -21,6 +21,7 @@ class DashboardController extends GetxController {
       photo: AssetImage(ImageRasterPath.avatar1),
       first_name: user!.firstName,
       last_name: user!.lastName,
+      role_name: user!.role.roleName,
     );
   }
 

@@ -64,13 +64,15 @@ class Sidebar extends StatelessWidget {
                 SelectionButtonData(
                   activeIcon: EvaIcons.settings,
                   icon: EvaIcons.settingsOutline,
-                  label: "Setting",
+                  label: "ayarlar",
                 ),
               ],
               onSelected: (index, value) {
                 log("index : $index | label : ${value.label}");
                 if (index == 2) {
                   Get.toNamed(Routes.insertCarInfo);
+                }if (index == 5) {
+                  Get.toNamed(Routes.settings);
                 }
               },
             ),

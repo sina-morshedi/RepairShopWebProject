@@ -22,9 +22,11 @@ export 'package:repair_shop_web/app/features/dashboard/views/components/sidebar.
 export 'package:repair_shop_web/app/features/dashboard/bindings/dashboard_binding.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
+
 // controller
 export 'package:repair_shop_web/app/features/dashboard/controllers/dashboard_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/insertcarinfo_controller.dart';
+export 'package:repair_shop_web/app/features/dashboard/controllers/settings_controller.dart';
 
 // models
 // export 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
