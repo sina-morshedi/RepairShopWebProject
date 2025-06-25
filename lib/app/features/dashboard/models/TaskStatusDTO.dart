@@ -23,4 +23,9 @@ class TaskStatusDTO {
     }
     return map;
   }
+
+  @override
+  String toString() {
+    return 'id: $id, taskStatusName: $taskStatusName';
+  }
 }

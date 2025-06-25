@@ -43,7 +43,7 @@ class Sidebar extends StatelessWidget {
                 SelectionButtonData(
                   activeIcon: EvaIcons.archive,
                   icon: EvaIcons.archiveOutline,
-                  label: "Reports",
+                  label: "Raporlar",
                 ),
                 SelectionButtonData(
                   activeIcon: EvaIcons.car,

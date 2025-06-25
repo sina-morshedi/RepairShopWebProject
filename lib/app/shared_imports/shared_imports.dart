@@ -21,6 +21,8 @@ export 'package:repair_shop_web/app/features/dashboard/models/permissions.dart';
 export 'package:repair_shop_web/app/features/dashboard/views/components/sidebar.dart';
 export 'package:repair_shop_web/app/features/dashboard/bindings/dashboard_binding.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
+export 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
+export 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 
 
 // controller
