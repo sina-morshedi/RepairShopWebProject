@@ -1,6 +1,7 @@
 library backend_service;
 
 import 'package:flutter/material.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 
 import '../models/users.dart';
 import '../models/roles.dart';
@@ -11,9 +12,12 @@ import 'ApiEndpoints.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfo.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/UpdateUserDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
 
 part 'TaskStatusApi.dart';
 part 'RoleApi.dart';
+part 'UsersApi.dart';
 
 class backend_services {
   Future<List<users>> fetchAllProfile({BuildContext? context}) async {
@@ -180,7 +184,7 @@ class backend_services {
         body: jsonEncode(carInfo.toJson()),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return ApiResponse.fromJson(data);
       } else {
@@ -241,41 +245,52 @@ class backend_services {
     }
   }
 
-
-
-
-
-  Future<String> registerUser({
+  Future<ApiResponse<String>> registerUser({
     required String username,
     required String password,
     required String firstName,
     required String lastName,
     required String roleId,
+    required String roleName,
     required String permissionId,
+    required String permissionName,
   }) async {
     final String backendUrl = ApiEndpoints.registerUser;
 
-    final Map<String, dynamic> requestBody = {
+    final body = jsonEncode({
       "username": username,
       "password": password,
       "firstName": firstName,
       "lastName": lastName,
       "roleId": roleId,
+      "roleName": roleName,
       "permissionId": permissionId,
-    };
-
+      "permissionName": permissionName,
+    });
     try {
       final response = await http.post(
         Uri.parse(backendUrl),
         headers: {
           "Content-Type": "application/json",
         },
-        body: jsonEncode(requestBody),
+        body: body,
       );
-      return response.body;
-
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return ApiResponse(
+          status: 'success',
+          message: '${response.body}',
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: '${response.body}',
+        );
+      }
     } catch (e) {
-      return "Error in registerUser: $e";
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
     }
   }
 

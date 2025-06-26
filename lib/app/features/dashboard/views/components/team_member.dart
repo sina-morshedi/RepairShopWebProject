@@ -104,7 +104,7 @@ class _AddAccountDialog extends State<AddAccountDialog> {
     });
   }
 
-  Future<String> saveNewUser() async {
+  Future<void> saveNewUser() async {
     final username = _usernameController.text;
     final password = _passwordController.text;
     final firstName = _firstNameController.text;
@@ -112,24 +112,30 @@ class _AddAccountDialog extends State<AddAccountDialog> {
 
     roles? foundRole = _rolesList.firstWhere(
       (p) => p.roleName == _selectedRole,
-      orElse: () => roles(roleId: "null", roleName: "NotFound"),
+      orElse: () => roles(id: "null", roleName: "NotFound"),
     );
 
     permissions? foundPermission = _permissionsList.firstWhere(
       (p) => p.permissionName == _selectedPermission,
-      orElse: () => permissions(permissionId: "null", permissionName: "NotFound"),
+      orElse: () => permissions(id: "null", permissionName: "NotFound"),
     );
 
-    String response = await backend_services().registerUser(
+
+    final response = await backend_services().registerUser(
       username: username,
       password: password,
       firstName: firstName,
       lastName: lastName,
-      roleId: foundRole.roleId,
-      permissionId: foundPermission.permissionId,
+      roleId: foundRole.id,
+      roleName: foundRole.roleName,
+      permissionId: foundPermission.id,
+      permissionName: foundPermission.permissionName,
     );
-
-    return response;
+    if (response.status == 'success') {
+      StringHelper.showInfoDialog(context, "${response.message}");
+    } else {
+      StringHelper.showErrorDialog(context, "${response.message}");
+    }
   }
 
   @override
@@ -278,13 +284,7 @@ class _AddAccountDialog extends State<AddAccountDialog> {
                     ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          String response = await saveNewUser();
-                          if (!mounted) return;
-                          if (response == "success") {
-                            Navigator.of(context).pop();
-                          } else {
-                            StringHelper.showInfoDialog(context, response);
-                          }
+                          await saveNewUser();
                         }
                       },
                       child: const Text('Onayla'),

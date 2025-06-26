@@ -1,28 +1,28 @@
 class permissions {
-  final String permissionId;
+  final String id;
   final String permissionName;
 
   const permissions({
-    required this.permissionId,
+    required this.id,
     required this.permissionName,
   });
 
   factory permissions.fromJson(Map<String, dynamic> json) {
     return permissions(
-      permissionId: json['permissionId'] ?? '',
+      id: json['id'] ?? '',
       permissionName: json['permissionName'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'permissionId': permissionId,
+      'id': id,
       'permissionName': permissionName,
     };
   }
 
   @override
   String toString() {
-    return 'permissionId: $permissionId, permissionName: $permissionName';
+    return 'id: $id, permissionName: $permissionName';
   }
 }

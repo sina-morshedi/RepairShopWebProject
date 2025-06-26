@@ -142,53 +142,8 @@ class SettingsScreen extends GetView<SettingsController> {
     );
   }
 
-  Widget _buildCarForm(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: Form(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("اطلاعات خودرو", style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: kSpacing),
 
-            TextFormField(decoration: const InputDecoration(labelText: "شماره شاسی")),
-            const SizedBox(height: kSpacing / 2),
-
-            TextFormField(decoration: const InputDecoration(labelText: "شماره موتور")),
-            const SizedBox(height: kSpacing / 2),
-
-            TextFormField(decoration: const InputDecoration(labelText: "شماره پلاک")),
-            const SizedBox(height: kSpacing / 2),
-
-            TextFormField(decoration: const InputDecoration(labelText: "برند خودرو")),
-            const SizedBox(height: kSpacing / 2),
-
-            TextFormField(decoration: const InputDecoration(labelText: "مدل خودرو")),
-            const SizedBox(height: kSpacing / 2),
-
-            TextFormField(
-              decoration: const InputDecoration(labelText: "سال ساخت"),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: kSpacing / 2),
-
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: "نوع سوخت"),
-              items: const [
-                DropdownMenuItem(value: "بنزین", child: Text("بنزین")),
-                DropdownMenuItem(value: "دیزل", child: Text("دیزل")),
-                DropdownMenuItem(value: "گاز", child: Text("گاز")),
-                DropdownMenuItem(value: "برقی", child: Text("برقی")),
-              ],
-              onChanged: (value) {},
-            ),
-
-            const SizedBox(height: kSpacing * 2),
-          ],
-        ),
-      ),
-    );
-  }
 
 }
+
+

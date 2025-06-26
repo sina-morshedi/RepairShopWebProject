@@ -4,6 +4,8 @@ import 'package:repair_shop_web/app/constans/app_constants.dart';
 import '../features/dashboard/models/UserProfileDTO.dart';
 import '../features/dashboard/models/users.dart';
 import '../features/dashboard/backend_services/backend_services.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+
 
 class GetPremiumCard extends StatelessWidget {
   GetPremiumCard({
@@ -120,11 +122,31 @@ class UsersListDialog extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final user = usersList[index];
                         return ListTile(
-                          leading: const Icon(Icons.person),
+                          leading: const Icon(EvaIcons.person),
                           title: Text(user.username ?? 'No Username'),
                           subtitle: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
-                          trailing: Text(user.role.roleName ?? ''),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(EvaIcons.edit2Outline, color: Colors.blue),
+                                onPressed: () {
+                                  print('Edit user: ${user.username}');
+                                  // TODO: call edit dialog
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(EvaIcons.trash2Outline, color: Colors.red),
+                                onPressed: () {
+                                  print('Delete user: ${user.username}');
+                                  // TODO: call delete confirm
+                                },
+                              ),
+                            ],
+                          ),
                         );
+
+
                       },
                     );
                   }

@@ -6,6 +6,8 @@ class ApiEndpoints {
   static const String getProfile = "$_baseUrl/user/profile";
   static const String getAllProfile = "$_baseUrl/users/all";
   static const String countAllMembers = "$_baseUrl/users/count";
+  static const String userUpdate = "$_baseUrl/users/update";
+  static const String userDelete = "$_baseUrl/users/delete";
 
   static const String getAllRoles = "$_baseUrl/roles/all";
   static const String insertRole = "$_baseUrl/roles";

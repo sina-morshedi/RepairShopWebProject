@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/UpdateUserDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 
@@ -14,13 +16,15 @@ class SettingsForm extends StatefulWidget {
 
 class _SettingsFormState extends State<SettingsForm> {
   String selectedSetting = 'Görev Durumu';
-  final List<String> settingOptions = ['Görev Durumu', 'Roller'];
+  final List<String> settingOptions = ['Görev Durumu', 'Roller','Users'];
+  final UserApi userApi = UserApi();
 
   bool isAddingNew = false;
   final TextEditingController newEntryController = TextEditingController();
 
   List<TaskStatusDTO> taskStatusList = [];
   List<RolesDTO> rolesList = [];
+  List<UserProfile> usersList = [];
 
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, bool> _isEditingMap = {};
@@ -49,6 +53,21 @@ class _SettingsFormState extends State<SettingsForm> {
       fetchTaskStatuses();
     } else if (setting == 'Roller') {
       fetchRoles();
+    }else if (setting == 'Users') {
+    fetchUsers();
+    }
+  }
+
+  void fetchUsers() async {
+    final response = await UserApi().getAllUsers();
+    if (response.status == 'success' && response.data != null) {
+      setState(() {
+        usersList = response.data!;
+        print('usersList');
+        print(usersList);
+      });
+    } else {
+      StringHelper.showErrorDialog(context, "Failed to fetch users: ${response.message}");
     }
   }
 
@@ -152,11 +171,40 @@ class _SettingsFormState extends State<SettingsForm> {
         StringHelper.showErrorDialog(context, "Hata: ${response.message}");
       }
     }
-
     setState(() {
       isAddingNew = false;
       newEntryController.clear();
     });
+  }
+
+  Future<void> _confirmDeleteUser(UserProfile user) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Silmek istediğinize emin misiniz?'),
+        content: Text('Kullanıcı ${user.username} silinecek. Onaylıyor musunuz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Hayır'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Evet'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final response = await userApi.deleteUser(user.userId);
+      if (response.status == 'success') {
+        StringHelper.showInfoDialog(context, "${response.message}");
+        fetchUsers();
+      } else {
+        StringHelper.showErrorDialog(context, "Silme hatası: ${response.message}");
+      }
+    }
   }
 
   Widget _buildEditableItem({
@@ -331,8 +379,291 @@ class _SettingsFormState extends State<SettingsForm> {
           const SizedBox(height: 16),
           if (selectedSetting == 'Görev Durumu') _buildTaskStatusList(),
           if (selectedSetting == 'Roller') _buildRoleList(),
+          if (selectedSetting == 'Users') _buildUsersList(),
         ],
       ),
     );
   }
+
+  Widget _buildUsersList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: usersList.length,
+      itemBuilder: (context, index) {
+        final user = usersList[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: const Icon(EvaIcons.person, color: Colors.blueAccent),
+            title: Text(user.username),
+            subtitle: Text('${user.firstName} ${user.lastName}'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(EvaIcons.edit2Outline, color: Colors.blue, size: 28),
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => EditAccountDialog(user: user),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(EvaIcons.personDeleteOutline, color: Colors.red),
+                  onPressed: () => _confirmDeleteUser(user),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
+
+
+class EditAccountDialog extends StatefulWidget {
+  final UserProfile user;
+
+  const EditAccountDialog({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<EditAccountDialog> createState() => _EditAccountDialog();
+}
+
+class _EditAccountDialog extends State<EditAccountDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final UserApi userApi = UserApi();
+
+
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+
+  String? _selectedRole;
+  String? _selectedPermission;
+
+  bool _updatePassword = false;
+
+  List<String> rolesName = [];
+  List<String> permissionsName = [];
+
+  List<permissions> _permissionsList = [];
+  List<roles> _rolesList = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _usernameController.text = widget.user.username;
+    _firstNameController.text = widget.user.firstName;
+    _lastNameController.text = widget.user.lastName;
+    _selectedRole = widget.user.role?.roleName;
+    _selectedPermission = widget.user.permission?.permissionName;
+
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    final permissionsList = await backend_services().fetchAllPermissions();
+    final rolesList = await backend_services().fetchAllRoles();
+
+    if (!mounted) return;
+
+    setState(() {
+      _permissionsList = permissionsList;
+      _rolesList = rolesList;
+      permissionsName = permissionsList.map((p) => p.permissionName).toList();
+      rolesName = rolesList.map((r) => r.roleName).toList();
+    });
+  }
+
+  Future<void> updateUser() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final username = _usernameController.text;
+    final firstName = _firstNameController.text;
+    final lastName = _lastNameController.text;
+
+    final roles foundRole = _rolesList.firstWhere(
+          (r) => r.roleName == _selectedRole,
+      orElse: () => roles(id: "null", roleName: "NotFound"),
+    );
+
+    final permissions foundPermission = _permissionsList.firstWhere(
+          (p) => p.permissionName == _selectedPermission,
+      orElse: () => permissions(id: "null", permissionName: "NotFound"),
+    );
+
+
+    final updateDto = UpdateUserDTO(
+      userId: widget.user.userId,
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
+      roleId: foundRole.id,
+      permissionId: foundPermission.id,
+      password: _updatePassword ? _passwordController.text : "",
+      updatePassword: _updatePassword,
+    );
+
+    final response = await userApi.updateUser(updateDto);
+
+    if (response.status == 'success') {
+      StringHelper.showInfoDialog(context, "${response.message}");
+
+    } else {
+      StringHelper.showErrorDialog(context, "Güncelleme hatası: ${response.message}");
+    }
+  }
+
+
+
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 80),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Personel Bilgilerini Güncelle",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Kullanıcı Adı',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                  (value == null || value.isEmpty) ? 'Kullanıcı adı gerekli' : null,
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _passwordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Şifre',
+                          border: OutlineInputBorder(),
+                        ),
+                        obscureText: true,
+                        enabled: _updatePassword,
+                        validator: (value) {
+                          if (_updatePassword && (value == null || value.isEmpty)) {
+                            return 'Lütfen şifreyi girin';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Checkbox(
+                      value: _updatePassword,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _updatePassword = value ?? false;
+                          if (!_updatePassword) {
+                            _passwordController.clear();
+                          }
+                        });
+                      },
+                    ),
+                    const Text('Şifreyi Güncelle'),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: _firstNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Adı',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => (value == null || value.isEmpty) ? 'Adı gerekli' : null,
+                ),
+                const SizedBox(height: 15),
+                TextFormField(
+                  controller: _lastNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Soyadı',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => (value == null || value.isEmpty) ? 'Soyadı gerekli' : null,
+                ),
+                const SizedBox(height: 15),
+                DropdownButtonFormField<String>(
+                  value: _selectedRole,
+                  items: rolesName
+                      .map((role) => DropdownMenuItem(value: role, child: Text(role)))
+                      .toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Rol Seçin',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => setState(() => _selectedRole = value),
+                  validator: (value) => value == null ? 'Rol gerekli' : null,
+                ),
+                const SizedBox(height: 15),
+                DropdownButtonFormField<String>(
+                  value: _selectedPermission,
+                  items: permissionsName
+                      .map((perm) => DropdownMenuItem(value: perm, child: Text(perm)))
+                      .toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Yetki Seviyesi',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => setState(() => _selectedPermission = value),
+                  validator: (value) => value == null ? 'Yetki gerekli' : null,
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('İptal'),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await updateUser();
+                        }
+                      },
+                      child: const Text('Güncelle'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
