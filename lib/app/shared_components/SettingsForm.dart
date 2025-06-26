@@ -516,7 +516,7 @@ class _EditAccountDialog extends State<EditAccountDialog> {
       StringHelper.showInfoDialog(context, "${response.message}");
 
     } else {
-      StringHelper.showErrorDialog(context, "Güncelleme hatası: ${response.message}");
+      StringHelper.showErrorDialog(context, "Güncelleme hatası : ${response.message}");
     }
   }
 
