@@ -16,7 +16,11 @@ class SettingsForm extends StatefulWidget {
 
 class _SettingsFormState extends State<SettingsForm> {
   String selectedSetting = 'Görev Durumu';
-  final List<String> settingOptions = ['Görev Durumu', 'Roller','Users'];
+  final List<String> settingOptions = [
+    'Görev Durumu',
+    'Roller',
+    'Kullanıcılar'
+  ];
   final UserApi userApi = UserApi();
 
   bool isAddingNew = false;
@@ -53,8 +57,8 @@ class _SettingsFormState extends State<SettingsForm> {
       fetchTaskStatuses();
     } else if (setting == 'Roller') {
       fetchRoles();
-    }else if (setting == 'Users') {
-    fetchUsers();
+    } else if (setting == 'Kullanıcılar') {
+      fetchUsers();
     }
   }
 
@@ -63,11 +67,10 @@ class _SettingsFormState extends State<SettingsForm> {
     if (response.status == 'success' && response.data != null) {
       setState(() {
         usersList = response.data!;
-        print('usersList');
-        print(usersList);
       });
     } else {
-      StringHelper.showErrorDialog(context, "Failed to fetch users: ${response.message}");
+      StringHelper.showErrorDialog(
+          context, "Failed to fetch users: ${response.message}");
     }
   }
 
@@ -85,7 +88,8 @@ class _SettingsFormState extends State<SettingsForm> {
         }
       });
     } else {
-      StringHelper.showErrorDialog(context, "Failed to fetch roles: ${response.message}");
+      StringHelper.showErrorDialog(
+          context, "Failed to fetch roles: ${response.message}");
     }
   }
 
@@ -103,7 +107,8 @@ class _SettingsFormState extends State<SettingsForm> {
         }
       });
     } else {
-      StringHelper.showErrorDialog(context, "Failed to fetch task statuses: ${response.message}");
+      StringHelper.showErrorDialog(
+          context, "Failed to fetch task statuses: ${response.message}");
     }
   }
 
@@ -123,7 +128,8 @@ class _SettingsFormState extends State<SettingsForm> {
     if (response.status == 'success') {
       fetchRoles();
     } else {
-      StringHelper.showErrorDialog(context, "Update failed: ${response.message}");
+      StringHelper.showErrorDialog(
+          context, "Update failed: ${response.message}");
     }
   }
 
@@ -136,7 +142,8 @@ class _SettingsFormState extends State<SettingsForm> {
         _isEditingMap.remove(id);
       });
     } else {
-      StringHelper.showErrorDialog(context, "Delete failed: ${response.message}");
+      StringHelper.showErrorDialog(
+          context, "Delete failed: ${response.message}");
     }
   }
 
@@ -149,7 +156,8 @@ class _SettingsFormState extends State<SettingsForm> {
         _isEditingMap.remove(id);
       });
     } else {
-      StringHelper.showErrorDialog(context, "Delete failed: ${response.message}");
+      StringHelper.showErrorDialog(
+          context, "Delete failed: ${response.message}");
     }
   }
 
@@ -182,7 +190,8 @@ class _SettingsFormState extends State<SettingsForm> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Silmek istediğinize emin misiniz?'),
-        content: Text('Kullanıcı ${user.username} silinecek. Onaylıyor musunuz?'),
+        content:
+            Text('Kullanıcı ${user.username} silinecek. Onaylıyor musunuz?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -202,7 +211,8 @@ class _SettingsFormState extends State<SettingsForm> {
         StringHelper.showInfoDialog(context, "${response.message}");
         fetchUsers();
       } else {
-        StringHelper.showErrorDialog(context, "Silme hatası: ${response.message}");
+        StringHelper.showErrorDialog(
+            context, "Silme hatası: ${response.message}");
       }
     }
   }
@@ -225,7 +235,8 @@ class _SettingsFormState extends State<SettingsForm> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: _isEditingMap[id]! ? Colors.white : Colors.grey[200],
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               ),
               onSubmitted: (value) {
@@ -337,7 +348,8 @@ class _SettingsFormState extends State<SettingsForm> {
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.blue, width: 2),
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
           ),
           const SizedBox(height: 24),
@@ -346,14 +358,16 @@ class _SettingsFormState extends State<SettingsForm> {
               Text('$selectedSetting List',
                   style: Theme.of(context).textTheme.titleMedium),
               const Spacer(),
-              IconButton(
-                icon: const Icon(EvaIcons.plusCircleOutline, color: Colors.blue, size: 28),
-                onPressed: () {
-                  setState(() {
-                    isAddingNew = true;
-                  });
-                },
-              ),
+              if (selectedSetting != 'Kullanıcılar')
+                IconButton(
+                  icon: const Icon(EvaIcons.plusCircleOutline,
+                      color: Colors.blue, size: 28),
+                  onPressed: () {
+                    setState(() {
+                      isAddingNew = true;
+                    });
+                  },
+                ),
             ],
           ),
           if (isAddingNew)
@@ -379,7 +393,7 @@ class _SettingsFormState extends State<SettingsForm> {
           const SizedBox(height: 16),
           if (selectedSetting == 'Görev Durumu') _buildTaskStatusList(),
           if (selectedSetting == 'Roller') _buildRoleList(),
-          if (selectedSetting == 'Users') _buildUsersList(),
+          if (selectedSetting == 'Kullanıcılar') _buildUsersList(),
         ],
       ),
     );
@@ -394,9 +408,11 @@ class _SettingsFormState extends State<SettingsForm> {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: const Icon(EvaIcons.person, color: Colors.blueAccent),
             title: Text(user.username),
             subtitle: Text('${user.firstName} ${user.lastName}'),
@@ -404,14 +420,16 @@ class _SettingsFormState extends State<SettingsForm> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(EvaIcons.edit2Outline, color: Colors.blue, size: 28),
+                  icon: const Icon(EvaIcons.edit2Outline,
+                      color: Colors.blue, size: 28),
                   onPressed: () => showDialog(
                     context: context,
                     builder: (_) => EditAccountDialog(user: user),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(EvaIcons.personDeleteOutline, color: Colors.red),
+                  icon: const Icon(EvaIcons.personDeleteOutline,
+                      color: Colors.red),
                   onPressed: () => _confirmDeleteUser(user),
                 ),
               ],
@@ -422,7 +440,6 @@ class _SettingsFormState extends State<SettingsForm> {
     );
   }
 }
-
 
 class EditAccountDialog extends StatefulWidget {
   final UserProfile user;
@@ -436,7 +453,6 @@ class EditAccountDialog extends StatefulWidget {
 class _EditAccountDialog extends State<EditAccountDialog> {
   final _formKey = GlobalKey<FormState>();
   final UserApi userApi = UserApi();
-
 
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -489,15 +505,14 @@ class _EditAccountDialog extends State<EditAccountDialog> {
     final lastName = _lastNameController.text;
 
     final roles foundRole = _rolesList.firstWhere(
-          (r) => r.roleName == _selectedRole,
+      (r) => r.roleName == _selectedRole,
       orElse: () => roles(id: "null", roleName: "NotFound"),
     );
 
     final permissions foundPermission = _permissionsList.firstWhere(
-          (p) => p.permissionName == _selectedPermission,
+      (p) => p.permissionName == _selectedPermission,
       orElse: () => permissions(id: "null", permissionName: "NotFound"),
     );
-
 
     final updateDto = UpdateUserDTO(
       userId: widget.user.userId,
@@ -514,14 +529,11 @@ class _EditAccountDialog extends State<EditAccountDialog> {
 
     if (response.status == 'success') {
       StringHelper.showInfoDialog(context, "${response.message}");
-
     } else {
-      StringHelper.showErrorDialog(context, "Güncelleme hatası : ${response.message}");
+      StringHelper.showErrorDialog(
+          context, "Güncelleme hatası: ${response.message}");
     }
   }
-
-
-
 
   @override
   void dispose() {
@@ -557,8 +569,9 @@ class _EditAccountDialog extends State<EditAccountDialog> {
                     labelText: 'Kullanıcı Adı',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) =>
-                  (value == null || value.isEmpty) ? 'Kullanıcı adı gerekli' : null,
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Kullanıcı adı gerekli'
+                      : null,
                 ),
                 const SizedBox(height: 15),
                 Row(
@@ -573,7 +586,8 @@ class _EditAccountDialog extends State<EditAccountDialog> {
                         obscureText: true,
                         enabled: _updatePassword,
                         validator: (value) {
-                          if (_updatePassword && (value == null || value.isEmpty)) {
+                          if (_updatePassword &&
+                              (value == null || value.isEmpty)) {
                             return 'Lütfen şifreyi girin';
                           }
                           return null;
@@ -602,7 +616,8 @@ class _EditAccountDialog extends State<EditAccountDialog> {
                     labelText: 'Adı',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => (value == null || value.isEmpty) ? 'Adı gerekli' : null,
+                  validator: (value) =>
+                      (value == null || value.isEmpty) ? 'Adı gerekli' : null,
                 ),
                 const SizedBox(height: 15),
                 TextFormField(
@@ -611,13 +626,16 @@ class _EditAccountDialog extends State<EditAccountDialog> {
                     labelText: 'Soyadı',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => (value == null || value.isEmpty) ? 'Soyadı gerekli' : null,
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Soyadı gerekli'
+                      : null,
                 ),
                 const SizedBox(height: 15),
                 DropdownButtonFormField<String>(
                   value: _selectedRole,
                   items: rolesName
-                      .map((role) => DropdownMenuItem(value: role, child: Text(role)))
+                      .map((role) =>
+                          DropdownMenuItem(value: role, child: Text(role)))
                       .toList(),
                   decoration: const InputDecoration(
                     labelText: 'Rol Seçin',
@@ -630,13 +648,15 @@ class _EditAccountDialog extends State<EditAccountDialog> {
                 DropdownButtonFormField<String>(
                   value: _selectedPermission,
                   items: permissionsName
-                      .map((perm) => DropdownMenuItem(value: perm, child: Text(perm)))
+                      .map((perm) =>
+                          DropdownMenuItem(value: perm, child: Text(perm)))
                       .toList(),
                   decoration: const InputDecoration(
                     labelText: 'Yetki Seviyesi',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (value) => setState(() => _selectedPermission = value),
+                  onChanged: (value) =>
+                      setState(() => _selectedPermission = value),
                   validator: (value) => value == null ? 'Yetki gerekli' : null,
                 ),
                 const SizedBox(height: 30),
@@ -666,4 +686,3 @@ class _EditAccountDialog extends State<EditAccountDialog> {
     );
   }
 }
-

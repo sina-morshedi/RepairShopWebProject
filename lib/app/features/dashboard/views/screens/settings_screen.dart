@@ -141,9 +141,6 @@ class SettingsScreen extends GetView<SettingsController> {
       ),
     );
   }
-
-
-
 }
 
 
