@@ -24,12 +24,20 @@ export 'package:repair_shop_web/app/features/dashboard/controllers/UserControlle
 export 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
+export 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRequestDTO.dart';
+export 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportResponseDTO.dart';
+export 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogRequestDTO.dart';
+export 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';
+export 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
+
 
 
 // controller
 export 'package:repair_shop_web/app/features/dashboard/controllers/dashboard_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/insertcarinfo_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/settings_controller.dart';
+export 'package:repair_shop_web/app/features/dashboard/controllers/troubleshooting_controller.dart';
+export 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 // models
 // export 'package:repair_shop_web/app/features/dashboard/models/profile.dart';

@@ -20,12 +20,12 @@ class UserProfile {
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      userId: json['userId'] ?? '',
-      username: json['username'] ?? '',
-      firstName: json['firstName'] ?? '',
-      lastName: json['lastName'] ?? '',
-      role: roles.fromJson(json['role'] ?? {}),
-      permission: permissions.fromJson(json['permission'] ?? {}),
+      userId: json['userId']?.toString() ?? '',
+      username: json['username']?.toString() ?? '',
+      firstName: json['firstName']?.toString() ?? '',
+      lastName: json['lastName']?.toString() ?? '',
+      role: json['role'] != null ? roles.fromJson(json['role']) : roles(id: 'unkown', roleName: 'unkown'),  // roles() با مقادیر پیش‌فرض باید داشته باشی
+      permission: json['permission'] != null ? permissions.fromJson(json['permission']) : permissions(id: 'unkown',permissionName: 'unkown'),
     );
   }
 

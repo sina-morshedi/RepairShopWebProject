@@ -47,7 +47,16 @@ class ProjectCard extends StatelessWidget {
                   const _SubtitleText("Release time : "),
                   _ReleaseTimeText(data.releaseTime)
                 ],
-              )
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                "© 2025 Sina Morshedi. All rights reserved.",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ],
           ),
         )

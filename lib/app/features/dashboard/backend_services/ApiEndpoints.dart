@@ -20,9 +20,25 @@ class ApiEndpoints {
   static const String getCarInfo = "$_baseUrl/cars/getCarInfo";
   static const String updateCarInfo = "$_baseUrl/cars/updateCarInfo";
   static const String insertTaskStatus = "$_baseUrl/task_status";
+  static const String getTaskStatusByName = "$_baseUrl/task_status/getByStatusName";
   static const String getAllTaskStatus = "$_baseUrl/task_status/all";
   static const String updateTaskStatus = "$_baseUrl/task_status/updateTaskStatus";
   static const String deleteTaskStatus = "$_baseUrl/task_status/deleteTaskStatus";
+
+  static const String createCarProblemReport = "$_baseUrl/car-problem-report/create";
+  static const String createCarProblemAll = "$_baseUrl/car-problem-report/all";
+  static const String createCarProblemID = "$_baseUrl/car-problem-report";
+  static const String createCarProblemByCarID = "$_baseUrl/car-problem-report/by-car";
+  static const String createCarProblemByLicensePlate = "$_baseUrl/car-problem-report/by-license-plate";
+  static const String createCarProblemByUser = "$_baseUrl/car-problem-report/by-user";
+  static const String createCarProblemUpdate = "$_baseUrl/car-problem-report/update";
+  static const String createCarProblemDelete = "$_baseUrl/car-problem-report/delete";
+
+  static const String carRepairLogGetAll = "$_baseUrl/car-repair-log/all";
+  static const String carRepairLogGetByLicensePlate = "$_baseUrl/car-repair-log/by-license-plate";
+  static const String carRepairLogCreate = "$_baseUrl/car-repair-log/create";
+  static const String carRepairLogUpdate = "$_baseUrl/car-repair-log/update";
+  static const String carRepairLogDelete = "$_baseUrl/car-repair-log/delete";
 }
 
 class ApiResponse<T> {

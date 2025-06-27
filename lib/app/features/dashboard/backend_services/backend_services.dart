@@ -1,6 +1,7 @@
 library backend_service;
 
 import 'package:flutter/material.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 
 import '../models/users.dart';
@@ -13,11 +14,16 @@ import 'package:repair_shop_web/app/features/dashboard/models/CarInfo.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UpdateUserDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRequestDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
 
 part 'TaskStatusApi.dart';
 part 'RoleApi.dart';
 part 'UsersApi.dart';
+part 'CarProblemReportApi.dart';
+part 'CarRepairLogApi.dart';
 
 class backend_services {
   Future<List<users>> fetchAllProfile({BuildContext? context}) async {
@@ -125,7 +131,7 @@ class backend_services {
     }
   }
 
-  Future<ApiResponse<CarInfo>> getCarInfoByLicensePlate(String licensePlate) async {
+  Future<ApiResponse<CarInfoDTO>> getCarInfoByLicensePlate(String licensePlate) async {
     final uri = Uri.parse('${ApiEndpoints.getCarInfo}/$licensePlate');
 
     try {
@@ -133,10 +139,11 @@ class backend_services {
 
       final data = jsonDecode(response.body);
       final jsonData = jsonDecode(response.body);
+
       if (response.statusCode == 200) {
-        return ApiResponse<CarInfo>(
-          status: jsonData['status'] ?? 'successful',
-          data: CarInfo.fromJson(jsonData),
+        return ApiResponse<CarInfoDTO>(
+          status: jsonData['status'] ?? 'success',
+          data: CarInfoDTO.fromJson(jsonData),
           message: jsonData['idOrMessage'] ?? '',
         );
       } else {
@@ -162,7 +169,7 @@ class backend_services {
       final jsonData = jsonDecode(response.body);
 
       return ApiResponse<void>(
-        status: jsonData['status'] ?? (response.statusCode == 200 ? 'successful' : 'error'),
+        status: jsonData['status'] ?? (response.statusCode == 200 ? 'success' : 'error'),
         message: jsonData['idOrMessage'] ?? '',
       );
     } catch (e) {

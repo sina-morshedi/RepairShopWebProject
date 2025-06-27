@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:repair_shop_web/app/constans/app_constants.dart';
 import 'package:repair_shop_web/app/shared_components/upgrade_premium_card.dart';
 import 'package:repair_shop_web/app/shared_components/project_card.dart';
@@ -51,10 +52,10 @@ class Sidebar extends StatelessWidget {
                   label: "Araç ayrıntılarını ekle",
                 ),
                 SelectionButtonData(
-                  activeIcon: EvaIcons.email,
-                  icon: EvaIcons.emailOutline,
-                  label: "Email",
-                  totalNotif: 20,
+                  activeIcon: FontAwesomeIcons.stethoscope,
+                  icon: FontAwesomeIcons.stethoscope,
+                  label: "Araba arıza raporu alın",
+                  // totalNotif: 20,
                 ),
                 SelectionButtonData(
                   activeIcon: EvaIcons.person,
@@ -71,7 +72,10 @@ class Sidebar extends StatelessWidget {
                 log("index : $index | label : ${value.label}");
                 if (index == 2) {
                   Get.toNamed(Routes.insertCarInfo);
-                }if (index == 5) {
+                }if (index == 3) {
+                  Get.toNamed(Routes.troubleshooting);
+                }
+                if (index == 5) {
                   Get.toNamed(Routes.settings);
                 }
               },

@@ -35,4 +35,11 @@ class ImageVectorPath {
   static const wavyBus = "$_folderPath/wavy-bus.svg";
   static const wavyAddUser = "$_folderPath/add-user.svg";
   static const wavyAllMembers = "$_folderPath/all-member.svg";
+  static const wavyWarning = "$_folderPath/warning.svg";
+  static const enteredGarage = "$_folderPath/entered-garage.svg";
+  static const statusPlay = "$_folderPath/play.svg";
+  static const statusPause = "$_folderPath/pause.svg";
+  static const statusFinishFlag = "$_folderPath/finish-flag.svg";
+  static const statusNote = "$_folderPath/note.svg";
+  static const statusBill = "$_folderPath/bill.svg";
 }

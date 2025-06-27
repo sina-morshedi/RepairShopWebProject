@@ -7,4 +7,6 @@ class UserController extends GetxController {
   void setUser(UserProfile userProfile) {
     user.value = userProfile;
   }
+
+  UserProfile? get currentUser => user.value;
 }

@@ -5,6 +5,7 @@ import 'package:repair_shop_web/app/constans/app_constants.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfo.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
 
 enum CarFormMode { newCar, searchByPlate }
@@ -57,7 +58,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
   }
 
   void loadCarInfoByPlate(String plate) async{
-    final ApiResponse<CarInfo> response = await backend_services()
+    final ApiResponse<CarInfoDTO> response = await backend_services()
         .getCarInfoByLicensePlate(searchPlateController.text.trim().toUpperCase());
     if (response.status == 'successful' && response.data != null) {
       final car = response.data!;

@@ -9,8 +9,8 @@ class TaskStatusDTO {
 
   factory TaskStatusDTO.fromJson(Map<String, dynamic> json) {
     return TaskStatusDTO(
-      id: json['id'],
-      taskStatusName: json['taskStatusName'],
+      id: json['id'] as String?,
+      taskStatusName: json['taskStatusName']?.toString() ?? '',
     );
   }
 
