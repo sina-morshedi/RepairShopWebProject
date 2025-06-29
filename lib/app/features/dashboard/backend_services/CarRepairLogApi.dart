@@ -61,6 +61,35 @@ class CarRepairLogApi {
     }
   }
 
+  Future<ApiResponse<CarRepairLogResponseDTO>> getLatestLogByLicensePlate(String plate) async {
+    final String backendUrl = '${ApiEndpoints.carRepairLogLatestGetByTaskStatusName}/$plate';
+
+    try {
+      final response = await http.get(Uri.parse(backendUrl));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final Map<String, dynamic> decoded = jsonDecode(response.body);
+
+        final log = CarRepairLogResponseDTO.fromJson(decoded);
+        return ApiResponse(
+          status: 'success',
+          data: log,
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e, stack) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+
+  }
+
   // Create a new log: sends RequestDTO, receives ResponseDTO
   Future<ApiResponse<CarRepairLogResponseDTO>> createLog(CarRepairLogRequestDTO request) async {
     final String backendUrl = ApiEndpoints.carRepairLogCreate;

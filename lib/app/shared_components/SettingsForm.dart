@@ -108,7 +108,7 @@ class _SettingsFormState extends State<SettingsForm> {
       });
     } else {
       StringHelper.showErrorDialog(
-          context, "Failed to fetch task statuses: ${response.message}");
+          context, "Görev durumları alınamadı: ${response.message}");
     }
   }
 

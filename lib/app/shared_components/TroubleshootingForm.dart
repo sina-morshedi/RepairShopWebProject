@@ -57,6 +57,7 @@ class _TroubleshootingFormState extends State<TroubleshootingForm> {
     final userController = Get.find<UserController>();
     final userId = userController.currentUser?.userId ?? "";
 
+
     // Create problem report DTO
     final reportDTO = CarProblemReportRequestDTO(
       carId: carInfo!.id!,
@@ -75,7 +76,12 @@ class _TroubleshootingFormState extends State<TroubleshootingForm> {
       final createdProblemReport = saveResponse.data!;
 
 
-      ApiResponse<TaskStatusDTO> taskStatus  = await TaskStatusApi().getTaskStatusByName('GİRMEK');
+      final taskStatus  = await TaskStatusApi().getTaskStatusByName('SORUN GİDERME');
+      if(taskStatus.status != 'success') {
+        StringHelper.showErrorDialog(
+            context, 'Task Status Respone: ${taskStatus.message!}');
+        return;
+      }
       if (taskStatus.status == 'success' && taskStatus.data != null) {
 
         final logRequest = CarRepairLogRequestDTO(
@@ -88,12 +94,7 @@ class _TroubleshootingFormState extends State<TroubleshootingForm> {
         );
 
         final logResponse = await CarRepairLogApi().createLog(logRequest);
-        if(logResponse.status == 'success') {
-          print('logResponse');
-          print(logResponse.data.toString());
-          print("Last Name");
-          print(logResponse.data!.problemReport!.creatorUser!.lastName);
-        }
+
         if (logResponse.status == 'success') {
           StringHelper.showInfoDialog(
               context,"CarRepairLog başarıyla oluşturuldu.");

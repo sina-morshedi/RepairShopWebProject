@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:repair_shop_web/app/constans/app_constants.dart';
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 
 class ProgressCardData {
   final int totalUndone;
@@ -35,13 +36,13 @@ class ProgressCard extends StatelessWidget {
             child: Align(
               alignment: Alignment.bottomRight,
               child: Transform.translate(
-                offset: const Offset(10, 30),
+                offset: const Offset(0, 0),
                 child: SizedBox(
                   height: 200,
                   width: 200,
                   child: SvgPicture.asset(
-                    ImageVectorPath.happy2,
-                    fit: BoxFit.fitHeight,
+                    ImageVectorPath.enteredGarage,
+                    // fit: BoxFit.fitHeight,
                   ),
                 ),
               ),
@@ -56,17 +57,15 @@ class ProgressCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "You Have ${data.totalUndone} Undone Tasks",
+                  "Araç giriş menüsü",
                   style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                Text(
-                  "${data.totalTaskInProress} Tasks are in progress",
-                  style: TextStyle(color: kFontColorPallets[1]),
                 ),
                 const SizedBox(height: kSpacing),
                 ElevatedButton(
-                  onPressed: onPressedCheck,
-                  child: const Text("Check"),
+                  onPressed: () async {
+                    await CarEntryDialog.show(context);
+                  },
+                  child: const Text("araba girişi"),
                 )
               ],
             ),

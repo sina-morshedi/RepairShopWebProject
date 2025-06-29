@@ -1,3 +1,4 @@
+export 'package:flutter_svg/flutter_svg.dart';
 export 'package:eva_icons_flutter/eva_icons_flutter.dart';
 export 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 export 'package:repair_shop_web/app/constans/app_constants.dart';
@@ -13,6 +14,8 @@ export 'package:repair_shop_web/app/shared_components/search_field.dart';
 export 'package:repair_shop_web/app/shared_components/selection_button.dart';
 export 'package:repair_shop_web/app/shared_components/task_card.dart';
 export 'package:repair_shop_web/app/shared_components/today_text.dart';
+export 'package:repair_shop_web/app/shared_components/FilterReportsTab.dart';
+export 'package:repair_shop_web/app/shared_components/CarEntryDialog.dart';
 export 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
 export 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/roles.dart';
