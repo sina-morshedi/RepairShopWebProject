@@ -38,4 +38,16 @@ class CarProblemReportResponseDTO {
       'dateTime': dateTime.toIso8601String(),
     };
   }
+
+  @override
+  String toString() {
+    return 'CarProblemReportResponseDTO('
+        'id: $id, '
+        'carInfo: $carInfo, '
+        'creatorUser: $creatorUser, '
+        'problemSummary: $problemSummary, '
+        'dateTime: $dateTime'
+        ')';
+  }
+
 }

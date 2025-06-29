@@ -37,6 +37,7 @@ export 'package:repair_shop_web/app/features/dashboard/controllers/dashboard_con
 export 'package:repair_shop_web/app/features/dashboard/controllers/insertcarinfo_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/settings_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/troubleshooting_controller.dart';
+export 'package:repair_shop_web/app/features/dashboard/controllers/reports_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 // models

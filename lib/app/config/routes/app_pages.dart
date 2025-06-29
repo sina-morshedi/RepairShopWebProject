@@ -6,9 +6,11 @@ import 'package:repair_shop_web/app/features/dashboard/bindings/dashboard_bindin
 import 'package:repair_shop_web/app/features/dashboard/bindings/insertcarinfo_binding.dart';
 import 'package:repair_shop_web/app/features/dashboard/bindings/settings_binding.dart';
 import 'package:repair_shop_web/app/features/dashboard/bindings/troubleshooting_binding.dart';
+import 'package:repair_shop_web/app/features/dashboard/bindings/reports_binding.dart';
 import 'package:get/get.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/settings_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/troubleshooting_screen.dart';
+import 'package:repair_shop_web/app/features/dashboard/views/screens/reports_screen.dart';
 
 part 'app_routes.dart';
 
@@ -41,6 +43,11 @@ class AppPages {
       name: _Paths.troubleshooting,
       page: () => const TroubleshootingScreen(),
       binding: TroubleshootingBinding(),
+    ),
+    GetPage(
+      name: _Paths.reports,
+      page: () => const ReportsScreen(),
+      binding: ReportsBinding(),
     ),
   ];
 }

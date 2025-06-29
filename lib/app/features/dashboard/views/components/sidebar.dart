@@ -70,7 +70,12 @@ class Sidebar extends StatelessWidget {
               ],
               onSelected: (index, value) {
                 log("index : $index | label : ${value.label}");
-                if (index == 2) {
+
+                if (index == 0) {
+                  Get.toNamed(Routes.dashboard);
+                }if (index == 1) {
+                  Get.toNamed(Routes.reports);
+                }if (index == 2) {
                   Get.toNamed(Routes.insertCarInfo);
                 }if (index == 3) {
                   Get.toNamed(Routes.troubleshooting);

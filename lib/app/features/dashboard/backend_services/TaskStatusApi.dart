@@ -35,7 +35,6 @@ class TaskStatusApi {
     final uri = Uri.parse(ApiEndpoints.getTaskStatusByName);
 
     try {
-      print('uri: $uri');
       final response = await http.post(
         uri,
         headers: {"Content-Type": "application/json"},

@@ -53,4 +53,20 @@ class CarInfoDTO {
       "dateTime": dateTime?.toIso8601String(),
     };
   }
+
+  @override
+  String toString() {
+    return 'CarInfoDTO('
+        'id: $id, '
+        'chassisNo: $chassisNo, '
+        'motorNo: $motorNo, '
+        'licensePlate: $licensePlate, '
+        'brand: $brand, '
+        'brandModel: $brandModel, '
+        'modelYear: $modelYear, '
+        'fuelType: $fuelType, '
+        'dateTime: ${dateTime != null ? DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime!) : 'null'}'
+        ')';
+  }
+
 }

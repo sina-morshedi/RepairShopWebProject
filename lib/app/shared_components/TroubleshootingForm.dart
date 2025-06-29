@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:flutter/material.dart';
@@ -86,7 +88,12 @@ class _TroubleshootingFormState extends State<TroubleshootingForm> {
         );
 
         final logResponse = await CarRepairLogApi().createLog(logRequest);
-
+        if(logResponse.status == 'success') {
+          print('logResponse');
+          print(logResponse.data.toString());
+          print("Last Name");
+          print(logResponse.data!.problemReport!.creatorUser!.lastName);
+        }
         if (logResponse.status == 'success') {
           StringHelper.showInfoDialog(
               context,"CarRepairLog başarıyla oluşturuldu.");

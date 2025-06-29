@@ -7,6 +7,7 @@ class Routes {
   static const login = _Paths.login;
   static const settings = _Paths.settings;
   static const troubleshooting = _Paths.troubleshooting;
+  static const reports = _Paths.reports;
 }
 
 /// contains a list of route names.
@@ -17,6 +18,7 @@ class _Paths {
   static const insertCarInfo = '/insertCarInfo';
   static const settings = '/settings';
   static const troubleshooting = '/troubleshooting';
+  static const reports = '/reports';
 
   // Example :
   // static const index = '/';
