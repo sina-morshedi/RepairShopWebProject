@@ -3,13 +3,9 @@ import 'dart:math';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:flutter/material.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:repair_shop_web/app/constans/app_constants.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
-import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
-import 'package:repair_shop_web/app/features/dashboard/models/CarInfo.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
+import 'package:repair_shop_web/app/shared_components/LastCarRepairedLogCard.dart';
 
 class TroubleshootingForm extends StatefulWidget {
   @override
@@ -19,6 +15,7 @@ class TroubleshootingForm extends StatefulWidget {
 class _TroubleshootingFormState extends State<TroubleshootingForm> {
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _problemController = TextEditingController();
+  CarRepairLogResponseDTO? _latestLog;
 
   CarInfoDTO? carInfo;
   bool isLoading = false;
@@ -139,8 +136,15 @@ class _TroubleshootingFormState extends State<TroubleshootingForm> {
           if (isLoading) Center(child: CircularProgressIndicator()),
           if (carInfo != null) ...[
             SizedBox(height: 16),
-            Text("Bulunan Araç: ${carInfo!.brand} ${carInfo!.brandModel}",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            LastCarRepairedLogCard(
+              licensePlate: _licensePlateController.text.trim().toUpperCase(),
+              onLogFetched: (log) {
+                setState(() {
+                  _latestLog = log;
+                  _problemController.text = log.problemReport!.problemSummary!;
+                });
+              },
+            ),
             SizedBox(height: 16),
             TextField(
               controller: _problemController,

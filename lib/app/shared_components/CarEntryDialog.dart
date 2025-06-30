@@ -4,6 +4,7 @@ import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
+import 'package:repair_shop_web/app/shared_components/LastCarRepairedLogCard.dart';
 
 class CarEntryDialog extends StatefulWidget {
   const CarEntryDialog({super.key});
@@ -40,7 +41,6 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
     final userController = Get.find<UserController>();
     final userId = userController.currentUser?.userId ?? "";
 
-    print('_CarEntry');
     if(selectedCar != null) {
       final logRequest = CarRepairLogRequestDTO(
         carId: selectedCar!.id,
@@ -61,7 +61,7 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
 
     }
   }
-  
+
   Future<void> _search() async {
     final plate = _searchController.text.trim().toUpperCase();
     if (plate.isEmpty) return;
@@ -103,7 +103,6 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
       foundLog = false;
       StringHelper.showErrorDialog(
           context, 'Log Response: ${logResponse.message!}');
-      return;
     }
 
     final taskStatus  = await TaskStatusApi().getTaskStatusByName('GİRMEK');
@@ -115,7 +114,6 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
 
     } else
       StringHelper.showErrorDialog(context, 'Task Status Respone: ${taskStatus.message!}');
-
 
   }
 
@@ -142,42 +140,7 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
             if (isLoading)
               const CircularProgressIndicator()
             else if (selectedCar != null)
-              Card(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Car Info Section
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Plaka: ${selectedCar!.licensePlate}',
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text('Marka: ${selectedCar!.brand} ${selectedCar!.brandModel}'),
-                            Text('Model Yılı: ${selectedCar!.modelYear}'),
-                            Text('Yakıt Tipi: ${selectedCar!.fuelType}'),
-                          ],
-                        ),
-                      ),
-
-                      // SVG icon for task status
-                      if (latestLog?.taskStatus?.taskStatusName != null &&
-                          statusSvgMap.containsKey(latestLog!.taskStatus!.taskStatusName))
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: SvgPicture.asset(
-                            statusSvgMap[latestLog!.taskStatus!.taskStatusName]!,
-                            width: 48,
-                            height: 48,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+              LastCarRepairedLogCard(licensePlate: selectedCar!.licensePlate),
           ],
         ),
       ),
@@ -188,12 +151,11 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
         ),
         ElevatedButton(
           onPressed: (){
-            print('onPressed');
-            if(!foundLog)
+            if(!foundLog) {
               _CarEntry();
-            else if(latestLog!.taskStatus.taskStatusName  == 'GÖREV YOK')
+            } else if(latestLog!.taskStatus.taskStatusName  == 'GÖREV YOK') {
               _CarEntry();
-            else
+            } else
               StringHelper.showErrorDialog(context, 'Araba şu anda tamir aşamasında.');
           },
           child: const Text('Araba girişi'),

@@ -1,4 +1,5 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
+import 'package:repair_shop_web/app/shared_components/CarRepairLogListView.dart';
 import 'package:flutter/material.dart';
 
 class FilterReportsTab extends StatefulWidget {
@@ -12,6 +13,7 @@ class _FilterReportsTabState extends State<FilterReportsTab> {
   String? selectedFilter; // "Plaka" یا "Görev Durumu"
   final TextEditingController _plateController = TextEditingController();
   String? selectedStatus;
+  List<CarRepairLogResponseDTO> _logs = [];
 
   final List<String> filterOptions = ['Plaka', 'Görev Durumu'];
 
@@ -66,10 +68,22 @@ class _FilterReportsTabState extends State<FilterReportsTab> {
         });
         StringHelper.showErrorDialog(context, 'Kayıt bulunamadı.');
       }
-    } else if (selectedFilter == 'Görev Durumu') {
+    }else if (selectedFilter == 'Görev Durumu') {
       if (selectedStatus == null) {
         StringHelper.showErrorDialog(context, 'Lütfen görev durumunu seçin.');
         return;
+      } else {
+        final response = await CarRepairLogApi().getLatestLogByTaskStatusName(selectedStatus!);
+        if (response.status == 'success') {
+          setState(() {
+            filteredReports = List<CarRepairLogResponseDTO>.from(response.data!); // اینجا اصلاح شد
+          });
+        } else {
+          setState(() {
+            filteredReports = [];
+          });
+          StringHelper.showErrorDialog(context, response.message!);
+        }
       }
     } else {
       StringHelper.showErrorDialog(context, 'Lütfen filtre türü seçin.');
@@ -166,7 +180,7 @@ class _FilterReportsTabState extends State<FilterReportsTab> {
                 items: taskStatuses
                     .map(
                       (status) => DropdownMenuItem<String>(
-                    value: status.id,
+                    value: status.taskStatusName,
                     child: Text(status.taskStatusName),
                   ),
                 )
@@ -177,6 +191,7 @@ class _FilterReportsTabState extends State<FilterReportsTab> {
                     filteredReports.clear();
                   });
                 },
+
               ),
             ],
           ],

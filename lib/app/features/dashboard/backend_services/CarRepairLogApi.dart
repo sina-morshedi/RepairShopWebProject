@@ -62,7 +62,7 @@ class CarRepairLogApi {
   }
 
   Future<ApiResponse<CarRepairLogResponseDTO>> getLatestLogByLicensePlate(String plate) async {
-    final String backendUrl = '${ApiEndpoints.carRepairLogLatestGetByTaskStatusName}/$plate';
+    final String backendUrl = '${ApiEndpoints.carRepairLogLatestGetByLicensePlate}/$plate';
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
@@ -89,6 +89,40 @@ class CarRepairLogApi {
     }
 
   }
+
+  Future<ApiResponse<List<CarRepairLogResponseDTO>>> getLatestLogByTaskStatusName(String taskStatusName) async {
+    final encodedStatusName = Uri.encodeComponent(taskStatusName);
+    final String backendUrl = '${ApiEndpoints.carRepairLogLatestGetByTaskStatusName}/$encodedStatusName';
+
+    try {
+      final response = await http.get(Uri.parse(backendUrl));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final List<dynamic> decodedList = jsonDecode(response.body);
+
+        final List<CarRepairLogResponseDTO> logs = decodedList
+            .map((jsonItem) => CarRepairLogResponseDTO.fromJson(jsonItem))
+            .toList();
+
+        return ApiResponse(
+          status: 'success',
+          data: logs,
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
+
 
   // Create a new log: sends RequestDTO, receives ResponseDTO
   Future<ApiResponse<CarRepairLogResponseDTO>> createLog(CarRepairLogRequestDTO request) async {
