@@ -59,8 +59,8 @@ class Sidebar extends StatelessWidget {
                 ),
                 SelectionButtonData(
                   activeIcon: EvaIcons.person,
-                  icon: EvaIcons.personOutline,
-                  label: "Profil",
+                  icon: EvaIcons.briefcaseOutline,
+                  label: "Proje yönetimi",
                 ),
                 SelectionButtonData(
                   activeIcon: EvaIcons.settings,
@@ -79,6 +79,8 @@ class Sidebar extends StatelessWidget {
                   Get.toNamed(Routes.insertCarInfo);
                 }if (index == 3) {
                   Get.toNamed(Routes.troubleshooting);
+                }if (index == 4) {
+                  Get.toNamed(Routes.projectManage);
                 }
                 if (index == 5) {
                   Get.toNamed(Routes.settings);

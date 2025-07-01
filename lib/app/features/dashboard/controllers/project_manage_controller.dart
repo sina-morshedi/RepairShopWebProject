@@ -2,17 +2,13 @@ import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 
 
-class ReportsController extends GetxController {
+class ProjectManageController extends GetxController {
 
-  final scaffoldKeyReports = GlobalKey<ScaffoldState>();
-  @override
-  void onReady() {
-    super.onReady();
-  }
+  final scaffoldKeyProjectManage = GlobalKey<ScaffoldState>();
 
   void openDrawer() {
-    if (scaffoldKeyReports.currentState != null) {
-      scaffoldKeyReports.currentState!.openDrawer();
+    if (scaffoldKeyProjectManage.currentState != null) {
+      scaffoldKeyProjectManage.currentState!.openDrawer();
     }
   }
 

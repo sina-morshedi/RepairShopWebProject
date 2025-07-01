@@ -13,6 +13,11 @@ class DashboardController extends GetxController {
     }
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+  }
+
   // Data
   Profile getProfil() {
     final userController = Get.find<UserController>();

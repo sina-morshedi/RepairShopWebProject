@@ -91,18 +91,20 @@ class _AddAccountDialog extends State<AddAccountDialog> {
   }
 
   Future<void> loadData() async {
-    final permissionsList = await backend_services().fetchAllPermissions();
-    final rolesList = await backend_services().fetchAllRoles();
+    final permissionsResponse = await backend_services().fetchAllPermissions();
+    final rolesResponse = await backend_services().fetchAllRoles();
 
     if (!mounted) return;
 
     setState(() {
-      _permissionsList = permissionsList;
-      _rolesList = rolesList;
-      permissionsName = permissionsList.map((p) => p.permissionName).toList();
-      rolesName = rolesList.map((r) => r.roleName).toList();
+      _permissionsList = permissionsResponse.data ?? [];
+      _rolesList = rolesResponse.data ?? [];
+
+      permissionsName = _permissionsList.map((p) => p.permissionName).toList();
+      rolesName = _rolesList.map((r) => r.roleName).toList();
     });
   }
+
 
   Future<void> saveNewUser() async {
     final username = _usernameController.text;

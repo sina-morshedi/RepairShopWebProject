@@ -42,6 +42,7 @@ export 'package:repair_shop_web/app/features/dashboard/controllers/settings_cont
 export 'package:repair_shop_web/app/features/dashboard/controllers/troubleshooting_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/reports_controller.dart';
 export 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
+export 'package:repair_shop_web/app/features/dashboard/controllers/project_manage_controller.dart';
 
 // models
 // export 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
@@ -60,3 +61,8 @@ export 'package:repair_shop_web/app/features/dashboard/views/components/team_mem
 export 'package:flutter/material.dart';
 export 'package:get/get.dart';
 export 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:flutter/material.dart';
+
+
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();

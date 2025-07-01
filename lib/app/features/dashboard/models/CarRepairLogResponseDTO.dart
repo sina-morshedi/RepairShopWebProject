@@ -2,12 +2,12 @@ import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportResponseDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
-import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRequestDTO.dart';
 
 class CarRepairLogResponseDTO {
   final String? id;
   final CarInfoDTO carInfo;
   final UserProfile creatorUser;
+  final UserProfile? assignedUser;   // ← اضافه شده
   final String? description;
   final TaskStatusDTO taskStatus;
   final DateTime dateTime;
@@ -17,6 +17,7 @@ class CarRepairLogResponseDTO {
     this.id,
     required this.carInfo,
     required this.creatorUser,
+    this.assignedUser,            // ← اضافه شده
     this.description,
     required this.taskStatus,
     required this.dateTime,
@@ -28,6 +29,9 @@ class CarRepairLogResponseDTO {
       id: json['_id'] ?? json['id'],
       carInfo: CarInfoDTO.fromJson(json['carInfo']),
       creatorUser: UserProfile.fromJson(json['creatorUser']),
+      assignedUser: json['assignedUser'] != null
+          ? UserProfile.fromJson(json['assignedUser'])
+          : null,                    // ← اضافه شده
       description: json['description'],
       taskStatus: TaskStatusDTO.fromJson(json['taskStatus']),
       dateTime: DateTime.parse(json['dateTime']),
@@ -42,6 +46,7 @@ class CarRepairLogResponseDTO {
       if (id != null) '_id': id,
       'carInfo': carInfo.toJson(),
       'creatorUser': creatorUser.toJson(),
+      if (assignedUser != null) 'assignedUser': assignedUser!.toJson(),  // ← اضافه شده
       if (description != null) 'description': description,
       'taskStatus': taskStatus.toJson(),
       'dateTime': dateTime.toIso8601String(),
@@ -55,12 +60,11 @@ class CarRepairLogResponseDTO {
         'id: $id, '
         'carInfo: $carInfo, '
         'creatorUser: $creatorUser, '
+        'assignedUser: $assignedUser, '    // ← اضافه شده
         'description: $description, '
         'taskStatus: $taskStatus, '
         'dateTime: $dateTime, '
         'problemReport: $problemReport'
         ')';
   }
-
 }
-

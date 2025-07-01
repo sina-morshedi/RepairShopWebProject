@@ -12,7 +12,7 @@ class TroubleshootingForm extends StatefulWidget {
   _TroubleshootingFormState createState() => _TroubleshootingFormState();
 }
 
-class _TroubleshootingFormState extends State<TroubleshootingForm> {
+class _TroubleshootingFormState extends State<TroubleshootingForm>{
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _problemController = TextEditingController();
   CarRepairLogResponseDTO? _latestLog;

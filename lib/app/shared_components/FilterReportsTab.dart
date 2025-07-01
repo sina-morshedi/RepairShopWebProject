@@ -9,7 +9,7 @@ class FilterReportsTab extends StatefulWidget {
   State<FilterReportsTab> createState() => _FilterReportsTabState();
 }
 
-class _FilterReportsTabState extends State<FilterReportsTab> {
+class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
   String? selectedFilter; // "Plaka" یا "Görev Durumu"
   final TextEditingController _plateController = TextEditingController();
   String? selectedStatus;
@@ -33,6 +33,17 @@ class _FilterReportsTabState extends State<FilterReportsTab> {
   void initState() {
     super.initState();
     fetchTaskStatuses();
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
 
@@ -91,36 +102,8 @@ class _FilterReportsTabState extends State<FilterReportsTab> {
   }
 
   void ShowDetailsDialog(CarRepairLogResponseDTO log)async{
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Detaylar - Plaka: ${log.carInfo.licensePlate}'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Araç: ${log.carInfo?.brand ?? '-'} ${log.carInfo?.brandModel ?? '-'}'),
-              Text('Motor No: ${log.carInfo?.motorNo ?? '-'}'),
-              Text('Şasi No: ${log.carInfo?.chassisNo ?? '-'}'),
-              const SizedBox(height: 8),
-              Text('Oluşturan: ${log.creatorUser.firstName} ${log.creatorUser.lastName}'),
-              //Text('Kullanıcı ID: ${log.creatorUser?.id ?? '-'}'),
-              const SizedBox(height: 8),
-              Text('Status: ${log.taskStatus.taskStatusName ?? '-'}'),
-              const SizedBox(height: 8),
-              Text('Problem Özeti: ${log.problemReport?.problemSummary ?? '-'}'),
-              Text('Oluşturulma Tarihi: ${log.dateTime.toString().split('.')[0]}'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Kapat'),
-          ),
-        ],
-      ),
-    );
+    StringHelper.ShowDetailsLogDialog(context, log);
+
   }
 
   @override

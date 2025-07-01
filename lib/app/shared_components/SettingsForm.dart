@@ -450,7 +450,7 @@ class EditAccountDialog extends StatefulWidget {
   State<EditAccountDialog> createState() => _EditAccountDialog();
 }
 
-class _EditAccountDialog extends State<EditAccountDialog> {
+class _EditAccountDialog extends State<EditAccountDialog> with RouteAware{
   final _formKey = GlobalKey<FormState>();
   final UserApi userApi = UserApi();
 
@@ -484,18 +484,21 @@ class _EditAccountDialog extends State<EditAccountDialog> {
   }
 
   Future<void> loadData() async {
-    final permissionsList = await backend_services().fetchAllPermissions();
-    final rolesList = await backend_services().fetchAllRoles();
+    final permissionsResponse = await backend_services().fetchAllPermissions();
+    final rolesResponse = await backend_services().fetchAllRoles();
 
     if (!mounted) return;
 
     setState(() {
-      _permissionsList = permissionsList;
-      _rolesList = rolesList;
-      permissionsName = permissionsList.map((p) => p.permissionName).toList();
-      rolesName = rolesList.map((r) => r.roleName).toList();
+      _permissionsList = permissionsResponse.data ?? [];
+      _rolesList = rolesResponse.data ?? [];
+
+      permissionsName = _permissionsList.map((p) => p.permissionName).toList();
+      rolesName = _rolesList.map((r) => r.roleName).toList();
     });
   }
+
+
 
   Future<void> updateUser() async {
     if (!_formKey.currentState!.validate()) return;

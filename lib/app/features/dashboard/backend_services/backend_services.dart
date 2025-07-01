@@ -26,89 +26,99 @@ part 'CarProblemReportApi.dart';
 part 'CarRepairLogApi.dart';
 
 class backend_services {
-  Future<List<users>> fetchAllProfile({BuildContext? context}) async {
+  Future<ApiResponse<List<UserProfile>>> fetchAllProfile() async {
     final String backendUrl = ApiEndpoints.getAllProfile;
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final List<dynamic> decodedList = jsonDecode(response.body);
 
-        if (data is List) {
-          return data.map((e) => users.fromJson(e)).toList();
-        } else if (data is Map<String, dynamic>) {
-          return [users.fromJson(data)];
-        } else {
-          //TODO Return the appropriate error.
-          return [];
-        }
-      } else {
-        final data = jsonDecode(response.body);
-        //TODO Return the appropriate error.
-        return [];
+        final List<UserProfile> logs = decodedList
+            .map((jsonItem) => UserProfile.fromJson(jsonItem))
+            .toList();
+
+        return ApiResponse(
+          status: 'success',
+          data: logs,
+        );
+      }else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
       }
     } catch (e) {
-      //TODO Return the appropriate error.
-      return [];
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
     }
   }
 
-  Future<List<permissions>> fetchAllPermissions({BuildContext? context}) async {
+  Future<ApiResponse<List<permissions>>> fetchAllPermissions() async {
     final String backendUrl = ApiEndpoints.getAllPermissions;
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final List<dynamic> decodedList = jsonDecode(response.body);
 
-        if (data is List) {
-          return data.map((e) => permissions.fromJson(e)).toList();
-        } else if (data is Map<String, dynamic>) {
-          return [permissions.fromJson(data)];
-        } else {
-          //TODO Return the appropriate error.
-          return [];
-        }
-      } else {
-        final data = jsonDecode(response.body);
-        //TODO Return the appropriate error.
-        return [];
+        final List<permissions> logs = decodedList
+            .map((jsonItem) => permissions.fromJson(jsonItem))
+            .toList();
+
+        return ApiResponse(
+          status: 'success',
+          data: logs,
+        );
+      }else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
       }
     } catch (e) {
-      //TODO Return the appropriate error.
-      return [];
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
     }
   }
 
-  Future<List<roles>> fetchAllRoles({BuildContext? context}) async {
+  Future<ApiResponse<List<roles>>> fetchAllRoles() async {
     final String backendUrl = ApiEndpoints.getAllRoles;
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final List<dynamic> decodedList = jsonDecode(response.body);
 
-        if (data is List) {
-          return data.map((e) => roles.fromJson(e)).toList();
-        } else if (data is Map<String, dynamic>) {
-          return [roles.fromJson(data)];
-        } else {
-          //TODO Return the appropriate error.
-          return [];
-        }
+        final List<roles> logs = decodedList
+            .map((jsonItem) => roles.fromJson(jsonItem))
+            .toList();
+
+        return ApiResponse(
+          status: 'success',
+          data: logs,
+        );
       } else {
-        final data = jsonDecode(response.body);
-        //TODO Return the appropriate error.
-        return [];
+        return ApiResponse(
+          status: 'error',
+          message: 'Unexpected status code: ${response.statusCode}\nBody: ${response.body}',
+        );
       }
     } catch (e) {
-      //TODO Return the appropriate error.
-      return [];
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
     }
   }
+
 
   Future<int> countAllMembers({BuildContext? context}) async {
     final String backendUrl = ApiEndpoints.countAllMembers;

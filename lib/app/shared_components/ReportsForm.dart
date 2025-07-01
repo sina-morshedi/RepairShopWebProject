@@ -8,7 +8,7 @@ class ReportsForm extends StatefulWidget {
   _ReportsFormState createState() => _ReportsFormState();
 }
 
-class _ReportsFormState extends State<ReportsForm> {
+class _ReportsFormState extends State<ReportsForm>{
 
   String? str;
 

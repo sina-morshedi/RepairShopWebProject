@@ -31,11 +31,13 @@ class CarRepairedLogCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Plaka: ${carInfo?.licensePlate ?? "-"}',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Marka: ${carInfo?.brand ?? ""} ${carInfo?.brandModel ?? ""}'),
-                  Text('Model Yılı: ${carInfo?.modelYear ?? ""}'),
-                  Text('Yakıt Tipi: ${carInfo?.fuelType ?? ""}'),
+                  SelectableText(
+                    'Plaka: ${carInfo?.licensePlate ?? "-"}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SelectableText('Marka: ${carInfo?.brand ?? ""} ${carInfo?.brandModel ?? ""}'),
+                  SelectableText('Model Yılı: ${carInfo?.modelYear ?? ""}'),
+                  SelectableText('Yakıt Tipi: ${carInfo?.fuelType ?? ""}'),
                 ],
               ),
             ),
@@ -55,5 +57,6 @@ class CarRepairedLogCard extends StatelessWidget {
         ),
       ),
     );
+
   }
 }

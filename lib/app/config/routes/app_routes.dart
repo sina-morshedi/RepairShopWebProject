@@ -8,6 +8,7 @@ class Routes {
   static const settings = _Paths.settings;
   static const troubleshooting = _Paths.troubleshooting;
   static const reports = _Paths.reports;
+  static const projectManage = _Paths.projectManage;
 }
 
 /// contains a list of route names.
@@ -19,6 +20,7 @@ class _Paths {
   static const settings = '/settings';
   static const troubleshooting = '/troubleshooting';
   static const reports = '/reports';
+  static const projectManage = '/projectManage';
 
   // Example :
   // static const index = '/';

@@ -17,7 +17,7 @@ class InsertCarInfoForm extends StatefulWidget {
   _InsertCarInfoFormState createState() => _InsertCarInfoFormState();
 }
 
-class _InsertCarInfoFormState extends State<InsertCarInfoForm> {
+class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
   final _formKey = GlobalKey<FormState>();
 
   CarFormMode _mode = CarFormMode.newCar;
