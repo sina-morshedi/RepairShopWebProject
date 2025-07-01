@@ -1,11 +1,11 @@
 import 'package:repair_shop_web/app/features/dashboard/views/screens/login_screen.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
-class ProfilTile extends StatelessWidget {
-  const ProfilTile(
+class ProfileTile extends StatelessWidget {
+  const ProfileTile(
       {required this.data, required this.onPressedNotification, Key? key})
       : super(key: key);
 
@@ -31,12 +31,7 @@ class ProfilTile extends StatelessWidget {
       ),
       trailing: IconButton(
         onPressed: () {
-          // مرحله ۱: پاک کردن اطلاعات ورود
-          // مثلاً پاک کردن توکن از حافظه
-          // SharedPreferences prefs = await SharedPreferences.getInstance();
-          // await prefs.remove("authToken");
-
-          // مرحله ۲: رفتن به صفحه‌ی لاگین یا صفحه‌ی اول
+          Get.find<UserController>().clearUser();
           Get.offAll(() => LoginPage()); // یا LoginPage()، هرچی اسمش هست
         },
         icon: const Icon(FontAwesomeIcons.signOutAlt),

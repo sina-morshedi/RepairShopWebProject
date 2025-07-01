@@ -26,6 +26,6 @@ class TaskStatusDTO {
 
   @override
   String toString() {
-    return 'id: $id, taskStatusName: $taskStatusName';
+    return 'TaskStatusDTO(id: $id, taskStatusName: $taskStatusName)';
   }
 }

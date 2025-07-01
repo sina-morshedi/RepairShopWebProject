@@ -5,6 +5,7 @@ import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
 import 'package:repair_shop_web/app/shared_components/LastCarRepairedLogCard.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 class CarEntryDialog extends StatefulWidget {
   const CarEntryDialog({super.key});

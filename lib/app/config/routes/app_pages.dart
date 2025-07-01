@@ -1,19 +1,15 @@
 import 'package:repair_shop_web/app/features/dashboard/views/screens/insert_car_info_screen.dart';
-
 import 'package:repair_shop_web/app/features/dashboard/views/screens/dashboard_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/login_screen.dart';
-import 'package:repair_shop_web/app/features/dashboard/bindings/dashboard_binding.dart';
-import 'package:repair_shop_web/app/features/dashboard/bindings/insertcarinfo_binding.dart';
-import 'package:repair_shop_web/app/features/dashboard/bindings/settings_binding.dart';
-import 'package:repair_shop_web/app/features/dashboard/bindings/troubleshooting_binding.dart';
-import 'package:repair_shop_web/app/features/dashboard/bindings/project_manage_binding.dart';
-import 'package:repair_shop_web/app/features/dashboard/bindings/reports_binding.dart';
-import 'package:get/get.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/settings_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/troubleshooting_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/reports_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/project_manage_screen.dart';
+import 'package:repair_shop_web/app/features/dashboard/views/screens/main_layout.dart';
 
+import 'package:get/get.dart';
+
+import 'package:repair_shop_web/app/features/dashboard/bindings/AppBinding.dart';
 part 'app_routes.dart';
 
 /// contains all configuration pages
@@ -28,33 +24,33 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.dashboard,
-      page: () => const DashboardScreen(),
-      binding: DashboardBinding(),
+      page: () => MainLayout(child: DashboardScreen()),
+
     ),
     GetPage(
       name: _Paths.insertCarInfo,
-      page: () => const InsertCarInfoScreen(),
-      binding: InsertcarinfoBinding(),
+      page: () => MainLayout(child: InsertCarInfoScreen()),
+
     ),
     GetPage(
       name: _Paths.settings,
-      page: () => const SettingsScreen(),
-      binding: SettingsBinding(),
+      page: () => MainLayout(child: SettingsScreen()),
+
     ),
     GetPage(
       name: _Paths.troubleshooting,
-      page: () => const TroubleshootingScreen(),
-      binding: TroubleshootingBinding(),
+      page: () => MainLayout(child: TroubleshootingScreen()),
+
     ),
     GetPage(
       name: _Paths.reports,
-      page: () => const ReportsScreen(),
-      binding: ReportsBinding(),
+      page: () => MainLayout(child: ReportsScreen()),
+
     ),
     GetPage(
       name: _Paths.projectManage,
-      page: () => const ProjectManageScreen(),
-      binding: ProjectManageBinding(),
+      page: () => MainLayout(child: ProjectManageScreen()),
+
     ),
   ];
 }

@@ -1,16 +1,11 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 
 class TroubleshootingController extends GetxController {
 
-  final scaffoldKeyTroubleshooting = GlobalKey<ScaffoldState>();
 
-  void openDrawer() {
-    if (scaffoldKeyTroubleshooting.currentState != null) {
-      scaffoldKeyTroubleshooting.currentState!.openDrawer();
-    }
-  }
 
   // Data
   Profile getProfil() {

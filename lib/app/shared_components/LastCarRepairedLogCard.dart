@@ -43,16 +43,34 @@ class _LastCarRepairedLogCardState extends State<LastCarRepairedLogCard> {
     try {
       final car = await fetchCarInfoByPlate(widget.licensePlate);
       final log = await fetchLatestRepairLog(widget.licensePlate);
-      if (log != null && widget.onLogFetched != null) {
-        widget.onLogFetched!(log);
+      print('1');
+      if (!mounted) return;
+      print('2');
+      try {
+        if (log != null && widget.onLogFetched != null) {
+          widget.onLogFetched!(log);
+        }
+      } catch (e, stack) {
+        print('Error in onLogFetched callback: $e');
+        print(stack);
       }
+      print('3');
+      if (!mounted) return;
+      print('car Log');
+      print(car.toString());
+      print('log');
+      print(log.toString());
       setState(() {
+        print('test');
         carInfo = car;
         latestLog = log;
         isLoading = false;
+        print('Set State');
+        print(carInfo.toString());
+        print(latestLog.toString());
       });
     } catch (e) {
-      // Handle error appropriately
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });

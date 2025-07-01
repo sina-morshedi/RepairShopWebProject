@@ -8,7 +8,9 @@ import 'dart:convert';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,6 +20,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+  Rxn<UserProfile> user = Rxn<UserProfile>();
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
 
@@ -27,6 +30,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
+    final box = GetStorage();
+    final storedUserJson = box.read('user');
+    if (storedUserJson != null) {
+      user.value = UserProfile.fromJson(jsonDecode(storedUserJson));
+    }
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -39,6 +47,18 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       curve: Curves.easeInOut,
     ));
     _controller.forward();
+  }
+
+  void setUser(UserProfile newUser) {
+    user.value = newUser;
+    final box = GetStorage();
+    box.write('user', jsonEncode(newUser.toJson()));
+  }
+
+  void clearUser() {
+    user.value = null;
+    final box = GetStorage();
+    box.remove('user');
   }
 
   @override

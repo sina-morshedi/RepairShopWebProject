@@ -451,7 +451,7 @@ class EditAccountDialog extends StatefulWidget {
 }
 
 class _EditAccountDialog extends State<EditAccountDialog> with RouteAware{
-  final _formKey = GlobalKey<FormState>();
+  final _formKeySettings = GlobalKey<FormState>();
   final UserApi userApi = UserApi();
 
   final _usernameController = TextEditingController();
@@ -501,7 +501,7 @@ class _EditAccountDialog extends State<EditAccountDialog> with RouteAware{
 
 
   Future<void> updateUser() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKeySettings.currentState!.validate()) return;
 
     final username = _usernameController.text;
     final firstName = _firstNameController.text;
@@ -555,7 +555,7 @@ class _EditAccountDialog extends State<EditAccountDialog> with RouteAware{
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
-          key: _formKey,
+          key: _formKeySettings,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -673,7 +673,7 @@ class _EditAccountDialog extends State<EditAccountDialog> with RouteAware{
                     const SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
+                        if (_formKeySettings.currentState!.validate()) {
                           await updateUser();
                         }
                       },

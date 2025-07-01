@@ -3,6 +3,7 @@ library settings;
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 import 'package:repair_shop_web/app/shared_components/SettingsForm.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/settings_controller.dart';
 
 
 class SettingsScreen extends GetView<SettingsController> {
@@ -11,27 +12,11 @@ class SettingsScreen extends GetView<SettingsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: controller.scaffoldKeySettings,
-      drawer: (ResponsiveBuilder.isDesktop(context))
-          ? null
-          : Drawer(
-              child: Padding(
-                padding: const EdgeInsets.only(top: kSpacing),
-                child: Sidebar(data: controller.getSelectedProject()),
-              ),
-            ),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
           child: ResponsiveBuilder(
         mobileBuilder: (context, constraints) {
           return Column(children: [
             const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-            _buildHeader(onPressedMenu: () => controller.openDrawer()),
-            const SizedBox(height: kSpacing),
-            const Divider(),
-            _buildProfile(data: controller.getProfil()),
-            const SizedBox(height: kSpacing),
-            const Divider(),
             SettingsForm(),
             const SizedBox(height: kSpacing / 2),
 
@@ -41,27 +26,13 @@ class SettingsScreen extends GetView<SettingsController> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Flexible(
                 flex: (constraints.maxWidth < 950) ? 6 : 9,
                 child: Column(
                   children: [
                     const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-                    _buildHeader(onPressedMenu: () => controller.openDrawer()),
-                    const SizedBox(height: kSpacing * 2),
                     SettingsForm(),
                     const SizedBox(height: kSpacing * 2),
-
-                  ],
-                ),
-              ),
-              Flexible(
-                flex: 4,
-                child: Column(
-                  children: [
-                    const SizedBox(height: kSpacing * (kIsWeb ? 0.5 : 1.5)),
-                    _buildProfile(data: controller.getProfil()),
-                    const Divider(thickness: 1),
 
                   ],
                 ),
@@ -74,73 +45,22 @@ class SettingsScreen extends GetView<SettingsController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Flexible(
-                flex: (constraints.maxWidth < 1360) ? 4 : 3,
-                child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(kBorderRadius),
-                      bottomRight: Radius.circular(kBorderRadius),
-                    ),
-                    child: Sidebar(data: controller.getSelectedProject())),
-              ),
-              Flexible(
                 flex: 9,
                 child: Column(
                   children: [
                     const SizedBox(height: kSpacing),
-                    _buildHeader(),
                     SettingsForm(),
-
                     const SizedBox(height: kSpacing * 2),
                   ],
                 ),
               ),
-              Flexible(
-                flex: 4,
-                child: Column(
-                  children: [
-                    const SizedBox(height: kSpacing / 2),
-                    _buildProfile(data: controller.getProfil()),
-                    const Divider(thickness: 1),
-                  ],
-                ),
-              )
             ],
           );
         },
-      )),
-    );
-  }
-
-  Widget _buildHeader({Function()? onPressedMenu}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: Row(
-        children: [
-          if (onPressedMenu != null)
-            Padding(
-              padding: const EdgeInsets.only(right: kSpacing),
-              child: IconButton(
-                onPressed: onPressedMenu,
-                icon: const Icon(EvaIcons.menu),
-                tooltip: "menu",
-              ),
-            ),
-          const Expanded(child: Header()),
-        ],
       ),
     );
   }
 
-
-  Widget _buildProfile({required Profile data}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: ProfilTile(
-        data: data,
-        onPressedNotification: () {},
-      ),
-    );
-  }
 }
 
 

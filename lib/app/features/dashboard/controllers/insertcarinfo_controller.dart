@@ -5,13 +5,7 @@ import 'package:repair_shop_web/app/features/dashboard/controllers/UserControlle
 
 class InsertcarinfoController extends GetxController {
 
-  final scaffoldKeyCarInfo = GlobalKey<ScaffoldState>();
 
-  void openDrawer() {
-    if (scaffoldKeyCarInfo.currentState != null) {
-      scaffoldKeyCarInfo.currentState!.openDrawer();
-    }
-  }
 
   // Data
   Profile getProfil() {

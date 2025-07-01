@@ -16,6 +16,10 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
   List<String?> selectedUserIds = [];
   List<bool> approvedFlags = [];
 
+  bool isLoading = true;
+  String? errorMessage;
+
+
   final Map<String, String> statusSvgMap = const {
     'GÖREV YOK': 'assets/images/vector/stop.svg',
     'GİRMEK': 'assets/images/vector/entered-garage.svg',
@@ -28,35 +32,46 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
   @override
   void initState() {
     super.initState();
+    fetchLatestLogs();
   }
 
   void fetchLatestLogs() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final carLogs = await CarRepairLogApi().getLatestLogByTaskStatusName('SORUN GİDERME');
     final usersLogs = await backend_services().fetchAllProfile();
 
-    if (carLogs.status == 'success') {
+    if (carLogs.status == 'success' && usersLogs.status == 'success') {
       setState(() {
-        carRepairLogs = carLogs.data;
+        carRepairLogs = carLogs.data!;
+        users = usersLogs.data!;
         selectedUserIds = List.filled(carRepairLogs!.length, null);
         approvedFlags = List.filled(carRepairLogs!.length, false);
+        isLoading = false;
       });
     } else {
-      StringHelper.showErrorDialog(context, carLogs.message!);
-    }
+      if(carLogs.status == 'error')
+        StringHelper.showErrorDialog(context, carLogs.message!);
+      if(usersLogs.status == 'error')
+        StringHelper.showErrorDialog(context, usersLogs.message!);
 
-    if (usersLogs.status == 'success') {
       setState(() {
-        users = usersLogs.data!;
+        isLoading = false;
       });
-    } else {
-      StringHelper.showErrorDialog(context, usersLogs.message!);
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
-    if (carRepairLogs == null || users == null) {
+    if (isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (carRepairLogs == null || carRepairLogs!.isEmpty) {
+      return const Center(child: Text("Hiçbir rapor bulunamadı."));
     }
 
     return SingleChildScrollView(
@@ -134,7 +149,8 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
                         svgPath,
                         width: 50,
                         height: 50,
-                        placeholderBuilder: (context) => const CircularProgressIndicator(strokeWidth: 1.5),
+                        placeholderBuilder: (context) =>
+                        const CircularProgressIndicator(strokeWidth: 1.5),
                       ),
                     ),
 
@@ -170,7 +186,8 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
                             color: Colors.grey.shade300,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           child: Row(
                             children: const [
                               Icon(Icons.lock, size: 20, color: Colors.grey),
@@ -189,4 +206,5 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
       ),
     );
   }
+
 }

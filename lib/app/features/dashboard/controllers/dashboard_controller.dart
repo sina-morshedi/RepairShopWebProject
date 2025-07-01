@@ -5,13 +5,7 @@ import 'package:repair_shop_web/app/features/dashboard/controllers/UserControlle
 
 class DashboardController extends GetxController {
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
   final RxInt selectedIndex = 0.obs;
-  void openDrawer() {
-    if (scaffoldKey.currentState != null) {
-      scaffoldKey.currentState!.openDrawer();
-    }
-  }
 
   @override
   void onReady() {
@@ -19,16 +13,19 @@ class DashboardController extends GetxController {
   }
 
   // Data
-  Profile getProfil() {
-    final userController = Get.find<UserController>();
-    final user = userController.user.value;
+  Profile? getProfil() {
+    final user = Get.find<UserController>().user.value;
+
+    if (user == null) return null;
+
     return Profile(
-      photo: AssetImage(ImageRasterPath.avatar1),
-      first_name: user!.firstName,
-      last_name: user!.lastName,
-      role_name: user!.role.roleName,
+      photo: const AssetImage(ImageRasterPath.avatar1),
+      first_name: user.firstName,
+      last_name: user.lastName,
+      role_name: user.role.roleName,
     );
   }
+
 
   List<TaskCardData> getAllTask() {
     return [

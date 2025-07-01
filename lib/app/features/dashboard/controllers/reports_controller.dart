@@ -1,20 +1,11 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 
 class ReportsController extends GetxController {
 
-  final scaffoldKeyReports = GlobalKey<ScaffoldState>();
-  @override
-  void onReady() {
-    super.onReady();
-  }
 
-  void openDrawer() {
-    if (scaffoldKeyReports.currentState != null) {
-      scaffoldKeyReports.currentState!.openDrawer();
-    }
-  }
 
   // Data
   Profile getProfil() {

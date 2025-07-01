@@ -5,13 +5,7 @@ import 'package:repair_shop_web/app/features/dashboard/controllers/UserControlle
 
 class SettingsController extends GetxController {
 
-  final scaffoldKeySettings = GlobalKey<ScaffoldState>();
 
-  void openDrawer() {
-    if (scaffoldKeySettings.currentState != null) {
-      scaffoldKeySettings.currentState!.openDrawer();
-    }
-  }
 
   // Data
   Profile getProfil() {

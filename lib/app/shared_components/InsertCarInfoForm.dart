@@ -18,7 +18,7 @@ class InsertCarInfoForm extends StatefulWidget {
 }
 
 class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
-  final _formKey = GlobalKey<FormState>();
+  final _formKeyInsertCarInfo = GlobalKey<FormState>();
 
   CarFormMode _mode = CarFormMode.newCar;
 
@@ -205,7 +205,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
                     setState(() {
                       _mode = value!;
                       _carDataLoaded = false;
-                      _formKey.currentState?.reset();
+                      _formKeyInsertCarInfo.currentState?.reset();
                       chassisController.clear();
                       motorController.clear();
                       plateController.clear();
@@ -226,7 +226,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
                     setState(() {
                       _mode = value!;
                       _carDataLoaded = false;
-                      _formKey.currentState?.reset();
+                      _formKeyInsertCarInfo.currentState?.reset();
                       chassisController.clear();
                       motorController.clear();
                       plateController.clear();
@@ -267,7 +267,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
             ),
 
           Form(
-            key: _formKey,
+            key: _formKeyInsertCarInfo,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -381,7 +381,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
                     label: const Text("Kaydet"),
                     onPressed: _isFormEnabled
                         ? () {
-                      if (_formKey.currentState?.validate() ?? false) {
+                      if (_formKeyInsertCarInfo.currentState?.validate() ?? false) {
                         saveEditCarInfo();
                       } else {
                         print("Form doğrulama başarısız.");

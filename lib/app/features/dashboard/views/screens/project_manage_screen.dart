@@ -3,6 +3,7 @@ library project_manage;
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 import 'package:repair_shop_web/app/shared_components/ProjectManageForm.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/project_manage_controller.dart';
 
 
 class ProjectManageScreen extends GetView<ProjectManageController> {
@@ -11,25 +12,11 @@ class ProjectManageScreen extends GetView<ProjectManageController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: controller.scaffoldKeyProjectManage,
-      drawer: (ResponsiveBuilder.isDesktop(context))
-          ? null
-          : Drawer(
-        child: Padding(
-          padding: const EdgeInsets.only(top: kSpacing),
-          child: Sidebar(data: controller.getSelectedProject()),
-        ),
-      ),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
           child: ResponsiveBuilder(
             mobileBuilder: (context, constraints) {
               return Column(children: [
                 const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-                _buildHeader(onPressedMenu: () => controller.openDrawer()),
-                const SizedBox(height: kSpacing),
-                const Divider(),
-                _buildProfile(data: controller.getProfil()),
                 const SizedBox(height: kSpacing),
                 const Divider(),
                 ProjectmanageForm(),
@@ -47,21 +34,9 @@ class ProjectManageScreen extends GetView<ProjectManageController> {
                     child: Column(
                       children: [
                         const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-                        _buildHeader(onPressedMenu: () => controller.openDrawer()),
                         const SizedBox(height: kSpacing * 2),
                         ProjectmanageForm(),
                         const SizedBox(height: kSpacing * 2),
-
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 4,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: kSpacing * (kIsWeb ? 0.5 : 1.5)),
-                        _buildProfile(data: controller.getProfil()),
-                        const Divider(thickness: 1),
 
                       ],
                     ),
@@ -87,59 +62,19 @@ class ProjectManageScreen extends GetView<ProjectManageController> {
                     child: Column(
                       children: [
                         const SizedBox(height: kSpacing),
-                        _buildHeader(),
                         ProjectmanageForm(),
                         const SizedBox(height: kSpacing * 2),
                       ],
                     ),
                   ),
-                  Flexible(
-                    flex: 4,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: kSpacing / 2),
-                        _buildProfile(data: controller.getProfil()),
-                        const Divider(thickness: 1),
-                      ],
-                    ),
-                  )
+
                 ],
               );
             },
-          )),
+          ),
     );
   }
 
-  Widget _buildHeader({Function()? onPressedMenu}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: Row(
-        children: [
-          if (onPressedMenu != null)
-            Padding(
-              padding: const EdgeInsets.only(right: kSpacing),
-              child: IconButton(
-                onPressed: onPressedMenu,
-                icon: const Icon(EvaIcons.menu),
-                tooltip: "menu",
-              ),
-            ),
-          const Expanded(child: Header()),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildProfile({required Profile data}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: ProfilTile(
-        data: data,
-        onPressedNotification: () {},
-      ),
-    );
-  }
 }
 
 
