@@ -12,7 +12,8 @@ class ProjectmanageForm extends StatefulWidget {
 
 class _ProjectmanageFormState extends State<ProjectmanageForm>{
   List<CarRepairLogResponseDTO>? carRepairLogs;
-  List<UserProfile>? users;
+  List<UserProfileDTO>? users;
+  List<TaskStatusDTO>? taskStatus;
   List<String?> selectedUserIds = [];
   List<bool> approvedFlags = [];
 
@@ -34,6 +35,14 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
     super.initState();
     fetchLatestLogs();
   }
+  String? findTaskStatusIdByName(String name) {
+    if (taskStatus == null) return null;
+    final found = taskStatus!.firstWhere(
+          (status) => status.taskStatusName == name,
+      orElse: () => TaskStatusDTO(id: '', taskStatusName: ''),
+    );
+    return found.id!.isNotEmpty ? found.id : null;
+  }
 
   void fetchLatestLogs() async {
     setState(() {
@@ -42,11 +51,13 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
 
     final carLogs = await CarRepairLogApi().getLatestLogByTaskStatusName('SORUN GİDERME');
     final usersLogs = await backend_services().fetchAllProfile();
+    final taskStatusLog = await TaskStatusApi().getAllStatuses();
 
     if (carLogs.status == 'success' && usersLogs.status == 'success') {
       setState(() {
         carRepairLogs = carLogs.data!;
         users = usersLogs.data!;
+        taskStatus = taskStatusLog.data!;
         selectedUserIds = List.filled(carRepairLogs!.length, null);
         approvedFlags = List.filled(carRepairLogs!.length, false);
         isLoading = false;
@@ -63,6 +74,30 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
     }
   }
 
+  void _saveCarLog(int index) async {
+    final log = carRepairLogs![index];
+    final statusId = findTaskStatusIdByName('BAŞLANGIÇ') ?? log.taskStatus.id;
+
+    final requestDTO = CarRepairLogRequestDTO(
+      carId: log.carInfo.id,
+      creatorUserId: log.creatorUser.userId,
+      assignedUserId: selectedUserIds[index],
+      description: log.description,
+      taskStatusId: statusId!,
+      dateTime: DateTime.now(),
+      problemReportId: log.problemReport?.id,
+    );
+
+    final response = await CarRepairLogApi().createLog(requestDTO);
+    if (response.status == 'success') {
+      StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
+      setState(() {
+        approvedFlags[index] = true;
+      });
+    }
+    else
+      StringHelper.showErrorDialog(context, response.message!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +161,7 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
                           items: users!.map((user) {
                             return DropdownMenuItem<String>(
                               value: user.userId,
-                              child: Text(user.username ?? "No Username"),
+                              child: Text('${user.firstName} ${user.lastName}' ?? "No Username"),
                             );
                           }).toList(),
                           onChanged: (value) {
@@ -162,10 +197,7 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
                       if (!approved)
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              approvedFlags[index] = true;
-                            });
-                            print('✅ Log approved: ${log.id}, selected user: $selectedUserId');
+                            _saveCarLog(index);
                           },
                           child: Container(
                             decoration: BoxDecoration(

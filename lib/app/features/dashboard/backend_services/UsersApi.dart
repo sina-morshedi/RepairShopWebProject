@@ -1,7 +1,7 @@
 part of 'backend_services.dart';
 
 class UserApi {
-  Future<ApiResponse<List<UserProfile>>> getAllUsers() async {
+  Future<ApiResponse<List<UserProfileDTO>>> getAllUsers() async {
     final String backendUrl = ApiEndpoints.getAllProfile;
 
     try {
@@ -9,8 +9,8 @@ class UserApi {
 
       if (response.statusCode == 200) {
         final List<dynamic> dataList = jsonDecode(response.body);
-        final List<UserProfile> user =
-        dataList.map((e) => UserProfile.fromJson(e)).toList();
+        final List<UserProfileDTO> user =
+        dataList.map((e) => UserProfileDTO.fromJson(e)).toList();
 
         return ApiResponse(
           status: 'success',

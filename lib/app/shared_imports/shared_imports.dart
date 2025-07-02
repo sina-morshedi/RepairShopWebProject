@@ -23,7 +23,6 @@ export 'package:repair_shop_web/app/features/dashboard/models/users.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/permissions.dart';
 export 'package:repair_shop_web/app/features/dashboard/views/components/sidebar.dart';
 export 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
-export 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRequestDTO.dart';
 export 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportResponseDTO.dart';

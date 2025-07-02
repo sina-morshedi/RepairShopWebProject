@@ -217,4 +217,36 @@ class CarRepairLogApi {
       );
     }
   }
+
+  Future<ApiResponse<List<CarRepairLogResponseDTO>>> getLatestLogForEachCar() async {
+
+    final String backendUrl = '${ApiEndpoints.carRepairLogLatestGetForEachCar}';
+
+    try {
+      final response = await http.get(Uri.parse(backendUrl));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final List<dynamic> decodedList = jsonDecode(response.body);
+
+        final List<CarRepairLogResponseDTO> logs = decodedList
+            .map((jsonItem) => CarRepairLogResponseDTO.fromJson(jsonItem))
+            .toList();
+
+        return ApiResponse(
+          status: 'success',
+          data: logs,
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
 }

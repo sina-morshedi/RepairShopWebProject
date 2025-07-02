@@ -3,7 +3,7 @@ import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dar
 class CarProblemReportResponseDTO {
   String? id;
   CarInfoDTO? carInfo;
-  UserProfile? creatorUser;
+  UserProfileDTO? creatorUser;
   String? problemSummary;
   DateTime? dateTime;
 
@@ -19,7 +19,7 @@ class CarProblemReportResponseDTO {
     return CarProblemReportResponseDTO(
       id: json['id'],
       carInfo: json['carInfo'] != null ? CarInfoDTO.fromJson(json['carInfo']) : null,
-      creatorUser: json['creatorUser'] != null ? UserProfile.fromJson(json['creatorUser']) : null,
+      creatorUser: json['creatorUser'] != null ? UserProfileDTO.fromJson(json['creatorUser']) : null,
       problemSummary: json['problemSummary'],
       dateTime: json['dateTime'] != null ? DateTime.tryParse(json['dateTime']) : null,
     );

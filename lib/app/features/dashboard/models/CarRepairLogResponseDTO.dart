@@ -6,8 +6,8 @@ import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart
 class CarRepairLogResponseDTO {
   final String? id;
   final CarInfoDTO carInfo;
-  final UserProfile creatorUser;
-  final UserProfile? assignedUser;   // ← اضافه شده
+  final UserProfileDTO creatorUser;
+  final UserProfileDTO? assignedUser;   // ← اضافه شده
   final String? description;
   final TaskStatusDTO taskStatus;
   final DateTime dateTime;
@@ -28,9 +28,9 @@ class CarRepairLogResponseDTO {
     return CarRepairLogResponseDTO(
       id: json['_id'] ?? json['id'],
       carInfo: CarInfoDTO.fromJson(json['carInfo']),
-      creatorUser: UserProfile.fromJson(json['creatorUser']),
+      creatorUser: UserProfileDTO.fromJson(json['creatorUser']),
       assignedUser: json['assignedUser'] != null
-          ? UserProfile.fromJson(json['assignedUser'])
+          ? UserProfileDTO.fromJson(json['assignedUser'])
           : null,                    // ← اضافه شده
       description: json['description'],
       taskStatus: TaskStatusDTO.fromJson(json['taskStatus']),

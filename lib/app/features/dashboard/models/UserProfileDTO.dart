@@ -1,7 +1,7 @@
 import 'roles.dart';
 import 'permissions.dart';
 
-class UserProfile {
+class UserProfileDTO {
   final String userId;
   final String username;
   final String firstName;
@@ -9,7 +9,7 @@ class UserProfile {
   final roles role;
   final permissions permission;
 
-  UserProfile({
+  UserProfileDTO({
     required this.userId,
     required this.username,
     required this.firstName,
@@ -18,8 +18,8 @@ class UserProfile {
     required this.permission,
   });
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
+  factory UserProfileDTO.fromJson(Map<String, dynamic> json) {
+    return UserProfileDTO(
       userId: json['userId']?.toString() ?? '',
       username: json['username']?.toString() ?? '',
       firstName: json['firstName']?.toString() ?? '',

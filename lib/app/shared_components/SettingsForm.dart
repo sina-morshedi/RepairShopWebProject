@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
-import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UpdateUserDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
@@ -28,7 +28,7 @@ class _SettingsFormState extends State<SettingsForm> {
 
   List<TaskStatusDTO> taskStatusList = [];
   List<RolesDTO> rolesList = [];
-  List<UserProfile> usersList = [];
+  List<UserProfileDTO> usersList = [];
 
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, bool> _isEditingMap = {};
@@ -185,7 +185,7 @@ class _SettingsFormState extends State<SettingsForm> {
     });
   }
 
-  Future<void> _confirmDeleteUser(UserProfile user) async {
+  Future<void> _confirmDeleteUser(UserProfileDTO user) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -442,7 +442,7 @@ class _SettingsFormState extends State<SettingsForm> {
 }
 
 class EditAccountDialog extends StatefulWidget {
-  final UserProfile user;
+  final UserProfileDTO user;
 
   const EditAccountDialog({Key? key, required this.user}) : super(key: key);
 

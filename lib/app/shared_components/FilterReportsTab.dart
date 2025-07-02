@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/shared_components/CarRepairLogListView.dart';
-import 'package:flutter/material.dart';
 
 class FilterReportsTab extends StatefulWidget {
   const FilterReportsTab({super.key});
@@ -10,10 +11,10 @@ class FilterReportsTab extends StatefulWidget {
 }
 
 class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
-  String? selectedFilter; // "Plaka" یا "Görev Durumu"
+  String? selectedFilter;
   final TextEditingController _plateController = TextEditingController();
   String? selectedStatus;
-  List<CarRepairLogResponseDTO> _logs = [];
+  List<CarRepairLogResponseDTO> filteredReports = [];
 
   final List<String> filterOptions = ['Plaka', 'Görev Durumu'];
 
@@ -25,27 +26,13 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
     'SON': 'assets/images/vector/finish-flag.svg',
   };
 
-
   List<TaskStatusDTO> taskStatuses = [];
-  List<CarRepairLogResponseDTO> filteredReports = [];
 
   @override
   void initState() {
     super.initState();
     fetchTaskStatuses();
   }
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
 
   Future<void> fetchTaskStatuses() async {
     final response = await TaskStatusApi().getAllStatuses();
@@ -71,7 +58,8 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
 
       if (response.status == 'success' && response.data!.isNotEmpty) {
         setState(() {
-          filteredReports = List<CarRepairLogResponseDTO>.from(response.data!);
+          filteredReports =
+          List<CarRepairLogResponseDTO>.from(response.data!);
         });
       } else {
         setState(() {
@@ -79,15 +67,17 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
         });
         StringHelper.showErrorDialog(context, 'Kayıt bulunamadı.');
       }
-    }else if (selectedFilter == 'Görev Durumu') {
+    } else if (selectedFilter == 'Görev Durumu') {
       if (selectedStatus == null) {
         StringHelper.showErrorDialog(context, 'Lütfen görev durumunu seçin.');
         return;
       } else {
-        final response = await CarRepairLogApi().getLatestLogByTaskStatusName(selectedStatus!);
+        final response = await CarRepairLogApi()
+            .getLatestLogByTaskStatusName(selectedStatus!);
         if (response.status == 'success') {
           setState(() {
-            filteredReports = List<CarRepairLogResponseDTO>.from(response.data!); // اینجا اصلاح شد
+            filteredReports =
+            List<CarRepairLogResponseDTO>.from(response.data!);
           });
         } else {
           setState(() {
@@ -99,11 +89,6 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
     } else {
       StringHelper.showErrorDialog(context, 'Lütfen filtre türü seçin.');
     }
-  }
-
-  void ShowDetailsDialog(CarRepairLogResponseDTO log)async{
-    StringHelper.ShowDetailsLogDialog(context, log);
-
   }
 
   @override
@@ -120,12 +105,10 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
             decoration: const InputDecoration(border: OutlineInputBorder()),
             hint: const Text('Filtre türü seçin'),
             items: filterOptions
-                .map(
-                  (filter) => DropdownMenuItem<String>(
-                value: filter,
-                child: Text(filter),
-              ),
-            )
+                .map((filter) => DropdownMenuItem<String>(
+              value: filter,
+              child: Text(filter),
+            ))
                 .toList(),
             onChanged: (value) {
               setState(() {
@@ -161,12 +144,10 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
                 decoration: const InputDecoration(border: OutlineInputBorder()),
                 hint: const Text('Durum seçin'),
                 items: taskStatuses
-                    .map(
-                      (status) => DropdownMenuItem<String>(
-                    value: status.taskStatusName,
-                    child: Text(status.taskStatusName),
-                  ),
-                )
+                    .map((status) => DropdownMenuItem<String>(
+                  value: status.taskStatusName,
+                  child: Text(status.taskStatusName),
+                ))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -174,7 +155,6 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
                     filteredReports.clear();
                   });
                 },
-
               ),
             ],
           ],
@@ -192,49 +172,10 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
           Expanded(
             child: filteredReports.isEmpty
                 ? const Center(
-              child: Text('Kayıt bulunamadı veya filtre uygulanmadı.'),
+              child:
+              Text('Kayıt bulunamadı veya filtre uygulanmadı.'),
             )
-                : ListView.builder(
-              itemCount: filteredReports.length,
-              itemBuilder: (context, index) {
-                final log = filteredReports[index];
-
-                final licensePlate =
-                    log.carInfo?.licensePlate ?? 'Bilinmiyor';
-                final creatorName =
-                "${log.creatorUser?.firstName ?? ''} ${log.creatorUser?.lastName ?? ''}".trim();
-                final summary = log.problemReport?.problemSummary ?? 'Açıklama yok';
-                final dateStr =
-                log.dateTime.toString().split('.')[0];
-
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                  child: ListTile(
-                    title: Text('Plaka: $licensePlate'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Araç: ${log.carInfo?.brand ?? '-'} ${log.carInfo?.brandModel ?? '-'}'),
-                        Text('Oluşturan: $creatorName'),
-                        Text('Tarih: $dateStr'),
-                        Text('Durum: ${log.taskStatus?.taskStatusName ?? '-'}'),
-                      ],
-                    ),
-                    trailing: statusSvgMap.containsKey(log.taskStatus?.taskStatusName)
-                        ? SvgPicture.asset(
-                      statusSvgMap[log.taskStatus!.taskStatusName]!,
-                      width: 50,
-                      height: 50,
-                    )
-                        : null,
-                    onTap: () {
-                      ShowDetailsDialog(log);
-                    },
-                  ),
-                );
-
-              },
-            ),
+                : CarRepairLogListView(logs: filteredReports),
           ),
         ],
       ),

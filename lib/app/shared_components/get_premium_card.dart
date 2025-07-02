@@ -105,7 +105,7 @@ class UsersListDialog extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            FutureBuilder<ApiResponse<List<UserProfile>>>(
+            FutureBuilder<ApiResponse<List<UserProfileDTO>>>(
               future: backend_services().fetchAllProfile(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {

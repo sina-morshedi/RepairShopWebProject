@@ -40,4 +40,18 @@ class CarRepairLogRequestDTO {
       if (problemReportId != null) 'problemReportId': problemReportId,
     };
   }
+
+  @override
+  String toString() {
+    return 'CarRepairLogRequestDTO('
+        'carId: $carId, '
+        'creatorUserId: $creatorUserId, '
+        'assignedUserId: $assignedUserId, '
+        'description: $description, '
+        'taskStatusId: $taskStatusId, '
+        'dateTime: $dateTime, '
+        'problemReportId: $problemReportId'
+        ')';
+  }
+
 }

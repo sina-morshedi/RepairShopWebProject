@@ -20,7 +20,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
-  Rxn<UserProfile> user = Rxn<UserProfile>();
+  Rxn<UserProfileDTO> user = Rxn<UserProfileDTO>();
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
 
@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     final box = GetStorage();
     final storedUserJson = box.read('user');
     if (storedUserJson != null) {
-      user.value = UserProfile.fromJson(jsonDecode(storedUserJson));
+      user.value = UserProfileDTO.fromJson(jsonDecode(storedUserJson));
     }
     _controller = AnimationController(
       vsync: this,
@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     _controller.forward();
   }
 
-  void setUser(UserProfile newUser) {
+  void setUser(UserProfileDTO newUser) {
     user.value = newUser;
     final box = GetStorage();
     box.write('user', jsonEncode(newUser.toJson()));
@@ -105,9 +105,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         if (!mounted) return;
 
         final data = jsonDecode(response.body);
-        UserProfile userProfile = UserProfile.fromJson(data);
+        UserProfileDTO userProfileDTO = UserProfileDTO.fromJson(data);
         final userController = Get.find<UserController>();
-        userController.setUser(userProfile);
+        userController.setUser(userProfileDTO);
         Get.offNamed(Routes.dashboard);
       } else {
         showErrorDialog(context, response.body);

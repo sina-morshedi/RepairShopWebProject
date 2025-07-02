@@ -3,6 +3,7 @@ library backend_service;
 import 'package:flutter/material.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 
 import '../models/users.dart';
 import '../models/roles.dart';
@@ -12,7 +13,6 @@ import 'dart:convert';
 import 'ApiEndpoints.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfo.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
-import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UpdateUserDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';
@@ -26,7 +26,7 @@ part 'CarProblemReportApi.dart';
 part 'CarRepairLogApi.dart';
 
 class backend_services {
-  Future<ApiResponse<List<UserProfile>>> fetchAllProfile() async {
+  Future<ApiResponse<List<UserProfileDTO>>> fetchAllProfile() async {
     final String backendUrl = ApiEndpoints.getAllProfile;
 
     try {
@@ -35,8 +35,8 @@ class backend_services {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final List<dynamic> decodedList = jsonDecode(response.body);
 
-        final List<UserProfile> logs = decodedList
-            .map((jsonItem) => UserProfile.fromJson(jsonItem))
+        final List<UserProfileDTO> logs = decodedList
+            .map((jsonItem) => UserProfileDTO.fromJson(jsonItem))
             .toList();
 
         return ApiResponse(

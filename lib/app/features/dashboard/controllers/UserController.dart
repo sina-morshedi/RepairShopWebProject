@@ -5,9 +5,9 @@ import 'dart:convert';
 
 
 class UserController extends GetxController {
-  var user = Rxn<UserProfile>();
+  var user = Rxn<UserProfileDTO>();
   final box = GetStorage();
-  UserProfile? get currentUser => user.value;
+  UserProfileDTO? get currentUser => user.value;
 
   @override
   void onInit() {
@@ -18,13 +18,13 @@ class UserController extends GetxController {
   void loadUserFromStorage() {
     final storedUserJson = box.read('user');
     if (storedUserJson != null) {
-      user.value = UserProfile.fromJson(jsonDecode(storedUserJson));
+      user.value = UserProfileDTO.fromJson(jsonDecode(storedUserJson));
     }
   }
 
-  void setUser(UserProfile userProfile) {
-    user.value = userProfile;
-    box.write('user', jsonEncode(userProfile.toJson()));
+  void setUser(UserProfileDTO UserProfileDTO) {
+    user.value = UserProfileDTO;
+    box.write('user', jsonEncode(UserProfileDTO.toJson()));
   }
 
   void clearUser() {

@@ -1,7 +1,8 @@
 
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:flutter/material.dart';
-import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
+import 'package:repair_shop_web/app/shared_components/FinalReportForEachCarsTab.dart';
+import 'package:repair_shop_web/app/shared_components/FilterReportsTab.dart';
 
 class ReportsForm extends StatefulWidget {
   @override
@@ -29,10 +30,10 @@ class _ReportsFormState extends State<ReportsForm>{
             ),
             const SizedBox(height: 8),
             SizedBox(
-              height: 600,  // istediğiniz yükseklik
+              height: 500,  // istediğiniz yükseklik
               child: const TabBarView(
                 children: [
-                  AllReportsTab(),
+                  FinalReportForEachCarTab(),
                   FilterReportsTab(),
                 ],
               ),
@@ -44,17 +45,6 @@ class _ReportsFormState extends State<ReportsForm>{
   }
 }
 
-class AllReportsTab extends StatelessWidget {
-  const AllReportsTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // API'den veri alınacak alan
-    return const Center(
-      child: Text('Tüm raporların listesi', style: TextStyle(fontSize: 18)),
-    );
-  }
-}
 
 
 

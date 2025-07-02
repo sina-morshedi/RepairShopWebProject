@@ -14,6 +14,8 @@ class CarRepairLogListView extends StatelessWidget {
     }
 
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      shrinkWrap: false,
       itemCount: logs.length,
       itemBuilder: (context, index) {
         return Padding(
