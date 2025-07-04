@@ -17,6 +17,7 @@ import 'package:repair_shop_web/app/features/dashboard/models/UpdateUserDTO.dart
 import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogRequestDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusCountDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
 
 part 'TaskStatusApi.dart';

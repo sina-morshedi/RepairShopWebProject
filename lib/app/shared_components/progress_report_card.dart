@@ -8,6 +8,7 @@ class ProgressReportCardData {
   final int task;
   final int doneTask;
   final int undoneTask;
+  final int inProgressTask; // فیلد جدید اضافه شد
 
   const ProgressReportCardData({
     required this.percent,
@@ -15,8 +16,10 @@ class ProgressReportCardData {
     required this.task,
     required this.doneTask,
     required this.undoneTask,
+    required this.inProgressTask, // مقداردهی در سازنده
   });
 }
+
 
 class ProgressReportCard extends StatelessWidget {
   const ProgressReportCard({
@@ -54,11 +57,14 @@ class ProgressReportCard extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 15),
-              _RichText(value1: "${data.task} ", value2: "Task"),
+              _RichText(value1: "${data.task} ", value2: "görev"),
               const SizedBox(height: 3),
-              _RichText(value1: "${data.doneTask} ", value2: "Done Task"),
+              _RichText(value1: "${data.undoneTask} ", value2: "yapılmamış görev"),
               const SizedBox(height: 3),
-              _RichText(value1: "${data.undoneTask} ", value2: "Undone Task"),
+              _RichText(value1: "${data.inProgressTask} ", value2: "işlemde"),
+              const SizedBox(height: 3),
+              _RichText(value1: "${data.doneTask} ", value2: "tamamlanan görev"),
+
             ],
           ),
           const Spacer(),
@@ -123,7 +129,7 @@ class _Indicator extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const Text(
-            "Completed",
+            "Devam eden \nçalışma",
             style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
           ),
         ],

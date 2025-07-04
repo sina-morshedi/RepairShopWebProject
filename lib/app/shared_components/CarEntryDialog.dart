@@ -75,7 +75,6 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
 
     final carResponse = await backend_services().getCarInfoByLicensePlate(plate);
 
-
     setState(() => isLoading = false);
 
     if (carResponse.status == 'success')

@@ -7,8 +7,13 @@ import 'package:repair_shop_web/app/features/dashboard/controllers/dashboard_con
 class DashboardScreen extends GetView<DashboardController> {
   const DashboardScreen({Key? key}) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.initTaskStatusCounts(context);
+
+    });
     return SingleChildScrollView(
       child: ResponsiveBuilder(
         mobileBuilder: (context, constraints) {
@@ -115,57 +120,89 @@ class DashboardScreen extends GetView<DashboardController> {
   Widget _buildProgress({Axis axis = Axis.horizontal}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: (axis == Axis.horizontal)
-          ? Row(
-              children: [
-                Flexible(
-                  flex: 5,
-                  child: ProgressCard(
-                    data: const ProgressCardData(
-                      totalUndone: 10,
-                      totalTaskInProress: 2,
-                    ),
-                    onPressedCheck: () {},
-                  ),
-                ),
-                const SizedBox(width: kSpacing / 2),
-                const Flexible(
-                  flex: 4,
-                  child: ProgressReportCard(
-                    data: ProgressReportCardData(
-                      title: "1st Sprint",
-                      doneTask: 5,
-                      percent: .3,
-                      task: 3,
-                      undoneTask: 2,
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              children: [
-                ProgressCard(
-                  data: const ProgressCardData(
-                    totalUndone: 10,
-                    totalTaskInProress: 2,
+      child: Obx(() {
+        final undoneToCount = ["GİRMEK", "SORUN GİDERME", "ÜSTA"];
+
+        final totalUndone = controller.taskStatusCounts
+            .where((e) => undoneToCount.contains(e.taskStatusName))
+            .fold<int>(0, (sum, e) => sum + e.count);
+
+
+        final inProgressToCount = ["BAŞLANGIÇ", "DURAKLAT"];
+
+        int totalInProgress = controller.taskStatusCounts
+            .where((e) => inProgressToCount.contains(e.taskStatusName))
+            .fold<int>(0, (sum, e) => sum + e.count);
+
+        final totalDone = controller.taskStatusCounts
+            .where((e) => e.taskStatusName == 'SON')
+            .fold<int>(0, (sum, e) => sum + e.count);
+
+        // final totalTasks = totalUndone + totalInProgress + totalDone;
+        final totalTasks = 7;
+        totalInProgress = 1;
+        final percentDone = totalTasks > 0
+            ? double.parse(((totalInProgress / totalTasks) * 100).toStringAsFixed(1))
+            : 0.0;
+
+
+        if (axis == Axis.horizontal) {
+          return Row(
+            children: [
+              Flexible(
+                flex: 5,
+                child: ProgressCard(
+                  data: ProgressCardData(
+                    totalUndone: totalUndone,
+                    totalTaskInProress: totalInProgress,
                   ),
                   onPressedCheck: () {},
                 ),
-                const SizedBox(height: kSpacing / 2),
-                const ProgressReportCard(
+              ),
+              const SizedBox(width: kSpacing / 2),
+              Flexible(
+                flex: 4,
+                child: ProgressReportCard(
                   data: ProgressReportCardData(
-                    title: "1st Sprint",
-                    doneTask: 5,
-                    percent: .3,
-                    task: 3,
-                    undoneTask: 2,
+                    title: "Sprint Status",
+                    doneTask: totalDone,
+                    percent: percentDone/100,
+                    task: totalTasks,
+                    undoneTask: totalUndone,
+                    inProgressTask: totalInProgress
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
+          );
+        } else {
+          return Column(
+            children: [
+              ProgressCard(
+                data: ProgressCardData(
+                  totalUndone: totalUndone,
+                  totalTaskInProress: totalInProgress,
+                ),
+                onPressedCheck: () {},
+              ),
+              const SizedBox(height: kSpacing / 2),
+              ProgressReportCard(
+                data: ProgressReportCardData(
+                  title: "Sprint Status",
+                  doneTask: totalDone,
+                  percent: percentDone/100,
+                  task: totalTasks,
+                  undoneTask: totalUndone,
+                  inProgressTask: totalInProgress
+                ),
+              ),
+            ],
+          );
+        }
+      }),
     );
   }
+
 
   Widget _buildTaskOverview({
     required List<TaskCardData> data,

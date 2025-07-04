@@ -1,11 +1,26 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusCountDTO.dart';
 
 
 class DashboardController extends GetxController {
 
   final RxInt selectedIndex = 0.obs;
+
+  final RxList<TaskStatusCountDTO> taskStatusCounts = <TaskStatusCountDTO>[].obs;
+
+  Future<void> initTaskStatusCounts(BuildContext context) async {
+    try {
+      final result = await CarRepairLogApi().getTaskStatusCount();
+      if(result.status == 'success')
+        taskStatusCounts.assignAll(result.data!);
+      else
+        StringHelper.showErrorDialog(context, result.message!);
+    } catch (e) {
+      StringHelper.showErrorDialog(context,'Error fetching task status counts: $e');
+    }
+  }
 
   @override
   void onReady() {
