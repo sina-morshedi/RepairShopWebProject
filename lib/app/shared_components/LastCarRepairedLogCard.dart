@@ -30,7 +30,7 @@ class _LastCarRepairedLogCardState extends State<LastCarRepairedLogCard> {
     'SORUN GİDERME': 'assets/images/vector/note.svg',
     'BAŞLANGIÇ': 'assets/images/vector/play.svg',
     'DURAKLAT': 'assets/images/vector/pause.svg',
-    'SON': 'assets/images/vector/finish-flag.svg',
+    'İŞ BİTTİ': 'assets/images/vector/finish-flag.svg',
   };
 
   @override

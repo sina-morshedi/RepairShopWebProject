@@ -4,7 +4,7 @@ class StatusSvgProvider {
     'SORUN GİDERME': 'assets/images/vector/note.svg',
     'BAŞLANGIÇ': 'assets/images/vector/play.svg',
     'DURAKLAT': 'assets/images/vector/pause.svg',
-    'SON': 'assets/images/vector/finish-flag.svg',
+    'İŞ BİTTİ': 'assets/images/vector/finish-flag.svg',
   };
 
   static String? getSvgPath(String status) {

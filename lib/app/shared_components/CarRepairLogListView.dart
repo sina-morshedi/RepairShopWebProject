@@ -5,7 +5,15 @@ import 'CarRepairedLogCard.dart';
 class CarRepairLogListView extends StatelessWidget {
   final List<CarRepairLogResponseDTO> logs;
 
-  const CarRepairLogListView({Key? key, required this.logs}) : super(key: key);
+  /// تابعی که برای هر log مشخص می‌کنه آیا دکمه نمایش داده بشه یا نه،
+  /// و اگر بشه، متن دکمه و تابع اجراش چیه
+  final Map<String, dynamic>? Function(CarRepairLogResponseDTO log)? buttonBuilder;
+
+  const CarRepairLogListView({
+    Key? key,
+    required this.logs,
+    this.buttonBuilder,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +26,16 @@ class CarRepairLogListView extends StatelessWidget {
       shrinkWrap: false,
       itemCount: logs.length,
       itemBuilder: (context, index) {
+        final log = logs[index];
+        final buttonData = buttonBuilder?.call(log);
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
-          child: CarRepairedLogCard(log: logs[index]),
+          child: CarRepairedLogCard(
+            log: log,
+            extraButtonText: buttonData?['text'] as String?,
+            onExtraButtonPressed: buttonData?['onPressed'] as VoidCallback?,
+          ),
         );
       },
     );

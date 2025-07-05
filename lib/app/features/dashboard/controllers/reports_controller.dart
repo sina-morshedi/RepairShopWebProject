@@ -24,7 +24,7 @@ class ReportsController extends GetxController {
     return ProjectCardData(
       percent: .3,
       projectImage: const AssetImage(ImageRasterPath.logo1),
-      projectName: "Marketplace Mobile",
+      projectName: "Nano Electronics Bolu",
       releaseTime: DateTime.now(),
     );
   }

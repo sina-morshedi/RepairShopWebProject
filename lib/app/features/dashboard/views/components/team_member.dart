@@ -1,4 +1,5 @@
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 class TeamMemberWidget extends StatefulWidget {
   final VoidCallback onPressedAdd;
@@ -24,6 +25,9 @@ class _TeamMemberWidgetState extends State<TeamMemberWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final userController = Get.find<UserController>();
+    final permissionName = userController.currentUser?.permission.permissionName ?? "";
+
     return Row(
       children: [
         RichText(
@@ -45,7 +49,8 @@ class _TeamMemberWidgetState extends State<TeamMemberWidget> {
           ),
         ),
         const Spacer(),
-        IconButton(
+        permissionName == "Yönetici"
+            ? IconButton(
           onPressed: () {
             showDialog(
               context: context,
@@ -55,9 +60,11 @@ class _TeamMemberWidgetState extends State<TeamMemberWidget> {
           icon: const Icon(EvaIcons.plus),
           tooltip: "üye ekle",
         )
+            : const SizedBox.shrink(),
       ],
     );
   }
+
 }
 
 class AddAccountDialog extends StatefulWidget {
