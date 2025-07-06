@@ -48,6 +48,11 @@ class Sidebar extends StatelessWidget {
         icon: FontAwesomeIcons.stethoscope,
         label: "Araba arıza raporu alın",
       ),
+      SelectionButtonData(
+        activeIcon: FontAwesomeIcons.fileInvoice,
+        icon: FontAwesomeIcons.fileInvoice,
+        label: "Fatura",
+      ),
     ];
     if (permissionName == "Yönetici") {
       selectionData.add(SelectionButtonData(
@@ -62,7 +67,7 @@ class Sidebar extends StatelessWidget {
         SelectionButtonData(
           activeIcon: EvaIcons.settings,
           icon: EvaIcons.settingsOutline,
-          label: "ayarlar",
+          label: "Ayarlar",
         ),
       );
     }
@@ -99,8 +104,11 @@ class Sidebar extends StatelessWidget {
                   case "Proje yönetimi":
                     Get.toNamed(Routes.projectManage);
                     break;
-                  case "ayarlar":
+                  case "Ayarlar":
                     Get.toNamed(Routes.settings);
+                    break;
+                  case "Fatura":
+                    Get.toNamed(Routes.fatura);
                     break;
                 }
               },

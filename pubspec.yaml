@@ -23,6 +23,9 @@ dependencies:
   lucide_icons: ^0.257.0
   font_awesome_flutter: ^10.1.0
   intl: ^0.18.1
+  pdf: ^3.10.4
+  printing: ^5.12.0
+  universal_html: ^2.0.8
 
 
 dev_dependencies:
@@ -38,6 +41,7 @@ flutter:
     - assets/background.jpg
     - assets/Welcome.jpg
     - assets/images/raster/logo-1.png
+    - assets/fonts/Vazirmatn-Regular.ttf
 #    - assets/header_background.png
 
   fonts:

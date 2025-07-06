@@ -2,6 +2,7 @@ class PartUsed {
   final String partName;
   final double partPrice;
   final int quantity;
+
   PartUsed({
     required this.partName,
     required this.partPrice,
@@ -23,4 +24,6 @@ class PartUsed {
       'quantity': quantity,
     };
   }
+
+  double get total => quantity * partPrice;
 }

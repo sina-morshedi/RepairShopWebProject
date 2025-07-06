@@ -36,6 +36,7 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
     'BAŞLANGIÇ': 'assets/images/vector/play.svg',
     'DURAKLAT': 'assets/images/vector/pause.svg',
     'İŞ BİTTİ': 'assets/images/vector/finish-flag.svg',
+    'FATURA': 'assets/images/vector/bill.svg',
   };
 
   Future<void> _CarEntry() async{

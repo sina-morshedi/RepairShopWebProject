@@ -168,12 +168,10 @@ class CarRepairLogApi {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final updatedLog = CarRepairLogResponseDTO.fromJson(data);
 
         return ApiResponse(
           status: 'success',
-          data: updatedLog,
+          message: response.body,
         );
       } else {
         return ApiResponse(

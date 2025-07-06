@@ -5,11 +5,13 @@ import 'package:repair_shop_web/app/features/dashboard/views/screens/settings_sc
 import 'package:repair_shop_web/app/features/dashboard/views/screens/troubleshooting_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/reports_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/project_manage_screen.dart';
+import 'package:repair_shop_web/app/features/dashboard/views/screens/invoice_screen.dart';
 import 'package:repair_shop_web/app/features/dashboard/views/screens/main_layout.dart';
 
 import 'package:get/get.dart';
 
 import 'package:repair_shop_web/app/features/dashboard/bindings/AppBinding.dart';
+import 'package:repair_shop_web/app/shared_components/InvoiceForm.dart';
 part 'app_routes.dart';
 
 /// contains all configuration pages
@@ -50,7 +52,10 @@ class AppPages {
     GetPage(
       name: _Paths.projectManage,
       page: () => MainLayout(child: ProjectManageScreen()),
-
+    ),
+    GetPage(
+      name: _Paths.fatura,
+      page: () => MainLayout(child: InvoiceForm()),
     ),
   ];
 }

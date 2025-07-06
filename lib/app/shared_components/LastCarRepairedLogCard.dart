@@ -31,6 +31,7 @@ class _LastCarRepairedLogCardState extends State<LastCarRepairedLogCard> {
     'BAŞLANGIÇ': 'assets/images/vector/play.svg',
     'DURAKLAT': 'assets/images/vector/pause.svg',
     'İŞ BİTTİ': 'assets/images/vector/finish-flag.svg',
+    'FATURA': 'assets/images/vector/bill.svg',
   };
 
   @override
