@@ -119,8 +119,9 @@ class DashboardScreen extends GetView<DashboardController> {
             .where((e) => inProgressToCount.contains(e.taskStatusName))
             .fold<int>(0, (sum, e) => sum + e.count);
 
-        final totalDone = controller.taskStatusCounts
-            .where((e) => e.taskStatusName == 'İŞ BİTTİ')
+        final doneToCount = ["İŞ BİTTİ", "FATURA"];
+        int totalDone = controller.taskStatusCounts
+            .where((e) => doneToCount.contains(e.taskStatusName))
             .fold<int>(0, (sum, e) => sum + e.count);
 
         final totalTasks = totalUndone + totalInProgress + totalDone;

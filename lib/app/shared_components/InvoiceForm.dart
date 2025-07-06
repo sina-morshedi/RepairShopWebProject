@@ -104,6 +104,10 @@ class _InvoiceFormState extends State<InvoiceForm> {
       });
 
       final partUsedList = response.data!.partsUsed;
+      if(response.data!.taskStatus.taskStatusName == "GÖREV YOK"){
+        StringHelper.showErrorDialog(context, 'Araç girişi kaydedilmemiştir.');
+        return;
+      }
       if(response.data!.taskStatus.taskStatusName != "İŞ BİTTİ"
           && response.data!.taskStatus.taskStatusName != "FATURA"){
         StringHelper.showErrorDialog(context, "${plate} numaralı plakanın işi henüz bitmedi");
@@ -140,8 +144,8 @@ class _InvoiceFormState extends State<InvoiceForm> {
     final formattedDate =
         "${now.year}/${now.month.toString().padLeft(2, '0')}/${now.day.toString().padLeft(2, '0')}";
     final invoiceNumber = "INV-${now.year}${now.month}${now.day}-001";
-    final customerName = "Ahmet Muhammet";
-    final licensePlate = _plateController.text.trim();
+    final car = "${log!.carInfo.brand} ${log!.carInfo.brandModel}";
+    final licensePlate = _plateController.text.trim().toUpperCase();
     final total = parts.fold<double>(0, (sum, part) => sum + part.total);
 
     pdf.addPage(
@@ -164,9 +168,9 @@ class _InvoiceFormState extends State<InvoiceForm> {
                     style: pw.TextStyle(font: customFont)),
                 pw.Text("Tarih: $formattedDate",
                     style: pw.TextStyle(font: customFont)),
-                pw.Text("Müşteri Adı: $customerName",
-                    style: pw.TextStyle(font: customFont)),
                 pw.Text("Plaka: $licensePlate",
+                    style: pw.TextStyle(font: customFont)),
+                pw.Text("Araç: $car",
                     style: pw.TextStyle(font: customFont)),
                 pw.SizedBox(height: 24),
                 pw.Text("Parça Listesi:",
@@ -254,6 +258,36 @@ class _InvoiceFormState extends State<InvoiceForm> {
     }
   }
 
+  void _vehicleDelivery()async{
+    final UserController userController = Get.find<UserController>();
+    final user = userController.user.value;
+    if(user == null){
+      StringHelper.showErrorDialog(context, 'Kullanıcı bulunamadı.');
+      return;
+    }
+    
+    final responseTask = await TaskStatusApi().getTaskStatusByName("GÖREV YOK");
+    if(responseTask.status == 'success'){
+      final request = CarRepairLogRequestDTO(
+          carId: log!.carInfo.id,
+          creatorUserId: user.userId,
+          taskStatusId: responseTask.data!.id!,
+          assignedUserId: log!.assignedUser!.userId,
+          problemReportId: log!.problemReport!.id,
+          partsUsed: log!.partsUsed,
+          dateTime: DateTime.now()
+      );
+      final response = await CarRepairLogApi().createLog(request);
+      if(response.status == 'success')
+        StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
+      else
+        StringHelper.showErrorDialog(context, response.message!);
+
+    }
+    else
+      StringHelper.showErrorDialog(context, responseTask.message!);
+
+  }
 
   Widget buildPartsInputList() {
     if (parts.isEmpty) {
@@ -387,18 +421,36 @@ class _InvoiceFormState extends State<InvoiceForm> {
 
         const SizedBox(height: 16),
 
-        ElevatedButton(
-          onPressed: () {
-            _updateLog();
-          },
-          child: const Text('Faturayı Güncelle'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                _updateLog();
+              },
+              child: const Text('Faturayı Güncelle'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
-          ),
+            ElevatedButton(
+              onPressed: () {
+                _vehicleDelivery();
+              },
+              child: const Text('Araç teslim ediliyor'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ), // رنگ متفاوت اگر بخوای
+              ),
+            ),
+          ],
         ),
+
       ],
     );
   }

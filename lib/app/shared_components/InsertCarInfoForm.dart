@@ -384,7 +384,6 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
                       if (_formKeyInsertCarInfo.currentState?.validate() ?? false) {
                         saveEditCarInfo();
                       } else {
-                        print("Form doğrulama başarısız.");
                       }
                     }
                         : null,

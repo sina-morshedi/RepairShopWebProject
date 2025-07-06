@@ -101,8 +101,7 @@ class TaskStatusApi {
     }
 
     final String url = "${ApiEndpoints.updateTaskStatus}/${status.id}";
-    print(url);
-    print(status.toJson());
+
     try {
       final response = await http.put(
         Uri.parse(url),

@@ -133,14 +133,12 @@ class UsersListDialog extends StatelessWidget {
                             IconButton(
                               icon: const Icon(EvaIcons.edit2Outline, color: Colors.blue),
                               onPressed: () {
-                                print('Edit user: ${user.username}');
                                 // TODO: call edit dialog
                               },
                             ),
                             IconButton(
                               icon: const Icon(EvaIcons.trash2Outline, color: Colors.red),
                               onPressed: () {
-                                print('Delete user: ${user.username}');
                                 // TODO: call delete confirm
                               },
                             ),
