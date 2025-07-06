@@ -48,12 +48,15 @@ class Sidebar extends StatelessWidget {
         icon: FontAwesomeIcons.stethoscope,
         label: "Araba arıza raporu alın",
       ),
-      SelectionButtonData(
+
+    ];
+    if(permissionName == 'Yönetici' || permissionName == 'sekreter'){
+      selectionData.add(SelectionButtonData(
         activeIcon: FontAwesomeIcons.fileInvoice,
         icon: FontAwesomeIcons.fileInvoice,
         label: "Fatura",
-      ),
-    ];
+      ));
+    }
     if (permissionName == "Yönetici") {
       selectionData.add(SelectionButtonData(
         activeIcon: EvaIcons.person,
