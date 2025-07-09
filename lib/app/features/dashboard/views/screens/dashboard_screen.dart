@@ -106,7 +106,7 @@ class DashboardScreen extends GetView<DashboardController> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacing),
       child: Obx(() {
-        final undoneToCount = ["GİRMEK", "SORUN GİDERME", "ÜSTA"];
+        final undoneToCount = ["GİRMEK", "SORUN GİDERME", "USTA"];
 
         final totalUndone = controller.taskStatusCounts
             .where((e) => undoneToCount.contains(e.taskStatusName))

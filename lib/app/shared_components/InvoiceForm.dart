@@ -10,6 +10,7 @@ import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/PartUsed.dart';
+import 'package:repair_shop_web/app/utils/helpers/invoice_pdf_helper.dart';
 
 class InvoiceForm extends StatefulWidget {
   const InvoiceForm({super.key});
@@ -32,6 +33,11 @@ class _InvoiceFormState extends State<InvoiceForm> {
   final List<TextEditingController> quantityControllers = [];
   final List<TextEditingController> priceControllers = [];
   final List<TextEditingController> totalPriceControllers = [];
+  final TextEditingController invoicePriceController = TextEditingController();
+
+  double totalSum = 0;
+  final ValueNotifier<String> totalPriceText = ValueNotifier<String>("Toplam: 0.00 TL");
+
 
   @override
   void initState() {
@@ -78,8 +84,9 @@ class _InvoiceFormState extends State<InvoiceForm> {
     for (var part in parts) {
       nameControllers.add(TextEditingController(text: part.partName));
       quantityControllers.add(TextEditingController(text: part.quantity.toString()));
-      priceControllers.add(TextEditingController(text: part.partPrice.toStringAsFixed(0)));
-      totalPriceControllers.add(TextEditingController(text: (part.quantity * part.partPrice).toStringAsFixed(0)));
+      priceControllers.add(TextEditingController(text: part.partPrice.toString()));
+      totalPriceControllers.add(TextEditingController(text: (part.quantity * part.partPrice).toString()));
+
     }
   }
 
@@ -123,16 +130,16 @@ class _InvoiceFormState extends State<InvoiceForm> {
             quantity: part.quantity ?? 1,
           );
         }).toList();
+
       } else {
         // اگر partsUsed خالی بود، می‌تونید مقدار پیش‌فرض بذارید یا کاری نکنید
         parts = [];
       }
+      _syncControllersWithParts();
+      _calcInvoicePrice();
     } else {
       StringHelper.showErrorDialog(context, response.message!);
     }
-
-    _syncControllersWithParts();
-
   }
 
 
@@ -289,6 +296,16 @@ class _InvoiceFormState extends State<InvoiceForm> {
 
   }
 
+
+
+
+  void _calcInvoicePrice() {
+    double sum = 0;
+    for (var controller in totalPriceControllers) {
+      sum += double.tryParse(controller.text) ?? 0;
+    }
+    totalPriceText.value = "Toplam: ${sum.toStringAsFixed(2)} TL";
+  }
   Widget buildPartsInputList() {
     if (parts.isEmpty) {
       return const SizedBox.shrink();
@@ -314,6 +331,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
                         onPressed: () {
                           parts.insert(index + 1, PartUsed(partName: '', partPrice: 0, quantity: 1));
                           _syncControllersWithParts();
+                          _calcInvoicePrice();
                           setState(() {});
                         },
                       ),
@@ -323,6 +341,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
                         onPressed: () {
                           parts.removeAt(index);
                           _syncControllersWithParts();
+                          _calcInvoicePrice();
                           setState(() {});
                         },
                       ),
@@ -333,6 +352,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
                         onPressed: () {
                           parts.removeAt(index);
                           _syncControllersWithParts();
+                          _calcInvoicePrice();
                           setState(() {});
                         },
                       ),
@@ -376,6 +396,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
                         quantity: newQty,
                       );
                       totalPriceControllers[index].text = (newQty * parts[index].partPrice).toString();
+                      _calcInvoicePrice();
                     },
                   ),
                 ),
@@ -398,6 +419,7 @@ class _InvoiceFormState extends State<InvoiceForm> {
                         quantity: parts[index].quantity,
                       );
                       totalPriceControllers[index].text = (parts[index].quantity * newPrice).toString();
+                      _calcInvoicePrice();
                     },
                   ),
                 ),
@@ -420,6 +442,22 @@ class _InvoiceFormState extends State<InvoiceForm> {
         }).toList(),
 
         const SizedBox(height: 16),
+
+        Divider(thickness: 2, color: Colors.grey.shade400),  // خط زیر فیلدها
+
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: ValueListenableBuilder<String>(
+              valueListenable: totalPriceText,
+              builder: (context, value, _) => Text(
+                value,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
+          ),
+        ),
 
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -445,12 +483,11 @@ class _InvoiceFormState extends State<InvoiceForm> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
-                ), // رنگ متفاوت اگر بخوای
+                ),
               ),
             ),
           ],
         ),
-
       ],
     );
   }
@@ -481,7 +518,15 @@ class _InvoiceFormState extends State<InvoiceForm> {
             ElevatedButton.icon(
               onPressed: (customFont == null || logoImage == null || parts.isEmpty)
                   ? null
-                  : _generateAndDownloadPdf,
+                  :  () {
+                InvoicePdfHelper.generateAndDownloadInvoicePdf(
+                  customFont: customFont!,
+                  logoImage: logoImage!,
+                  parts: parts,
+                  log: log!,
+                  licensePlate: log!.carInfo.licensePlate,
+                );
+              },
               icon: const Icon(EvaIcons.fileText),
               label: const Text("Faturayı Göster"),
               style: ElevatedButton.styleFrom(

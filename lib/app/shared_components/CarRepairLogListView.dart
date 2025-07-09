@@ -5,8 +5,6 @@ import 'CarRepairedLogCard.dart';
 class CarRepairLogListView extends StatelessWidget {
   final List<CarRepairLogResponseDTO> logs;
 
-  /// تابعی که برای هر log مشخص می‌کنه آیا دکمه نمایش داده بشه یا نه،
-  /// و اگر بشه، متن دکمه و تابع اجراش چیه
   final Map<String, dynamic>? Function(CarRepairLogResponseDTO log)? buttonBuilder;
 
   const CarRepairLogListView({
