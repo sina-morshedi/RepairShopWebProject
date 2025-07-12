@@ -25,5 +25,11 @@ class PartUsed {
     };
   }
 
+  @override
+  String toString() {
+    return 'PartUsed(partName: $partName, partPrice: $partPrice, quantity: $quantity, total: $total)';
+  }
+
+
   double get total => quantity * partPrice;
 }

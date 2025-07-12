@@ -30,7 +30,9 @@ class _FinalReportForEachCarTabState extends State<FinalReportForEachCarTab> wit
 
   Future<void> fetchLastLogForEachCar() async {
     final response = await CarRepairLogApi().getLatestLogForEachCar();
+
     if (response.status == 'success' && response.data != null) {
+
       setState(() {
         filteredReports = List<CarRepairLogResponseDTO>.from(response.data!);
       });

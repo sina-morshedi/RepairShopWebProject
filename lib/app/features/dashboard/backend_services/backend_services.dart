@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'ApiEndpoints.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfo.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/FilterRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UpdateUserDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';

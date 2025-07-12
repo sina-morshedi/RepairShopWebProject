@@ -22,10 +22,13 @@ dependencies:
   path_drawing: ^1.0.1
   lucide_icons: ^0.257.0
   font_awesome_flutter: ^10.1.0
-  intl: ^0.18.1
   pdf: ^3.10.4
   printing: ^5.12.0
   universal_html: ^2.0.8
+  intl: any
+  timezone: ^0.9.0
+  flutter_localizations:
+    sdk: flutter
 
 
 dev_dependencies:
