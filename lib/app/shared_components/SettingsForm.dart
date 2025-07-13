@@ -327,7 +327,7 @@ class _SettingsFormState extends State<SettingsForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Settings", style: Theme.of(context).textTheme.titleLarge),
+          Text("Ayarlar", style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             value: selectedSetting,

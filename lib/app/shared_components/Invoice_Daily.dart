@@ -263,38 +263,6 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
     }
   }
 
-  void _vehicleDelivery()async{
-    final UserController userController = Get.find<UserController>();
-    final user = userController.user.value;
-    if(user == null){
-      StringHelper.showErrorDialog(context, 'Kullanıcı bulunamadı.');
-      return;
-    }
-
-    final responseTask = await TaskStatusApi().getTaskStatusByName("GÖREV YOK");
-    if(responseTask.status == 'success'){
-      final request = CarRepairLogRequestDTO(
-          carId: log!.carInfo.id,
-          creatorUserId: user.userId,
-          taskStatusId: responseTask.data!.id!,
-          assignedUserId: log!.assignedUser!.userId,
-          problemReportId: log!.problemReport!.id,
-          partsUsed: log!.partsUsed,
-          paymentRecords: log!.paymentRecords,
-          dateTime: DateTime.now()
-      );
-      final response = await CarRepairLogApi().createLog(request);
-      if(response.status == 'success')
-        StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
-      else
-        StringHelper.showErrorDialog(context, response.message!);
-
-    }
-    else
-      StringHelper.showErrorDialog(context, responseTask.message!);
-
-  }
-
   void _calcInvoicePrice() {
     double sum = 0;
     for (var controller in totalPriceControllers) {

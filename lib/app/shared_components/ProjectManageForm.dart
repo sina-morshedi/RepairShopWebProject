@@ -192,7 +192,6 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
 
                   const SizedBox(width: 12),
 
-                  // آیکون تیک یا لاک
                   Column(
                     children: [
                       if (!approved)
@@ -216,21 +215,19 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
                       else
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(4),
+                            shape: BoxShape.circle,  // دایره‌ای نگه می‌داریم
+                            color: Colors.grey.shade400,  // رنگ سبز خاکستری
                           ),
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          child: Row(
-                            children: const [
-                              Icon(Icons.lock, size: 20, color: Colors.grey),
-                              SizedBox(width: 4),
-                              Text('Approved', style: TextStyle(color: Colors.grey)),
-                            ],
+                          padding: const EdgeInsets.all(8),
+                          child: const Icon(
+                            Icons.check,  // همان آیکون تیک
+                            color: Colors.grey,  // رنگ خاکستری
+                            size: 32,
                           ),
                         ),
                     ],
                   ),
+
                 ],
               ),
             ),
