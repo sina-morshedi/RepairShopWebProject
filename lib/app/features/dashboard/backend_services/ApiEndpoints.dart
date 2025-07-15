@@ -34,6 +34,9 @@ class ApiEndpoints {
   static const String createCarProblemUpdate = "$_baseUrl/car-problem-report/update";
   static const String createCarProblemDelete = "$_baseUrl/car-problem-report/delete";
 
+  static const String customerUrl = "$_baseUrl/customers";
+  static const String customerSearchByName = "$_baseUrl/customers/search?name=";
+
   static const String carRepairLogGetAll = "$_baseUrl/car-repair-log/all";
   static const String carRepairLogGetByLicensePlate = "$_baseUrl/car-repair-log/by-license-plate";
   static const String carRepairLogGetByTaskStatusName = "$_baseUrl/car-repair-log/task-status-name";

@@ -7,6 +7,7 @@ import 'package:repair_shop_web/app/features/dashboard/controllers/UserControlle
 import 'package:repair_shop_web/app/features/dashboard/controllers/project_manage_controller.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/dashboard_controller.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/invoice_controller.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/customer_controller.dart';
 
 import 'package:get/get.dart';
 // part 'insertcarinfo_binding.dart';
@@ -27,5 +28,6 @@ class AppBinding extends Bindings {
     Get.put(TroubleshootingController(), permanent: true);
     Get.put(UserController(), permanent: true);
     Get.put(InvoiceController(), permanent: true);
+    Get.put(CustomerController(), permanent: true);
   }
 }

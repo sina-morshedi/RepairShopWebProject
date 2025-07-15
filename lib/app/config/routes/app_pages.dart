@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 
 import 'package:repair_shop_web/app/features/dashboard/bindings/AppBinding.dart';
 import 'package:repair_shop_web/app/shared_components/InvoiceForm.dart';
+import 'package:repair_shop_web/app/shared_components/CustomerForm.dart';
 part 'app_routes.dart';
 
 /// contains all configuration pages
@@ -56,6 +57,10 @@ class AppPages {
     GetPage(
       name: _Paths.fatura,
       page: () => MainLayout(child: InvoiceForm()),
+    ),
+    GetPage(
+      name: _Paths.customerInfo,
+      page: () => MainLayout(child: CustomerForm()),
     ),
   ];
 }

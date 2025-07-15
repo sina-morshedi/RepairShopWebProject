@@ -87,6 +87,7 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
       taskStatusId: statusId!,
       dateTime: DateTime.now(),
       problemReportId: log.problemReport?.id,
+      customerId: log.customer?.id ?? null,
     );
 
     final response = await CarRepairLogApi().createLog(requestDTO);

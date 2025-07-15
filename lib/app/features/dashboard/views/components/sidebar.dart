@@ -39,6 +39,12 @@ class Sidebar extends StatelessWidget {
         label: "Raporlar",
       ),
       SelectionButtonData(
+        activeIcon: EvaIcons.person,
+        icon: EvaIcons.personOutline,
+        label: "Müşteri bilgilerini ekle",
+      ),
+
+      SelectionButtonData(
         activeIcon: EvaIcons.car,
         icon: EvaIcons.carOutline,
         label: "Araç ayrıntılarını ekle",
@@ -97,6 +103,9 @@ class Sidebar extends StatelessWidget {
                     break;
                   case "Raporlar":
                     Get.toNamed(Routes.reports);
+                    break;
+                  case "Müşteri bilgilerini ekle":
+                    Get.toNamed(Routes.customerInfo);
                     break;
                   case "Araç ayrıntılarını ekle":
                     Get.toNamed(Routes.insertCarInfo);

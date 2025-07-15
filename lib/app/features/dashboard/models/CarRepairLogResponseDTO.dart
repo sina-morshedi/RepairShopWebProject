@@ -3,7 +3,8 @@ import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRe
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/PartUsed.dart';
-import 'package:repair_shop_web/app/features/dashboard/models/PaymentRecord.dart'; // ← اضافه شده
+import 'package:repair_shop_web/app/features/dashboard/models/PaymentRecord.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/CustomerDTO.dart'; // ← اضافه شده
 
 class CarRepairLogResponseDTO {
   final String? id;
@@ -15,7 +16,9 @@ class CarRepairLogResponseDTO {
   final DateTime dateTime;
   final CarProblemReportResponseDTO? problemReport;
   final List<PartUsed>? partsUsed;
-  final List<PaymentRecord>? paymentRecords; // ← اضافه شده
+  final List<PaymentRecord>? paymentRecords;
+
+  final CustomerDTO? customer;  // ← اضافه شده
 
   CarRepairLogResponseDTO({
     this.id,
@@ -27,7 +30,8 @@ class CarRepairLogResponseDTO {
     required this.dateTime,
     this.problemReport,
     this.partsUsed,
-    this.paymentRecords, // ← اضافه شده
+    this.paymentRecords,
+    this.customer,  // ← اضافه شده
   });
 
   factory CarRepairLogResponseDTO.fromJson(Map<String, dynamic> json) {
@@ -59,6 +63,9 @@ class CarRepairLogResponseDTO {
       paymentRecords: (json['paymentRecords'] != null && json['paymentRecords'] is List)
           ? (json['paymentRecords'] as List).map((item) => PaymentRecord.fromJson(item)).toList()
           : null,
+      customer: (json['customer'] != null && json['customer'] is Map<String, dynamic>)
+          ? CustomerDTO.fromJson(json['customer'])
+          : null,  // ← اضافه شده
     );
   }
 
@@ -76,6 +83,7 @@ class CarRepairLogResponseDTO {
         'partsUsed': partsUsed!.map((e) => e.toJson()).toList(),
       if (paymentRecords != null)
         'paymentRecords': paymentRecords!.map((e) => e.toJson()).toList(),
+      if (customer != null) 'customer': customer!.toJson(),  // ← اضافه شده
     };
   }
 
@@ -91,7 +99,8 @@ class CarRepairLogResponseDTO {
         'dateTime: $dateTime, '
         'problemReport: $problemReport, '
         'partsUsed: $partsUsed, '
-        'paymentRecords: $paymentRecords'
+        'paymentRecords: $paymentRecords, '
+        'customer: $customer'  // ← اضافه شده
         ')';
   }
 }

@@ -190,7 +190,7 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
         ),
       );
     }
-
+    final customerId = log?.customer?.id ?? "";
     final request = CarRepairLogRequestDTO(
       carId: log!.carInfo.id,
       creatorUserId: user!.userId,
@@ -201,9 +201,11 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
       partsUsed: parts,
       paymentRecords: updatedPayments,
       dateTime: DateTime.now(),
+      customerId: customerId,
     );
 
     if(selectedTaskStatusId == responseFaturaOdeme.data!.id){
+      final customerId = log?.customer?.id ?? "";
       final requestupdate = CarRepairLogRequestDTO(
         carId: log!.carInfo.id,
         creatorUserId: user!.userId,
@@ -214,6 +216,7 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
         partsUsed: parts,
         paymentRecords: updatedPayments,
         dateTime: DateTime.now(),
+        customerId: customerId,
       );
 
       final responseUpdate = await CarRepairLogApi().updateLog(log!.id!, requestupdate);
@@ -251,6 +254,7 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
         } else
           StringHelper.showErrorDialog(context, response.message!);
       } else {
+        print('4');
         final response = await CarRepairLogApi().updateLog(log!.id!, request);
         if (response.status == 'success') {
           StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
@@ -330,8 +334,6 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
       ],
     );
   }
-
-
 
   Widget buildPartsInputList() {
     if (parts.isEmpty) {

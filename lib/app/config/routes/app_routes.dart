@@ -3,6 +3,7 @@ part of 'app_pages.dart';
 /// used to switch pages
 class Routes {
   static const dashboard = _Paths.dashboard;
+  static const customerInfo = _Paths.customerInfo;
   static const insertCarInfo = _Paths.insertCarInfo;
   static const login = _Paths.login;
   static const settings = _Paths.settings;
@@ -17,6 +18,7 @@ class Routes {
 class _Paths {
   static const login = '/login';
   static const dashboard = '/dashboard';
+  static const customerInfo = '/customerInfo';
   static const insertCarInfo = '/insertCarInfo';
   static const settings = '/settings';
   static const troubleshooting = '/troubleshooting';
