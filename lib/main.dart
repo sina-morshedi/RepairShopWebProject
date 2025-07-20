@@ -10,7 +10,8 @@ import 'package:repair_shop_web/app/features/dashboard/controllers/UserControlle
 import 'package:repair_shop_web/app/features/dashboard/bindings/AppBinding.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,7 +22,7 @@ void main() async {
 
   // ثبت کنترلر گلوبال
   Get.put(UserController());
-
+  tz.initializeTimeZones();
   // اجرای اپ
   runApp(const RepairShopApp());
 }

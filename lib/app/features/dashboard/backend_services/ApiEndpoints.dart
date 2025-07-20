@@ -38,17 +38,43 @@ class ApiEndpoints {
   static const String customerSearchByName = "$_baseUrl/customers/search?name=";
 
   static const String carRepairLogGetAll = "$_baseUrl/car-repair-log/all";
+  static const String carRepairLogGetById = "$_baseUrl/car-repair-log/by-id";
   static const String carRepairLogGetByLicensePlate = "$_baseUrl/car-repair-log/by-license-plate";
   static const String carRepairLogGetByTaskStatusName = "$_baseUrl/car-repair-log/task-status-name";
   static const String carRepairLogLatestGetByLicensePlate = "$_baseUrl/car-repair-log/latest-by-license-plate";
   static const String carRepairLogLatestGetByTaskStatusName = "$_baseUrl/car-repair-log/latest-by-task-status-name";
   static const String carRepairLogLatestGetForEachCar = "$_baseUrl/car-repair-log/log-for-each-car";
+  static const String carRepairLogLatestGetForEachCarByCustomerAndTask = "$_baseUrl/car-repair-log/log-for-each-car-customer-task-filter";
+  static const String carRepairLogLatestGetByTaskStatusNameAndAssignedToUserId = "$_baseUrl/car-repair-log/latest-by-tasks-status-name-and-userid";
   static const String carRepairLogTaskStatusCount = "$_baseUrl/car-repair-log/task-status-count";
   static const String carRepairLogInvoiceFilterByDate = "$_baseUrl/car-repair-log/invoice-filter-by-date";
   static const String carRepairLogInvoiceFilterByLicensePlate = "$_baseUrl/car-repair-log/invoice-filter-by-licens-plate";
   static const String carRepairLogCreate = "$_baseUrl/car-repair-log/create";
   static const String carRepairLogUpdate = "$_baseUrl/car-repair-log/update";
   static const String carRepairLogDelete = "$_baseUrl/car-repair-log/delete";
+
+  static const String inventoryAddItem = "$_baseUrl/inventory/add";
+  static const String inventoryGetAllItems = "$_baseUrl/inventory/list";
+  static const String inventoryGetItemById = "$_baseUrl/inventory";
+  static const String inventorySearchByPartName = "$_baseUrl/inventory/search";
+  static const String inventorySearchByBarcode = "$_baseUrl/inventory/barcode";
+  static const String inventoryUpdateItem = "$_baseUrl/inventory/update";
+  static const String inventoryDeactivateItem = "$_baseUrl/inventory/deactivate";
+  static const String inventoryDeleteItem = "$_baseUrl/inventory/delete";
+  static const String inventoryIncrementQuantity = "$_baseUrl/inventory/incrementQuantity";
+  static const String inventoryDecrementQuantity = "$_baseUrl/inventory/decrementQuantity";
+  static const String inventoryGetPagedItems = "$_baseUrl/inventory/inventory-items";
+
+
+  static const String inventoryTransactionAdd = "$_baseUrl/inventoryTransaction/add";
+  static const String inventoryTransactionList = "$_baseUrl/inventoryTransaction/list";
+  static const String inventoryTransactionGetById = "$_baseUrl/inventoryTransaction"; // باید در نهایت /{id} بهش اضافه بشه
+  static const String inventoryTransactionDelete = "$_baseUrl/inventoryTransaction/delete"; // در نهایت /{id}
+  static const String inventoryTransactionSearchByType = "$_baseUrl/inventoryTransaction/searchByType";
+  static const String inventoryTransactionPaged = "$_baseUrl/inventoryTransaction/paged";
+  static const String inventoryTransactionDateRange = "$_baseUrl/inventoryTransaction/date-range";
+
+
 }
 
 class ApiResponse<T> {
@@ -71,6 +97,42 @@ class ApiResponse<T> {
   }
 }
 
+class PagedApiResponse<T> {
+  final String status;
+  final List<T>? content;
+  final int? pageNumber;
+  final int? pageSize;
+  final int? totalPages;
+  final int? totalElements;
+  final String? message;
+
+  PagedApiResponse({
+    required this.status,
+    this.content,
+    this.pageNumber,
+    this.pageSize,
+    this.totalPages,
+    this.totalElements,
+    this.message,
+  });
+
+  factory PagedApiResponse.fromJson(
+      Map<String, dynamic> json,
+      T Function(Map<String, dynamic>) fromJsonT,
+      )  {
+    return PagedApiResponse<T>(
+      status: json['status'] ?? 'success',
+      content: json['content'] != null
+          ? (json['content'] as List).map((e) => fromJsonT(e)).toList()
+          : [],
+      pageNumber: json['pageable']?['pageNumber'],
+      pageSize: json['pageable']?['pageSize'],
+      totalPages: json['totalPages'],
+      totalElements: json['totalElements'],
+      message: json['message'],
+    );
+  }
+}
 
 
 class LoginRequest {

@@ -36,16 +36,16 @@ class _CustomerAddState extends State<CustomerAdd> {
 
   void _saveCustomer() async{
     final data = {
-      "fullName": _nameController.text.trim(),
-      "phone": _phoneController.text.trim(),
-      "nationalId": _nationalIdController.text.trim(),
-      "address": _addressController.text.trim(),
+      "fullName": _nameController.text.trim().toUpperCase(),
+      "phone": _phoneController.text.trim().toUpperCase(),
+      "nationalId": _nationalIdController.text.trim().toUpperCase(),
+      "address": _addressController.text.trim().toUpperCase(),
     };
     final CustomerDTO customer =CustomerDTO(
-      fullName: _nameController.text.trim(),
-      phone: _phoneController.text.trim(),
-      nationalId: _nationalIdController.text.trim(),
-      address: _addressController.text.trim(),
+      fullName: _nameController.text.trim().toUpperCase(),
+      phone: _phoneController.text.trim().toUpperCase(),
+      nationalId: _nationalIdController.text.trim().toUpperCase(),
+      address: _addressController.text.trim().toUpperCase(),
     );
     final response = await CustomerApi().insertCustomer(customer);
     if(response.status == 'success'){

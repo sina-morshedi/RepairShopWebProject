@@ -102,4 +102,37 @@ class StringHelper {
       },
     );
   }
+
+  static Future<bool> showConfirmDialog(BuildContext context, String message) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(EvaIcons.alertTriangleOutline, color: Colors.orange), // آیکون هشدار چپ
+              const SizedBox(width: 8),
+              const Text('Onayla:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 8),
+              Icon(Icons.help_outline, color: Colors.orange), // آیکون هشدار راست
+            ],
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false), // انصراف
+              child: const Text('İptal'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true), // تأیید
+              child: const Text('Onayla'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false; // اگر دیالوگ بسته شد بدون انتخاب، false برگردون
+  }
+
 }

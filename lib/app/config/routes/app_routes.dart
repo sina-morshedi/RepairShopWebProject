@@ -11,6 +11,8 @@ class Routes {
   static const reports = _Paths.reports;
   static const projectManage = _Paths.projectManage;
   static const fatura = _Paths.fatura;
+  static const inventory = _Paths.inventory;
+  static const repairman = _Paths.repairman;
 }
 
 /// contains a list of route names.
@@ -25,8 +27,12 @@ class _Paths {
   static const reports = '/reports';
   static const projectManage = '/projectManage';
   static const fatura = '/fatura';
+  static const inventory = '/inventory';
+  static const repairman= '/repairman';
 
-  // Example :
+
+
+// Example :
   // static const index = '/';
   // static const splash = '/splash';
   // static const product = '/product';

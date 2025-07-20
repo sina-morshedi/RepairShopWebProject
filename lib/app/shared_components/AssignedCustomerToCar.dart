@@ -76,23 +76,6 @@ class _AssignedCustomerToCarState extends State<AssignedCustomerToCar> {
     final userController = Get.find<UserController>();
     final userId = userController.currentUser?.userId ?? "";
 
-
-    final assignedUserId = log!.assignedUser!.userId ?? "";
-    final description = log!.description ?? "";
-    final taskStatusId = log!.taskStatus.id! ?? "";
-    final problemReportId = log!.problemReport!.id! ?? "";
-    // final logRequest = CarRepairLogRequestDTO(
-    //   carId: log!.carInfo.id,
-    //   creatorUserId: userId,
-    //   assignedUserId: assignedUserId,
-    //   description: description,
-    //   taskStatusId: taskStatusId,
-    //   dateTime: DateTime.now(),
-    //   problemReportId: problemReportId,
-    //   partsUsed: log!.partsUsed,
-    //   paymentRecords: log!.paymentRecords,
-    //   customerId: selectedCustomer!.id,
-    // );
     final logRequest = CarRepairLogRequestDTO(
       carId: log!.carInfo.id,
       creatorUserId: userId,

@@ -56,6 +56,13 @@ class Sidebar extends StatelessWidget {
       ),
 
     ];
+    if(permissionName == 'Yönetici' || permissionName == 'Tamirci'){
+      selectionData.add(SelectionButtonData(
+        activeIcon: FontAwesomeIcons.screwdriverWrench,
+        icon: FontAwesomeIcons.screwdriverWrench,
+        label: "Tamirci",
+      ));
+    }
     if(permissionName == 'Yönetici' || permissionName == 'sekreter'){
       selectionData.add(SelectionButtonData(
         activeIcon: FontAwesomeIcons.fileInvoice,
@@ -71,6 +78,15 @@ class Sidebar extends StatelessWidget {
       ));
     }
     // Add "ayarlar" button only if permission is "Yönetici"
+    if (permissionName == "Yönetici") {
+      selectionData.add(
+        SelectionButtonData(
+          activeIcon: EvaIcons.archive,
+          icon: EvaIcons.archiveOutline,
+          label: "Yedek Parça",
+        ),
+      );
+    }
     if (permissionName == "Yönetici") {
       selectionData.add(
         SelectionButtonData(
@@ -121,6 +137,12 @@ class Sidebar extends StatelessWidget {
                     break;
                   case "Fatura":
                     Get.toNamed(Routes.fatura);
+                    break;
+                  case "Tamirci":
+                    Get.toNamed(Routes.repairman);
+                    break;
+                  case "Yedek Parça":
+                    Get.toNamed(Routes.inventory);
                     break;
                 }
               },

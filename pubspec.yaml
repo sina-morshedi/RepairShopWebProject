@@ -9,6 +9,7 @@ environment:
 dependencies:
   cupertino_icons: ^1.0.2
   eva_icons_flutter: ^3.0.2
+  material_design_icons_flutter: ^7.0.7296
   flutter:
     sdk: flutter
   get_storage: ^2.1.1
@@ -48,6 +49,10 @@ flutter:
 #    - assets/header_background.png
 
   fonts:
+    - family: Vazirmatn
+      fonts:
+        - asset: assets/fonts/Vazirmatn-Regular.ttf
+
     - family: Poppins
       fonts:
         - asset: assets/fonts/poppins/Poppins-Thin.ttf

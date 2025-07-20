@@ -5,7 +5,7 @@ class PartUsed {
 
   PartUsed({
     required this.partName,
-    required this.partPrice,
+    this.partPrice=0,
     this.quantity = 1,
   });
 

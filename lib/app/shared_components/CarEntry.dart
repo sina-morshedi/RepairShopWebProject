@@ -125,7 +125,6 @@ class _CarEntryState extends State<CarEntry> {
       );
 
 
-      print(logRequest);
       final response = await CarRepairLogApi().createLog(logRequest);
 
       if (response.status == 'success' && response.data != null)
@@ -162,7 +161,7 @@ class _CarEntryState extends State<CarEntry> {
           const SizedBox(height: 24),
 
           // اگر latestLog نال باشد، فیلدها نمایش داده می‌شود
-          if (latestLog == null) ...[
+          if (latestLog == null || latestLog!.taskStatus.taskStatusName == "GÖREV YOK") ...[
             if (selectedCar != null) ...[
               TextField(
                 controller: _customerNameController,

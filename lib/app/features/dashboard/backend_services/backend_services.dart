@@ -20,6 +20,12 @@ import 'package:repair_shop_web/app/features/dashboard/models/CarProblemReportRe
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogResponseDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarRepairLogRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusCountDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/InventoryItemDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/InventoryChangeRequestDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/InventoryTransactionResponseDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/InventoryTransactionRequestDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/InventoryTransactionType.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusUserRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
 
 part 'TaskStatusApi.dart';
@@ -28,6 +34,8 @@ part 'UsersApi.dart';
 part 'CarProblemReportApi.dart';
 part 'CarRepairLogApi.dart';
 part 'CustomerApi.dart';
+part 'InventoryApi.dart';
+part 'InventoryTransactionApi.dart';
 
 class backend_services {
   Future<ApiResponse<List<UserProfileDTO>>> fetchAllProfile() async {
