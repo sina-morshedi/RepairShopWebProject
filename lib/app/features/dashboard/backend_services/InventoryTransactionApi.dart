@@ -6,7 +6,10 @@ class InventoryTransactionApi {
     final String backendUrl = ApiEndpoints.inventoryTransactionList;
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> dataList = jsonDecode(response.body);
@@ -38,7 +41,10 @@ class InventoryTransactionApi {
     final String backendUrl = '${ApiEndpoints.inventoryTransactionPaged}?page=$page&size=$size';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> dataList = jsonDecode(response.body);
@@ -64,7 +70,7 @@ class InventoryTransactionApi {
   }
 
   Future<ApiResponse<List<InventoryTransactionResponseDTO>>> getTransactionsByDateRange({
-    required String startDate, // فرمت: yyyy-MM-ddTHH:mm:ss
+    required String startDate,
     required String endDate,
     required int page,
     required int size,
@@ -73,7 +79,10 @@ class InventoryTransactionApi {
         '${ApiEndpoints.inventoryTransactionDateRange}?startDate=$startDate&endDate=$endDate&page=$page&size=$size';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> dataList = jsonDecode(response.body);
@@ -98,13 +107,15 @@ class InventoryTransactionApi {
     }
   }
 
-
   // گرفتن تراکنش با شناسه
   Future<ApiResponse<InventoryTransactionResponseDTO>> getTransactionById(String id) async {
     final String backendUrl = '${ApiEndpoints.inventoryTransactionGetById}/$id';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -133,20 +144,18 @@ class InventoryTransactionApi {
   Future<ApiResponse<InventoryTransactionResponseDTO>> addTransaction(InventoryTransactionRequestDTO dto) async {
     final String backendUrl = ApiEndpoints.inventoryTransactionAdd;
 
-    print("dto");
-    print(dto);
     try {
       final response = await http.post(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
         body: jsonEncode(dto.toJson()),
       );
 
-
       if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
         return ApiResponse(
           status: 'success',
-          message: response.body,
+          data: InventoryTransactionResponseDTO.fromJson(data),
         );
       } else {
         return ApiResponse(
@@ -169,13 +178,13 @@ class InventoryTransactionApi {
     try {
       final response = await http.delete(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
       );
 
       if (response.statusCode == 200) {
         return ApiResponse(
           status: 'success',
-          message: 'İşlem başarıyla silindi.',
+          message: 'تراکنش با موفقیت حذف شد.',
         );
       } else {
         return ApiResponse(
@@ -197,7 +206,10 @@ class InventoryTransactionApi {
     final String backendUrl = '${ApiEndpoints.inventoryTransactionSearchByType}?type=$typeStr';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> dataList = jsonDecode(response.body);

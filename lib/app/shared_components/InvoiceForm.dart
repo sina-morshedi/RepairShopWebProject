@@ -27,12 +27,11 @@ class _InvoiceFormState extends State<InvoiceForm> {
               ],
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 600,
-              child: const TabBarView(
+            Expanded(
+              child: TabBarView(
                 children: [
-                  InvoiceDaily(),
-                  InvoiceFilter(),
+                  SingleChildScrollView(child: InvoiceDaily()),
+                  SingleChildScrollView(child: InvoiceFilter()),
                 ],
               ),
             ),

@@ -175,144 +175,147 @@ class _InventoryTransactionsTableState
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // بخش فیلدهای انتخاب تاریخ و دکمه‌ها
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: _pickStartDate,
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      controller: _startDateController,
-                      decoration: InputDecoration(
-                        labelText: 'Start Date',
-                        suffixIcon: Icon(Icons.calendar_today),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: GestureDetector(
-                  onTap: _pickEndDate,
-                  child: AbsorbPointer(
-                    child: TextFormField(
-                      controller: _endDateController,
-                      decoration: InputDecoration(
-                        labelText: 'End Date',
-                        suffixIcon: Icon(Icons.calendar_today),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    currentPage = 0;
-                  });
-                  fetchTransactions();
-                },
-                child: const Text('Search'),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _resetFilters,
-                child: const Text('Reset'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-
-        // جدول با قابلیت drag-to-scroll افقی
-        Expanded(
-          child: _loading
-              ? const Center(child: CircularProgressIndicator())
-              : transactions.isEmpty
-              ? const Center(child: Text("Hiç işlem bulunamadı."))
-              : GestureDetector(
-            onHorizontalDragUpdate: (details) {
-              final newOffset =
-                  _horizontalScrollController.offset - details.delta.dx;
-
-              if (newOffset < 0) {
-                _horizontalScrollController.jumpTo(0);
-              } else if (newOffset >
-                  _horizontalScrollController.position.maxScrollExtent) {
-                _horizontalScrollController
-                    .jumpTo(_horizontalScrollController.position.maxScrollExtent);
-              } else {
-                _horizontalScrollController.jumpTo(newOffset);
-              }
-            },
-            child: SingleChildScrollView(
-              controller: _horizontalScrollController,
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                width: 1200,
-                child: DataTable(
-                  columns: [
-                    if (widget.showDeleteIcon)
-                      const DataColumn(label: Text('')),
-                    const DataColumn(label: Text('Tarih')),
-                    const DataColumn(label: Text('Tür')),
-                    const DataColumn(label: Text('Parça')),
-                    const DataColumn(label: Text('Adet')),
-                    const DataColumn(label: Text('Kullanıcı')),
-                    const DataColumn(label: Text('Açıklama')),
-                    const DataColumn(label: Text('Plaka')),
-                    const DataColumn(label: Text('Müşteri')),
-                  ],
-                  rows: transactions.map((transaction) {
-                    final cells = <DataCell>[];
-
-                    if (widget.showDeleteIcon) {
-                      cells.add(
-                        DataCell(
-                          IconButton(
-                            icon: Icon(MdiIcons.delete, color: Colors.red),
-                            onPressed: () {
-                              if (widget.onDelete != null) {
-                                widget.onDelete!(transaction);
-                              }
-                            },
-                          ),
+    return SingleChildScrollView( // اسکرول عمودی کل محتوا
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // فیلترها
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: _pickStartDate,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        controller: _startDateController,
+                        decoration: InputDecoration(
+                          labelText: 'Start Date',
+                          suffixIcon: Icon(Icons.calendar_today),
                         ),
-                      );
-                    }
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: _pickEndDate,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        controller: _endDateController,
+                        decoration: InputDecoration(
+                          labelText: 'End Date',
+                          suffixIcon: Icon(Icons.calendar_today),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      currentPage = 0;
+                    });
+                    fetchTransactions();
+                  },
+                  child: const Text('Search'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _resetFilters,
+                  child: const Text('Reset'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                ),
+              ],
+            ),
+          ),
 
-                    cells.addAll([
-                    DataCell(Text(transaction.dateTime != null
-                    ? _formatDateTimeToIstanbul(transaction.dateTime!)
-                        : '-')),
-                      DataCell(Text(transactionTypeToString(transaction.type) ?? '-')),
-                      DataCell(Text(transaction.inventoryItem?.partName ?? '-')),
-                      DataCell(Text(transaction.quantity.toString())),
-                      DataCell(Text(transaction.creatorUser?.firstName ?? '-')),
-                      DataCell(Text(transaction.description ?? '-')),
-                      DataCell(Text(transaction.carInfo?.licensePlate ?? '-')),
-                      DataCell(Text(transaction.customer?.fullName ?? '-')),
-                    ]);
+          const SizedBox(height: 16),
 
-                    return DataRow(cells: cells);
-                  }).toList(),
+          // قسمت جدول با محدودیت ارتفاع و اسکرول افقی داخلی
+          SizedBox(
+            height: 500,  // می‌تونید ارتفاع دلخواه تنظیم کنید یا این مقدار رو متغیر کنید
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : transactions.isEmpty
+                ? const Center(child: Text("Hiç işlem bulunamadı."))
+                : GestureDetector(
+              onHorizontalDragUpdate: (details) {
+                final newOffset =
+                    _horizontalScrollController.offset - details.delta.dx;
+                if (newOffset < 0) {
+                  _horizontalScrollController.jumpTo(0);
+                } else if (newOffset > _horizontalScrollController.position.maxScrollExtent) {
+                  _horizontalScrollController.jumpTo(_horizontalScrollController.position.maxScrollExtent);
+                } else {
+                  _horizontalScrollController.jumpTo(newOffset);
+                }
+              },
+              child: SingleChildScrollView(
+                controller: _horizontalScrollController,
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: 1200,
+                  child: DataTable(
+                    columns: [
+                      if (widget.showDeleteIcon)
+                        const DataColumn(label: Text('')),
+                      const DataColumn(label: Text('Tarih')),
+                      const DataColumn(label: Text('Tür')),
+                      const DataColumn(label: Text('Parça')),
+                      const DataColumn(label: Text('Adet')),
+                      const DataColumn(label: Text('Kullanıcı')),
+                      const DataColumn(label: Text('Açıklama')),
+                      const DataColumn(label: Text('Plaka')),
+                      const DataColumn(label: Text('Müşteri')),
+                    ],
+                    rows: transactions.map((transaction) {
+                      final cells = <DataCell>[];
+
+                      if (widget.showDeleteIcon) {
+                        cells.add(
+                          DataCell(
+                            IconButton(
+                              icon: Icon(MdiIcons.delete, color: Colors.red),
+                              onPressed: () {
+                                if (widget.onDelete != null) {
+                                  widget.onDelete!(transaction);
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      }
+
+                      cells.addAll([
+                        DataCell(Text(transaction.dateTime != null
+                            ? _formatDateTimeToIstanbul(transaction.dateTime!)
+                            : '-')),
+                        DataCell(Text(transactionTypeToString(transaction.type) ?? '-')),
+                        DataCell(Text(transaction.inventoryItem?.partName ?? '-')),
+                        DataCell(Text(transaction.quantity.toString())),
+                        DataCell(Text(transaction.creatorUser?.firstName ?? '-')),
+                        DataCell(Text(transaction.description ?? '-')),
+                        DataCell(Text(transaction.carInfo?.licensePlate ?? '-')),
+                        DataCell(Text(transaction.customer?.fullName ?? '-')),
+                      ]);
+
+                      return DataRow(cells: cells);
+                    }).toList(),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
 
-        // دکمه‌های صفحه‌بندی
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
+          const SizedBox(height: 16),
+
+          // دکمه‌های صفحه‌بندی
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
@@ -328,8 +331,9 @@ class _InventoryTransactionsTableState
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
+
 }

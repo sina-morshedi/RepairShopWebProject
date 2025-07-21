@@ -17,8 +17,6 @@ class InventoryManageItems extends StatefulWidget {
 
 class _InventoryManageItemsState extends State<InventoryManageItems> {
   String? selectedOption;
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +37,7 @@ class _InventoryManageItemsState extends State<InventoryManageItems> {
               value: selectedOption,
               hint: const Text("Bir işlem seçin"),
               items: const [
-                DropdownMenuItem(value: 'arçalar', child: Text("Parçalar")),
+                DropdownMenuItem(value: 'parçalar', child: Text("Parçalar")),
                 DropdownMenuItem(value: 'giris', child: Text("Giriş Ürünleri")),
                 DropdownMenuItem(value: 'cikis', child: Text("Çıkış Ürünleri")),
                 DropdownMenuItem(value: 'arama', child: Text("Ürün Arama")),
@@ -53,24 +51,27 @@ class _InventoryManageItemsState extends State<InventoryManageItems> {
           ),
           const SizedBox(height: 24),
 
-          // Content below dropdown
-          if (selectedOption == 'arçalar') ...[
-            const Text("Giriş Ürünleri gösterilecek"),
-            const SizedBox(height: 24),
-            InventoryItemsTable(),
-          ] else if (selectedOption == 'giris') ...[
-            const Text("Giriş Ürünleri gösterilecek"),
-            const SizedBox(height: 24),
-            InventoryItemEntry(),
-          ] else if (selectedOption == 'cikis') ...[
-            const Text("Çıkış Ürünleri gösterilecek"),
-            const SizedBox(height: 24),
-            InventoryItemExit(),
-          ] else if (selectedOption == 'arama') ...[
-            const Text("Ürün Arama ekranı"),
-            const SizedBox(height: 24),
-            InventorySearchItem(),
-          ],
+          // اینجا به جای Expanded از SizedBox با ارتفاع ثابت استفاده می‌کنیم
+          SizedBox(
+            height: 600, // ارتفاع دلخواه؛ می‌توانید تغییر دهید
+            child: Builder(
+              builder: (context) {
+                if (selectedOption == 'parçalar') {
+                  return InventoryItemsTable();
+                } else if (selectedOption == 'giris') {
+                  return InventoryItemEntry();
+                } else if (selectedOption == 'cikis') {
+                  return InventoryItemExit();
+                } else if (selectedOption == 'arama') {
+                  return InventorySearchItem();
+                } else {
+                  return const Center(
+                    child: Text("Lütfen bir işlem seçin"),
+                  );
+                }
+              },
+            ),
+          ),
         ],
       ),
     );

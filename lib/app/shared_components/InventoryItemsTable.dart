@@ -80,111 +80,114 @@ class _InventoryItemsTableState extends State<InventoryItemsTable> {
       return const Center(child: Text("Hiç parça bulunamadı."));
     }
 
-    return Column(
-      children: [
-        SizedBox(
-          height: 500,
-          child: InteractiveViewer(
-            constrained: false,
-            panEnabled: true,
-            scaleEnabled: false,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: [
-                  if (widget.showDeleteIcon)
-                    const DataColumn(label: Text('')), // ستون خالی برای آیکن دیلیت
-                  const DataColumn(label: Text('Parça Adı')),
-                  const DataColumn(label: Text('Barkod')),
-                  const DataColumn(label: Text('Kategori')),
-                  const DataColumn(label: Text('Miktar')),
-                  const DataColumn(label: Text('Birim')),
-                  const DataColumn(label: Text('Konum')),
-                  const DataColumn(label: Text('Aktif')),
-                ],
-                rows: items.map((item) {
-                  final cells = <DataCell>[];
+    return SingleChildScrollView(   // اضافه شده: اسکرول عمودی کل جدول
+      child: Column(
+        children: [
+          SizedBox(
+            height: 500,
+            child: InteractiveViewer(
+              constrained: false,
+              panEnabled: true,
+              scaleEnabled: false,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: [
+                    if (widget.showDeleteIcon)
+                      const DataColumn(label: Text('')),
+                    const DataColumn(label: Text('Parça Adı')),
+                    const DataColumn(label: Text('Barkod')),
+                    const DataColumn(label: Text('Kategori')),
+                    const DataColumn(label: Text('Miktar')),
+                    const DataColumn(label: Text('Birim')),
+                    const DataColumn(label: Text('Konum')),
+                    const DataColumn(label: Text('Aktif')),
+                  ],
+                  rows: items.map((item) {
+                    final cells = <DataCell>[];
 
-                  if (widget.showDeleteIcon) {
-                    cells.add(
+                    if (widget.showDeleteIcon) {
+                      cells.add(
+                        DataCell(
+                          IconButton(
+                            icon: Icon(MdiIcons.delete, color: Colors.red),
+                            onPressed: () {
+                              if (widget.onDelete != null) {
+                                widget.onDelete!(item);
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    }
+
+                    cells.addAll([
+                      DataCell(Row(
+                        children: [
+                          Icon(MdiIcons.cogOutline, size: 16),
+                          const SizedBox(width: 6),
+                          SelectableText(item.partName),
+                        ],
+                      )),
+                      DataCell(Row(
+                        children: [
+                          Icon(MdiIcons.barcode, size: 16),
+                          const SizedBox(width: 6),
+                          SelectableText(item.barcode),
+                        ],
+                      )),
+                      DataCell(Row(
+                        children: [
+                          Icon(MdiIcons.shapeOutline, size: 16),
+                          const SizedBox(width: 6),
+                          SelectableText(item.category),
+                        ],
+                      )),
+                      DataCell(SelectableText(item.quantity?.toString() ?? '-')),
+                      DataCell(SelectableText(item.unit)),
+                      DataCell(Row(
+                        children: [
+                          Icon(MdiIcons.mapMarker, size: 16),
+                          const SizedBox(width: 6),
+                          SelectableText(item.location),
+                        ],
+                      )),
                       DataCell(
-                        IconButton(
-                          icon: Icon(MdiIcons.delete, color: Colors.red),
-                          onPressed: () {
-                            if (widget.onDelete != null) {
-                              widget.onDelete!(item);
-                            }
-                          },
+                        Icon(
+                          item.isActive == true
+                              ? MdiIcons.checkCircleOutline
+                              : MdiIcons.closeCircleOutline,
+                          color: item.isActive == true ? Colors.green : Colors.red,
                         ),
                       ),
-                    );
-                  }
+                    ]);
 
-                  cells.addAll([
-                    DataCell(Row(
-                      children: [
-                        Icon(MdiIcons.cogOutline, size: 16),
-                        const SizedBox(width: 6),
-                        SelectableText(item.partName),
-                      ],
-                    )),
-                    DataCell(Row(
-                      children: [
-                        Icon(MdiIcons.barcode, size: 16),
-                        const SizedBox(width: 6),
-                        SelectableText(item.barcode),
-                      ],
-                    )),
-                    DataCell(Row(
-                      children: [
-                        Icon(MdiIcons.shapeOutline, size: 16),
-                        const SizedBox(width: 6),
-                        SelectableText(item.category),
-                      ],
-                    )),
-                    DataCell(SelectableText(item.quantity?.toString() ?? '-')),
-                    DataCell(SelectableText(item.unit)),
-                    DataCell(Row(
-                      children: [
-                        Icon(MdiIcons.mapMarker, size: 16),
-                        const SizedBox(width: 6),
-                        SelectableText(item.location),
-                      ],
-                    )),
-                    DataCell(
-                      Icon(
-                        item.isActive == true
-                            ? MdiIcons.checkCircleOutline
-                            : MdiIcons.closeCircleOutline,
-                        color: item.isActive == true ? Colors.green : Colors.red,
-                      ),
-                    ),
-                  ]);
-
-                  return DataRow(cells: cells);
-                }).toList(),
+                    return DataRow(cells: cells);
+                  }).toList(),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: _currentPage == 0 ? null : _goToPreviousPage,
-              child: const Text('Önceki Sayfa'),
-            ),
-            const SizedBox(width: 16),
-            Text('Sayfa ${_currentPage + 1} / $_totalPages'),
-            const SizedBox(width: 16),
-            ElevatedButton(
-              onPressed: _currentPage >= _totalPages - 1 ? null : _goToNextPage,
-              child: const Text('Sonraki Sayfa'),
-            ),
-          ],
-        ),
-      ],
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: _currentPage == 0 ? null : _goToPreviousPage,
+                child: const Text('Önceki Sayfa'),
+              ),
+              const SizedBox(width: 16),
+              Text('Sayfa ${_currentPage + 1} / $_totalPages'),
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: _currentPage >= _totalPages - 1 ? null : _goToNextPage,
+                child: const Text('Sonraki Sayfa'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
+
 }

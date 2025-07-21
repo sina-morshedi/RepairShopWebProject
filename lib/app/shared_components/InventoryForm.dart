@@ -31,9 +31,9 @@ class _InventoryformState extends State<Inventoryform> {
               ],
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 600,
-              child: const TabBarView(
+            // اینجا باید Expanded باشه تا TabBarView به فضای باقی‌مانده برسد
+            Expanded(
+              child: TabBarView(
                 children: [
                   InventoryAddItem(),
                   InventoryManageItems(),
@@ -47,3 +47,4 @@ class _InventoryformState extends State<Inventoryform> {
     );
   }
 }
+

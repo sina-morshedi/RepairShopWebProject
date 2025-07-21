@@ -20,8 +20,7 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
   List<InventoryItemDTO> searchResults = [];
   String? permissionName;
 
-
-  bool _showDeleteIcon = false; // متغیر برای چک‌باکس
+  bool _showDeleteIcon = false;
 
   @override
   void initState() {
@@ -45,28 +44,29 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
     _onSearch(barcode, partName);
   }
 
-  void _deleteItem(InventoryItemDTO item)async{
-    if(item == null) return;
+  void _deleteItem(InventoryItemDTO item) async {
+    if (item == null) return;
 
-    final confirmed = await StringHelper.showConfirmDialog(context, "Silmek istiyor musunuz?");
+    final confirmed =
+    await StringHelper.showConfirmDialog(context, "Silmek istiyor musunuz?");
     if (!confirmed) return;
 
     final response = await InventoryApi().deleteItem(item.id);
 
-    if(response.status == 'success')
+    if (response.status == 'success') {
       StringHelper.showInfoDialog(context, response.message!);
-    else
+    } else {
       StringHelper.showErrorDialog(context, response.message!);
+    }
   }
 
   void _onSearch(String barcode, String partName) async {
-
     setState(() {
-      searchResults = [];  // لیست رو اول خالی کن
+      searchResults = [];
     });
+
     if (barcode.isNotEmpty) {
       final response = await InventoryApi().getItemByBarcode(barcode);
-
       if (response.status == 'success') {
         final InventoryItemDTO item = response.data!;
         setState(() {
@@ -78,7 +78,6 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
       }
     } else if (partName.isNotEmpty) {
       final response = await InventoryApi().getByPartName(partName);
-
       if (response.status == 'success') {
         final results = response.data ?? [];
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -105,76 +104,75 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Form(
-          key: _formKey,
-          child: Wrap(
-            runSpacing: 10,
-            children: [
-              TextFormField(
-                controller: _barcodeController,
-                decoration: InputDecoration(
-                  labelText: 'Barkod ile Ara',
-                  prefixIcon: Icon(MdiIcons.barcode),
-                  isDense: true,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              TextFormField(
-                controller: _partNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Parça Adı ile Ara',
-                  prefixIcon: Icon(EvaIcons.search),
-                  isDense: true,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (permissionName == "Yönetici")
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _showDeleteIcon,
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _showDeleteIcon = value;
-                              });
-                            }
-                          },
-                        ),
-                        const Text('Silme Modu'),
-                      ],
-                    ),
-
-                  ElevatedButton.icon(
-                    onPressed: _submit,
-                    icon: const Icon(EvaIcons.search),
-                    label: const Text('Ara'),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Form(
+            key: _formKey,
+            child: Wrap(
+              runSpacing: 10,
+              children: [
+                TextFormField(
+                  controller: _barcodeController,
+                  decoration: InputDecoration(
+                    labelText: 'Barkod ile Ara',
+                    prefixIcon: Icon(MdiIcons.barcode),
+                    isDense: true,
+                    border: OutlineInputBorder(),
                   ),
-                ],
-              ),
-            ],
+                ),
+                TextFormField(
+                  controller: _partNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Parça Adı ile Ara',
+                    prefixIcon: Icon(EvaIcons.search),
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (permissionName == "Yönetici")
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _showDeleteIcon,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _showDeleteIcon = value;
+                                });
+                              }
+                            },
+                          ),
+                          const Text('Silme Modu'),
+                        ],
+                      ),
+                    ElevatedButton.icon(
+                      onPressed: _submit,
+                      icon: const Icon(EvaIcons.search),
+                      label: const Text('Ara'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        SizedBox(
-          height: 400, // یا MediaQuery.of(context).size.height * 0.5
-          child: searchResults.isNotEmpty
-              ? InventoryItemsTable(
-            items: searchResults,
-            showDeleteIcon: _showDeleteIcon,
-            onDelete: _deleteItem,
-          )
-              : const Center(child: Text('Arama sonucu yok')),
-        ),
-      ],
+          if (searchResults.isNotEmpty)
+            InventoryItemsTable(
+              items: searchResults,
+              showDeleteIcon: _showDeleteIcon,
+              onDelete: _deleteItem,
+            )
+          else
+            const Center(child: Text('Arama sonucu yok')),
+        ],
+      ),
     );
   }
-
 }

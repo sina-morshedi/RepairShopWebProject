@@ -7,10 +7,8 @@ import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpo
 import 'dart:convert';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'dart:convert';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,15 +24,34 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _storeNameController = TextEditingController();
+
+  bool _rememberMe = false;  // حالت چک‌باکس
 
   @override
   void initState() {
     super.initState();
     final box = GetStorage();
+
+    // خواندن داده‌های ذخیره شده در صورت وجود
+    final savedUsername = box.read('saved_username');
+    final savedPassword = box.read('saved_password');
+    final savedstoreName = box.read('saved_storeName');
+    final savedRememberMe = box.read('saved_rememberMe') ?? false;
+
+    if (savedRememberMe) {
+      if (savedUsername != null) _usernameController.text = savedUsername;
+      if (savedPassword != null) _passwordController.text = savedPassword;
+      if (savedstoreName != null) _storeNameController.text = savedstoreName;
+    }
+
+    _rememberMe = savedRememberMe;
+
     final storedUserJson = box.read('user');
     if (storedUserJson != null) {
       user.value = UserProfileDTO.fromJson(jsonDecode(storedUserJson));
     }
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -66,6 +83,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     _controller.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
+    _storeNameController.dispose();
     super.dispose();
   }
 
@@ -74,12 +92,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('خطا'),
+          title: const Text('Hata'),
           content: Text(errorMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('تأیید'),
+              child: const Text('Onay'),
             ),
           ],
         );
@@ -90,13 +108,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   void _login() async {
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
-    if (username.isEmpty || password.isEmpty) {
-      Fluttertoast.showToast(msg: "لطفا همه فیلدها را پر کنید");
+    String storeName = _storeNameController.text.trim();
+
+    if (username.isEmpty || password.isEmpty || storeName.isEmpty) {
+      Fluttertoast.showToast(msg: "Lütfen tüm alanları doldurun");
       return;
     }
 
     final String backendUrl =
-        '${ApiEndpoints.login}?username=$username&password=$password';
+        '${ApiEndpoints.login}?username=${Uri.encodeComponent(username)}&password=${Uri.encodeComponent(password)}&storeName=${Uri.encodeComponent(storeName)}';
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
@@ -105,9 +125,30 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         if (!mounted) return;
 
         final data = jsonDecode(response.body);
-        UserProfileDTO userProfileDTO = UserProfileDTO.fromJson(data);
+        final token = data['token'];
+
+        UserProfileDTO userProfileDTO = UserProfileDTO.fromJson(data['profile']);
         final userController = Get.find<UserController>();
         userController.setUser(userProfileDTO);
+        print(userProfileDTO);
+        print(token);
+
+        final box = GetStorage();
+        box.write('token', token);
+        if (_rememberMe) {
+          // ذخیره اطلاعات
+          box.write('saved_username', username);
+          box.write('saved_password', password);
+          box.write('saved_storeName', storeName);
+          box.write('saved_rememberMe', true);
+        } else {
+          // حذف اطلاعات ذخیره شده
+          box.remove('saved_username');
+          box.remove('saved_password');
+          box.remove('saved_storeName');
+          box.write('saved_rememberMe', false);
+        }
+
         Get.offNamed(Routes.dashboard);
       } else {
         showErrorDialog(context, response.body);
@@ -155,7 +196,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        'Welcome',
+                        'Hoşgeldiniz',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -164,12 +205,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       const SizedBox(height: 30),
                       TextField(
                         controller: _usernameController,
-                        style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600), // متن پررنگ خاکستری
+                        style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
-                          labelText: 'Username',
-                          labelStyle: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600), // label پررنگ‌تر
+                          labelText: 'Kullanıcı Adı',
+                          labelStyle: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600),
                           border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(EvaIcons.personOutline, color: Colors.blueAccent),
+                          prefixIcon: Icon(MdiIcons.accountOutline, color: Colors.blueAccent),
                           filled: true,
                           fillColor: Colors.grey[100],
                         ),
@@ -180,21 +221,51 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         obscureText: true,
                         style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
-                          labelText: 'Password',
+                          labelText: 'Şifre',
                           labelStyle: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600),
                           border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(EvaIcons.lockOutline, color: Colors.blueAccent),
+                          prefixIcon: Icon(MdiIcons.lockOutline, color: Colors.blueAccent),
                           filled: true,
                           fillColor: Colors.grey[100],
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _storeNameController,
+                        style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600),
+                        decoration: InputDecoration(
+                          labelText: 'Tamirhane Adı',
+                          labelStyle: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: Icon(MdiIcons.homeOutline, color: Colors.blueAccent),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _rememberMe,
+                            onChanged: (value) {
+                              setState(() {
+                                _rememberMe = value ?? false;
+                              });
+                            },
+                          ),
+                          const Text(
+                            "Giriş bilgilerini kaydet",
+                            style: TextStyle(color: Colors.black87),
+                          ),
 
+                        ],
+                      ),
                       const SizedBox(height: 30),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: _login,
-                          icon: const Icon(Icons.login),
+                          icon: Icon(MdiIcons.login),
                           label: const Text('Login'),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 15),

@@ -52,13 +52,13 @@ class _RepairmenLogListTabState extends State<RepairmenLogListTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: repairmen.isEmpty
-          ? const CircularProgressIndicator()
-          : Column(
+    return repairmen.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
           const Text(
             "Tamirci Seçin:",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -73,7 +73,8 @@ class _RepairmenLogListTabState extends State<RepairmenLogListTab> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
             items: repairmen
                 .map((user) => DropdownMenuItem<UserProfileDTO>(
@@ -84,11 +85,10 @@ class _RepairmenLogListTabState extends State<RepairmenLogListTab> {
             onChanged: (value) {
               setState(() {
                 selectedRepairman = value;
-                selectedTaskType = null; // ریست نوع کار وقتی تعمیرکار عوض شد
+                selectedTaskType = null;
               });
             },
           ),
-
           if (selectedRepairman != null) ...[
             const SizedBox(height: 24),
             const Text(
@@ -103,7 +103,8 @@ class _RepairmenLogListTabState extends State<RepairmenLogListTab> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
               items: taskOptions
                   .map((task) => DropdownMenuItem<String>(
@@ -118,24 +119,20 @@ class _RepairmenLogListTabState extends State<RepairmenLogListTab> {
               },
             ),
           ],
-
-          // اینجا ویجت RepairmanLogTask را نمایش بده وقتی هر دو مقدار انتخاب شده‌اند
-          if (selectedRepairman != null && selectedTaskType == 'Yapılacak işler') ...[
-            const SizedBox(height: 24),
+          const SizedBox(height: 24),
+          // حالا محتوای پایین را داخل Expanded + SingleChildScrollView می‌گذاریم
+          if (selectedRepairman != null && selectedTaskType != null)
             Expanded(
-              child: RepairmanLogTask(user: selectedRepairman!),
+              child: SingleChildScrollView(
+                child: selectedTaskType == 'Yapılacak işler'
+                    ? RepairmanLogTask(user: selectedRepairman!)
+                    : RepairmanWorkespace(user: selectedRepairman!),
+              ),
             ),
-          ],
-          if (selectedRepairman != null && selectedTaskType == 'Devam eden işler') ...[
-            const SizedBox(height: 24),
-            Expanded(
-              child: RepairmanWorkespace(user: selectedRepairman!),
-            ),
-          ],
-
         ],
       ),
     );
   }
+
 
 }

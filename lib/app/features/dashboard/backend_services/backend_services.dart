@@ -27,6 +27,8 @@ import 'package:repair_shop_web/app/features/dashboard/models/InventoryTransacti
 import 'package:repair_shop_web/app/features/dashboard/models/InventoryTransactionType.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusUserRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
+import 'package:get_storage/get_storage.dart';
+import 'backend_utils.dart';
 
 part 'TaskStatusApi.dart';
 part 'RoleApi.dart';
@@ -42,7 +44,10 @@ class backend_services {
     final String backendUrl = ApiEndpoints.getAllProfile;
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final List<dynamic> decodedList = jsonDecode(response.body);
@@ -51,21 +56,12 @@ class backend_services {
             .map((jsonItem) => UserProfileDTO.fromJson(jsonItem))
             .toList();
 
-        return ApiResponse(
-          status: 'success',
-          data: logs,
-        );
-      }else {
-        return ApiResponse(
-          status: 'error',
-          message: response.body,
-        );
+        return ApiResponse(status: 'success', data: logs);
+      } else {
+        return ApiResponse(status: 'error', message: response.body);
       }
     } catch (e) {
-      return ApiResponse(
-        status: 'error',
-        message: 'Exception occurred: $e',
-      );
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
 
@@ -73,7 +69,10 @@ class backend_services {
     final String backendUrl = ApiEndpoints.getAllPermissions;
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final List<dynamic> decodedList = jsonDecode(response.body);
@@ -82,21 +81,12 @@ class backend_services {
             .map((jsonItem) => permissions.fromJson(jsonItem))
             .toList();
 
-        return ApiResponse(
-          status: 'success',
-          data: logs,
-        );
-      }else {
-        return ApiResponse(
-          status: 'error',
-          message: response.body,
-        );
+        return ApiResponse(status: 'success', data: logs);
+      } else {
+        return ApiResponse(status: 'error', message: response.body);
       }
     } catch (e) {
-      return ApiResponse(
-        status: 'error',
-        message: 'Exception occurred: $e',
-      );
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
 
@@ -104,7 +94,10 @@ class backend_services {
     final String backendUrl = ApiEndpoints.getAllRoles;
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final List<dynamic> decodedList = jsonDecode(response.body);
@@ -113,10 +106,7 @@ class backend_services {
             .map((jsonItem) => roles.fromJson(jsonItem))
             .toList();
 
-        return ApiResponse(
-          status: 'success',
-          data: logs,
-        );
+        return ApiResponse(status: 'success', data: logs);
       } else {
         return ApiResponse(
           status: 'error',
@@ -124,19 +114,18 @@ class backend_services {
         );
       }
     } catch (e) {
-      return ApiResponse(
-        status: 'error',
-        message: 'Exception occurred: $e',
-      );
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
-
 
   Future<int> countAllMembers({BuildContext? context}) async {
     final String backendUrl = ApiEndpoints.countAllMembers;
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -157,9 +146,11 @@ class backend_services {
     final uri = Uri.parse('${ApiEndpoints.getCarInfo}/$licensePlate');
 
     try {
-      final response = await http.get(uri);
+      final response = await http.get(
+        uri,
+        headers: BackendUtils.buildHeader(),
+      );
 
-      final data = jsonDecode(response.body);
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
@@ -170,8 +161,8 @@ class backend_services {
         );
       } else {
         return ApiResponse(
-          status: data['status'] ?? 'error',
-          message: data['idOrMessage'] ?? 'Bilinmeyen hata',
+          status: jsonData['status'] ?? 'error',
+          message: jsonData['idOrMessage'] ?? 'Bilinmeyen hata',
         );
       }
     } catch (e) {
@@ -179,11 +170,10 @@ class backend_services {
     }
   }
 
-
   Future<ApiResponse<void>> updateCarInfoByLicensePlate(String licensePlate, CarInfo updatedCar) async {
     final response = await http.put(
       Uri.parse('${ApiEndpoints.updateCarInfo}/$licensePlate'),
-      headers: {"Content-Type": "application/json"},
+      headers: BackendUtils.buildHeader(),
       body: jsonEncode(updatedCar.toJson()),
     );
 
@@ -202,14 +192,13 @@ class backend_services {
     }
   }
 
-
   Future<ApiResponse> insertCarInfo(CarInfo carInfo) async {
     final String url = ApiEndpoints.registerCar;
 
     try {
       final response = await http.post(
         Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
         body: jsonEncode(carInfo.toJson()),
       );
 
@@ -217,7 +206,6 @@ class backend_services {
         final data = jsonDecode(response.body);
         return ApiResponse.fromJson(data);
       } else {
-        // For non-200 status code, try to parse error message from body if any
         try {
           final data = jsonDecode(response.body);
           return ApiResponse(
@@ -232,10 +220,7 @@ class backend_services {
         }
       }
     } catch (e) {
-      return ApiResponse(
-        status: 'error',
-        message: 'Exception occurred: $e',
-      );
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
 
@@ -245,7 +230,7 @@ class backend_services {
     try {
       final response = await http.post(
         Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
         body: jsonEncode(taskStatus.toJson()),
       );
 
@@ -260,17 +245,11 @@ class backend_services {
             message: data['idOrMessage'] ?? 'Unknown error',
           );
         } catch (_) {
-          return ApiResponse(
-            status: 'error',
-            message: '${response.body}',
-          );
+          return ApiResponse(status: 'error', message: '${response.body}');
         }
       }
     } catch (e) {
-      return ApiResponse(
-        status: 'error',
-        message: 'Exception occurred: $e',
-      );
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
 
@@ -296,33 +275,21 @@ class backend_services {
       "permissionId": permissionId,
       "permissionName": permissionName,
     });
+
     try {
       final response = await http.post(
         Uri.parse(backendUrl),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: BackendUtils.buildHeader(),
         body: body,
       );
+
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return ApiResponse(
-          status: 'success',
-          message: '${response.body}',
-        );
+        return ApiResponse(status: 'success', message: response.body);
       } else {
-        return ApiResponse(
-          status: 'error',
-          message: '${response.body}',
-        );
+        return ApiResponse(status: 'error', message: response.body);
       }
     } catch (e) {
-      return ApiResponse(
-        status: 'error',
-        message: 'Exception occurred: $e',
-      );
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
-
 }
-
-

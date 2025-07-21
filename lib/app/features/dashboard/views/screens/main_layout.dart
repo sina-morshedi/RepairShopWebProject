@@ -76,7 +76,7 @@ class _MainLayoutState extends State<MainLayout> {
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(child: widget.child),
+                  child: widget.child,
                 ),
               ],
             ),

@@ -27,12 +27,13 @@ class _RepairmenFormState extends State<RepairmenForm> {
               ],
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 600,
-              child: const TabBarView(
+            // اضافه کردن Flexible یا Expanded برای TabBarView
+            Expanded(
+              child: TabBarView(
                 children: [
-                  RepairmenLogListTab(),
-                  RepairmenLogFilterTab(),
+                  // داخل هر تب هم سعی کن ویجتی باشه که خودش اسکرول پذیر باشه
+                  SingleChildScrollView(child: RepairmenLogListTab()),
+                  SingleChildScrollView(child: RepairmenLogFilterTab()),
                 ],
               ),
             ),
@@ -42,3 +43,4 @@ class _RepairmenFormState extends State<RepairmenForm> {
     );
   }
 }
+

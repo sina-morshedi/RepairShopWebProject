@@ -34,8 +34,7 @@ class _InvoiceFilterState extends State<InvoiceFilter> {
   List<CustomerDTO>? customerData;
   CustomerDTO? selectedCustomer;
 
-  // اضافه کردن متغیر برای انتخاب نوع فیلتر
-  FilterType _selectedFilter = FilterType.date; // به صورت پیش‌فرض تاریخ
+  FilterType _selectedFilter = FilterType.date;
 
   @override
   void initState() {
@@ -135,8 +134,6 @@ class _InvoiceFilterState extends State<InvoiceFilter> {
   }
 
   Future<void> _fetchInvoiceForCustomer(CustomerDTO customer) async {
-    print('_fetchInvoiceForCustomer');
-
     final response = await CarRepairLogApi().getLatestLogForEachCarByCustomerAndTask(
         customer.fullName, 'FATURA');
     if(response.status == 'success'){
@@ -185,195 +182,191 @@ class _InvoiceFilterState extends State<InvoiceFilter> {
     final userController = Get.find<UserController>();
     final permissionName = userController.currentUser?.permission.permissionName ?? "";
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // انتخاب نوع فیلتر با DropdownButton
-
-        Container(
-          margin: const EdgeInsets.only(bottom: 12), // فاصله از پایین برای جدا شدن از آیتم بعدی
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: DropdownButton<FilterType>(
-            isExpanded: true,  // بهتره که کل عرض Container رو بگیره
-            value: _selectedFilter,
-            underline: SizedBox.shrink(), // حذف خط زیرین پیش فرض
-            items: const [
-              DropdownMenuItem(value: FilterType.date, child: Text("Tarihe Göre Ara")),
-              DropdownMenuItem(value: FilterType.licensePlate, child: Text("Plaka ile Ara")),
-              DropdownMenuItem(value: FilterType.customer, child: Text("Müşteri ile Ara")),
-            ],
-            onChanged: (FilterType? newVal) {
-              setState(() {
-                _selectedFilter = newVal!;
-                _logs.clear();
-                selectedCustomer = null;
-                customerData = null;
-                _licensePlateController.clear();
-                _customerNameController.clear();
-              });
-            },
-          ),
-        ),
-
-
-        if (_selectedFilter == FilterType.date) ...[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              'Seçilen Tarihler: ' +
-                  (_startDate != null
-                      ? '${_startDate!.year}/${_startDate!.month.toString().padLeft(2, '0')}/${_startDate!.day.toString().padLeft(2, '0')}'
-                      : '-') +
-                  ' - ' +
-                  (_endDate != null
-                      ? '${_endDate!.year}/${_endDate!.month.toString().padLeft(2, '0')}/${_endDate!.day.toString().padLeft(2, '0')}'
-                      : '-'),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // انتخاب نوع فیلتر با DropdownButton
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(5),
             ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _selectStartDate(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(
-                      _startDate == null
-                          ? 'Başlangıç Tarihi'
-                          : '${_startDate!.year}/${_startDate!.month.toString().padLeft(2, '0')}/${_startDate!.day.toString().padLeft(2, '0')}',
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _selectEndDate(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(
-                      _endDate == null
-                          ? 'Bitiş Tarihi'
-                          : '${_endDate!.year}/${_endDate!.month.toString().padLeft(2, '0')}/${_endDate!.day.toString().padLeft(2, '0')}',
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: _search,
-                child: const Text('Ara'),
-              ),
-            ],
-          ),
-        ] else if (_selectedFilter == FilterType.licensePlate) ...[
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _licensePlateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Plaka ile ara',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: _search,
-                child: const Text('Ara'),
-              ),
-            ],
-          ),
-        ] else if (_selectedFilter == FilterType.customer) ...[
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _customerNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Müşteri adı ile ara',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: _searchCustomer,
-                child: const Text('Ara'),
-              ),
-            ],
-          ),
-
-          if (customerData != null && customerData!.isNotEmpty)
-            CustomerListCard(
-              customers: customerData!,
-              selectedCustomer: selectedCustomer,
-              onSelected: (c) {
+            child: DropdownButton<FilterType>(
+              isExpanded: true,
+              value: _selectedFilter,
+              underline: const SizedBox.shrink(),
+              items: const [
+                DropdownMenuItem(value: FilterType.date, child: Text("Tarihe Göre Ara")),
+                DropdownMenuItem(value: FilterType.licensePlate, child: Text("Plaka ile Ara")),
+                DropdownMenuItem(value: FilterType.customer, child: Text("Müşteri ile Ara")),
+              ],
+              onChanged: (FilterType? newVal) {
                 setState(() {
-                  selectedCustomer = c;
-                  customerData = null; // مخفی کردن لیست بعد از انتخاب
+                  _selectedFilter = newVal!;
+                  _logs.clear();
+                  selectedCustomer = null;
+                  customerData = null;
+                  _licensePlateController.clear();
+                  _customerNameController.clear();
                 });
               },
-             // showSelectButton: false, // حذف دکمه "آره"
             ),
+          ),
 
-          if (selectedCustomer != null)
+          if (_selectedFilter == FilterType.date) ...[
             Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Align(
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () {
-                    _fetchInvoiceForCustomer(selectedCustomer!);
-                  },
-                  child: const Text('Faturaları Bul'),
-                ),
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'Seçilen Tarihler: ' +
+                    (_startDate != null
+                        ? '${_startDate!.year}/${_startDate!.month.toString().padLeft(2, '0')}/${_startDate!.day.toString().padLeft(2, '0')}'
+                        : '-') +
+                    ' - ' +
+                    (_endDate != null
+                        ? '${_endDate!.year}/${_endDate!.month.toString().padLeft(2, '0')}/${_endDate!.day.toString().padLeft(2, '0')}'
+                        : '-'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _selectStartDate(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        _startDate == null
+                            ? 'Başlangıç Tarihi'
+                            : '${_startDate!.year}/${_startDate!.month.toString().padLeft(2, '0')}/${_startDate!.day.toString().padLeft(2, '0')}',
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _selectEndDate(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        _endDate == null
+                            ? 'Bitiş Tarihi'
+                            : '${_endDate!.year}/${_endDate!.month.toString().padLeft(2, '0')}/${_endDate!.day.toString().padLeft(2, '0')}',
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _search,
+                  child: const Text('Ara'),
+                ),
+              ],
+            ),
+          ] else if (_selectedFilter == FilterType.licensePlate) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _licensePlateController,
+                    decoration: const InputDecoration(
+                      labelText: 'Plaka ile ara',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _search,
+                  child: const Text('Ara'),
+                ),
+              ],
+            ),
+          ] else if (_selectedFilter == FilterType.customer) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _customerNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Müşteri adı ile ara',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _searchCustomer,
+                  child: const Text('Ara'),
+                ),
+              ],
+            ),
 
-        ],
-
-        Expanded(
-          child: CarRepairLogListView(
-            logs: _logs,
-            buttonBuilder: permissionName == 'Yönetici'
-                ? (log) {
-              return {
-                'text': 'Fatura',
-                'onPressed': () async {
-                  InvoicePdfHelper.generateAndDownloadInvoicePdf(
-                    customFont: customFont!,
-                    logoImage: logoImage!,
-                    parts: log.partsUsed!,
-                    log: log,
-                    licensePlate: log.carInfo.licensePlate,
-                  );
+            if (customerData != null && customerData!.isNotEmpty)
+              CustomerListCard(
+                customers: customerData!,
+                selectedCustomer: selectedCustomer,
+                onSelected: (c) {
+                  setState(() {
+                    selectedCustomer = c;
+                    customerData = null;
+                  });
                 },
-              };
-            }
-                : null,
+              ),
+
+            if (selectedCustomer != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _fetchInvoiceForCustomer(selectedCustomer!);
+                    },
+                    child: const Text('Faturaları Bul'),
+                  ),
+                ),
+              ),
+          ],
+
+          // اینجا به جای Expanded از SizedBox استفاده شده:
+          SizedBox(
+            height: 400,
+            child: CarRepairLogListView(
+              logs: _logs,
+              buttonBuilder: permissionName == 'Yönetici'
+                  ? (log) {
+                return {
+                  'text': 'Fatura',
+                  'onPressed': () async {
+                    InvoicePdfHelper.generateAndDownloadInvoicePdf(
+                      customFont: customFont!,
+                      logoImage: logoImage!,
+                      parts: log.partsUsed!,
+                      log: log,
+                      licensePlate: log.carInfo.licensePlate,
+                    );
+                  },
+                };
+              }
+                  : null,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
-
-
-
-

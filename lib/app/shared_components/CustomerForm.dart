@@ -27,8 +27,8 @@ class _CustomerFormState extends State<CustomerForm> {
               ],
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 600,
+            // اینجا Expanded گذاشتیم به جای SizedBox ثابت
+            Expanded(
               child: const TabBarView(
                 children: [
                   CustomerAdd(),
@@ -42,3 +42,4 @@ class _CustomerFormState extends State<CustomerForm> {
     );
   }
 }
+

@@ -6,7 +6,10 @@ class InventoryApi {
     final String backendUrl = ApiEndpoints.inventoryGetAllItems;
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> dataList = jsonDecode(response.body);
@@ -36,7 +39,10 @@ class InventoryApi {
     final String backendUrl = '${ApiEndpoints.inventoryGetItemById}/$id';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -65,7 +71,10 @@ class InventoryApi {
     final String backendUrl = '${ApiEndpoints.inventorySearchByPartName}?keyword=$keyword';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> dataList = jsonDecode(response.body);
@@ -90,12 +99,14 @@ class InventoryApi {
     }
   }
 
-
   Future<ApiResponse<InventoryItemDTO>> getItemByBarcode(String barcode) async {
     final String backendUrl = '${ApiEndpoints.inventorySearchByBarcode}?barcode=$barcode';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -126,17 +137,13 @@ class InventoryApi {
     try {
       final response = await http.post(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
         body: jsonEncode(dto.toJson()),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("data");
-        print(data);
         final InventoryItemDTO item = InventoryItemDTO.fromJson(data);
-        print("item");
-        print(item);
         return ApiResponse(
           status: 'success',
           data: item,
@@ -162,7 +169,7 @@ class InventoryApi {
     try {
       final response = await http.put(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
         body: jsonEncode(dto.toJson()),
       );
 
@@ -192,13 +199,13 @@ class InventoryApi {
     try {
       final response = await http.delete(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
       );
 
       if (response.statusCode == 204 || response.statusCode == 200) {
         return ApiResponse(
           status: 'success',
-          message: 'Parça başarıyla devre dışı bırakıldı.', // قطعه با موفقیت غیرفعال شد
+          message: 'قطعه با موفقیت غیرفعال شد.',
         );
       } else {
         return ApiResponse(
@@ -221,13 +228,13 @@ class InventoryApi {
     try {
       final response = await http.delete(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
       );
 
       if (response.statusCode == 200) {
         return ApiResponse(
           status: 'success',
-          message: 'Parça başarıyla silindi.', // قطعه با موفقیت حذف شد
+          message: 'قطعه با موفقیت حذف شد.',
         );
       } else {
         return ApiResponse(
@@ -250,7 +257,7 @@ class InventoryApi {
     try {
       final response = await http.post(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
         body: jsonEncode(dto.toJson()),
       );
 
@@ -260,7 +267,7 @@ class InventoryApi {
         return ApiResponse(status: 'error', message: response.body);
       }
     } catch (e) {
-      return ApiResponse(status: 'error', message: 'İstisna oluştu: $e');
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
 
@@ -271,7 +278,7 @@ class InventoryApi {
     try {
       final response = await http.post(
         Uri.parse(backendUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: BackendUtils.buildHeader(),
         body: jsonEncode(dto.toJson()),
       );
 
@@ -281,21 +288,22 @@ class InventoryApi {
         return ApiResponse(status: 'error', message: response.body);
       }
     } catch (e) {
-      return ApiResponse(status: 'error', message: 'İstisna oluştu: $e');
+      return ApiResponse(status: 'error', message: 'Exception occurred: $e');
     }
   }
-
 
   Future<ApiResponse<PagedApiResponse<InventoryItemDTO>>> getPagedItems(int page, int size) async {
     final String backendUrl = '${ApiEndpoints.inventoryGetPagedItems}?page=$page&size=$size';
 
     try {
-      final response = await http.get(Uri.parse(backendUrl));
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        // فرض بر این است که PagedResponse دارای یک فیلد content است که لیست داده‌ها را دارد
         final pagedResponse = PagedApiResponse<InventoryItemDTO>.fromJson(
           data,
               (item) => InventoryItemDTO.fromJson(item),
@@ -318,5 +326,4 @@ class InventoryApi {
       );
     }
   }
-
 }
