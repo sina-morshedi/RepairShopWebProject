@@ -40,7 +40,7 @@ class _AssignedCustomerToCarState extends State<AssignedCustomerToCar> {
         });
       } else {
         foundLog = false;
-        StringHelper.showErrorDialog(context, 'Log Response: ${response.message!}');
+        StringHelper.showErrorDialog(context, response.message!);
       }
     } catch (e) {
       StringHelper.showErrorDialog(context, '$e');
@@ -95,7 +95,6 @@ class _AssignedCustomerToCarState extends State<AssignedCustomerToCar> {
     } else
       StringHelper.showErrorDialog(context, response.message!);
 
-    print('Saved');
   }
 
   @override
@@ -110,6 +109,7 @@ class _AssignedCustomerToCarState extends State<AssignedCustomerToCar> {
                 Expanded(
                   child: TextField(
                     controller: _licensePlateController,
+                    onSubmitted: (_) => _searchLogsByLicensePlate(_licensePlateController.text.toUpperCase()),
                     decoration: InputDecoration(
                       labelText: 'Plaka Girin',
                       suffixIcon: IconButton(
@@ -135,7 +135,7 @@ class _AssignedCustomerToCarState extends State<AssignedCustomerToCar> {
               // اگر مشتری نال باشد، جستجو برای مشتری را نمایش بده
               if (log!.customer == null) ...[
                 TextField(
-                  controller: _customerNameController, // کنترلر جدید برای جستجوی مشتری
+                  onSubmitted: (_) => _searchCustomer(),// کنترلر جدید برای جستجوی مشتری
                   decoration: InputDecoration(
                     labelText: 'Müşteri adı',
                     suffixIcon: IconButton(

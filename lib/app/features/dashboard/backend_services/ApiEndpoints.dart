@@ -55,6 +55,7 @@ class ApiEndpoints {
   static const String carRepairLogUpdate = "$_baseUrl/car-repair-log/update";
   static const String carRepairLogDelete = "$_baseUrl/car-repair-log/delete";
 
+  static const String inventoryNextBarcode = "$_baseUrl/inventory/next-barcode";
   static const String inventoryAddItem = "$_baseUrl/inventory/add";
   static const String inventoryGetAllItems = "$_baseUrl/inventory/list";
   static const String inventoryGetItemById = "$_baseUrl/inventory";
@@ -67,7 +68,6 @@ class ApiEndpoints {
   static const String inventoryDecrementQuantity = "$_baseUrl/inventory/decrementQuantity";
   static const String inventoryGetPagedItems = "$_baseUrl/inventory/inventory-items";
 
-
   static const String inventoryTransactionAdd = "$_baseUrl/inventoryTransaction/add";
   static const String inventoryTransactionList = "$_baseUrl/inventoryTransaction/list";
   static const String inventoryTransactionGetById = "$_baseUrl/inventoryTransaction"; // باید در نهایت /{id} بهش اضافه بشه
@@ -76,6 +76,7 @@ class ApiEndpoints {
   static const String inventoryTransactionPaged = "$_baseUrl/inventoryTransaction/paged";
   static const String inventoryTransactionDateRange = "$_baseUrl/inventoryTransaction/date-range";
 
+  static const String settingGetStatus = "$_baseUrl/settings/status";
 
 }
 

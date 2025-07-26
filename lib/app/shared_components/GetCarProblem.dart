@@ -8,7 +8,10 @@ import 'package:repair_shop_web/app/features/dashboard/controllers/UserControlle
 import 'package:repair_shop_web/app/shared_components/LastCarRepairedLogCard.dart';
 
 class GetCarProblem extends StatefulWidget {
-  const GetCarProblem({super.key});
+  final String? plate;
+  final VoidCallback? onProblemSaved;  // این خط جدید
+
+  const GetCarProblem({super.key, this.plate, this.onProblemSaved});
 
   @override
   _GetCarProblemState createState() => _GetCarProblemState();
@@ -22,6 +25,19 @@ class _GetCarProblemState extends State<GetCarProblem>{
   CarInfoDTO? carInfo;
   bool isLoading = false;
   bool needUpdate = false;
+
+  bool isPlateReadOnly = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.plate != null && widget.plate!.isNotEmpty) {
+      _licensePlateController.text = widget.plate!.toUpperCase();
+      isPlateReadOnly = true;
+      _searchCar();
+    }
+  }
 
   void _searchCar() async {
     needUpdate = false;
@@ -107,9 +123,10 @@ class _GetCarProblemState extends State<GetCarProblem>{
             dateTime: DateTime.now(),
           );
           final updateResponse = await CarProblemReportApi().updateReport(reportDTO);
-          if(updateResponse.status == 'success')
+          if(updateResponse.status == 'success') {
             StringHelper.showInfoDialog(context, updateResponse.message!);
-          else
+            widget.onProblemSaved?.call();
+          } else
             StringHelper.showErrorDialog(context, updateResponse.message!);
 
           return;
@@ -129,15 +146,16 @@ class _GetCarProblemState extends State<GetCarProblem>{
         final logResponse = await CarRepairLogApi().createLog(logRequest);
 
         if (logResponse.status == 'success') {
+          widget.onProblemSaved?.call();
           StringHelper.showInfoDialog(
-              context,"CarRepairLog başarıyla oluşturuldu.");
+              context,"başarıyla oluşturuldu.");
         } else {
           StringHelper.showErrorDialog(
-              context,"CarRepairLog oluşturulamadı: ${logResponse.message}");
+              context,logResponse.message!);
         }
       } else {
         StringHelper.showErrorDialog(
-            context,"TaskStatus not found or error: ${taskStatus.message}");
+            context,taskStatus.message!);
       }
 
 
@@ -145,11 +163,10 @@ class _GetCarProblemState extends State<GetCarProblem>{
       // Show error if saving problem report failed
       StringHelper.showErrorDialog(
           context,
-          "Problem raporu kaydedilirken hata oluştu: ${saveResponse.message}"
+          saveResponse.message!
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -158,16 +175,22 @@ class _GetCarProblemState extends State<GetCarProblem>{
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: _licensePlateController,
-            decoration: InputDecoration(
-              labelText: "Plaka Numarası",
-              suffixIcon: IconButton(
-                icon: Icon(Icons.search),
-                onPressed: _searchCar,
+          // اگر پلاک از بیرون پاس داده شده باشد، تکس‌فیلد پلاک را نمایش نده
+          if (widget.plate == null || widget.plate!.isEmpty)
+            TextField(
+              controller: _licensePlateController,
+              onSubmitted: (_) => _searchCar(),
+              decoration: InputDecoration(
+                labelText: "Plaka Numarası",
+                border: const OutlineInputBorder(), // ← این خط باعث ظاهر بوردر کامل میشه
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _searchCar,
+                ),
               ),
             ),
-          ),
+
+
           SizedBox(height: 10),
           if (isLoading) Center(child: CircularProgressIndicator()),
           if (carInfo != null) ...[
@@ -184,9 +207,11 @@ class _GetCarProblemState extends State<GetCarProblem>{
             SizedBox(height: 16),
 
             if (carLog != null &&
-                (carLog!.taskStatus?.taskStatusName == 'GİRMEK'|| carLog!.taskStatus.taskStatusName == 'SORUN GİDERME')) ...[
+                (carLog!.taskStatus?.taskStatusName == 'GİRMEK' ||
+                    carLog!.taskStatus.taskStatusName == 'SORUN GİDERME')) ...[
               TextField(
                 controller: _problemController,
+                onSubmitted: (_) => _saveProblemReport(),
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: "Problem Açıklaması",
@@ -202,11 +227,11 @@ class _GetCarProblemState extends State<GetCarProblem>{
               ),
             ],
           ],
-
         ],
       ),
     );
   }
+
 
 }
 

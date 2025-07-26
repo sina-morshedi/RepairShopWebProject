@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/InventoryItemDTO.dart';
 import 'package:repair_shop_web/app/shared_components/CarRepairedLogCard.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:universal_html/html.dart' as html;
@@ -16,7 +17,10 @@ import 'package:repair_shop_web/app/features/dashboard/models/PaymentRecord.dart
 
 
 class InvoiceDaily extends StatefulWidget {
-  const InvoiceDaily({super.key});
+  final String? plate;
+  final VoidCallback? onConfirmed;
+
+  const InvoiceDaily({super.key, this.plate, this.onConfirmed,});
 
   @override
   _InvoiceDailyState createState() => _InvoiceDailyState();
@@ -27,6 +31,7 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
   pw.MemoryImage? logoImage;
   final TextEditingController _plateController = TextEditingController();
   CarRepairLogResponseDTO? log;
+  bool showInvoiceParam = true;
 
   List<PartUsed> parts = [];
   List<double> totalPice = [];
@@ -51,7 +56,13 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
   void initState() {
     super.initState();
     loadAssets();
+
+    if (widget.plate != null && widget.plate!.isNotEmpty) {
+      _plateController.text = widget.plate!.toUpperCase();
+      _searchByPlate(); // به‌صورت خودکار جستجو رو انجام بده
+    }
   }
+
 
   @override
   void dispose() {
@@ -224,6 +235,7 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
         StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
         setState(() {
           log = responseUpdate.data;
+          showInvoiceParam = false;
         });
       } else {
         StringHelper.showErrorDialog(context, responseUpdate.message!);
@@ -254,7 +266,6 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
         } else
           StringHelper.showErrorDialog(context, response.message!);
       } else {
-        print('4');
         final response = await CarRepairLogApi().updateLog(log!.id!, request);
         if (response.status == 'success') {
           StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
@@ -531,18 +542,6 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
                 ),
               ),
             ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     _vehicleDelivery();
-            //   },
-            //   child: const Text('Araç teslim ediliyor'),
-            //   style: ElevatedButton.styleFrom(
-            //     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(10),
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ],
@@ -560,17 +559,20 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _plateController,
-              decoration: InputDecoration(
-                labelText: "Plaka Numarası",
-                suffixIcon: IconButton(
-                  icon: const Icon(EvaIcons.search),
-                  onPressed: _searchByPlate,
+            if (widget.plate == null || widget.plate!.isEmpty)
+              TextField(
+                controller: _plateController,
+                onSubmitted: (_) => _searchByPlate(),
+                decoration: InputDecoration(
+                  labelText: "Plaka Numarası",
+                  suffixIcon: IconButton(
+                    icon: const Icon(EvaIcons.search),
+                    onPressed: _searchByPlate,
+                  ),
+                  border: const OutlineInputBorder(),
                 ),
-                border: const OutlineInputBorder(),
               ),
-            ),
+
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: (customFont == null || logoImage == null || parts.isEmpty)
@@ -598,7 +600,8 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
               CarRepairedLogCard(log: log!),
               const SizedBox(height: 24),
             ],
-            buildPartsInputList(),
+            if(showInvoiceParam)
+              buildPartsInputList(),
           ],
         ),
       ),

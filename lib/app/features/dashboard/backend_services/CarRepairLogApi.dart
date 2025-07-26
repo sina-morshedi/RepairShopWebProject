@@ -109,6 +109,7 @@ class CarRepairLogApi {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> decoded = jsonDecode(response.body);
         final log = CarRepairLogResponseDTO.fromJson(decoded);
+
         return ApiResponse(status: 'success', data: log);
       } else {
         return ApiResponse(status: 'error', message: response.body);

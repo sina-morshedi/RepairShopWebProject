@@ -132,6 +132,7 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
             const SizedBox(height: 8),
             TextField(
               controller: _plateController,
+              onSubmitted: (_) => _filter_handler(),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Örneğin 12ABC345',

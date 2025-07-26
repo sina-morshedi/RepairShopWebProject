@@ -6,7 +6,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../features/dashboard/models/InventoryTransactionType.dart';
 import '../features/dashboard/models/InventoryTransactionRequestDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
-
+import 'package:get_storage/get_storage.dart';
 
 class InventoryAddItem extends StatefulWidget {
   const InventoryAddItem({super.key});
@@ -28,12 +28,16 @@ class _InventoryAddItemState extends State<InventoryAddItem> {
 
   String? _selectedUnit;
   bool _isActive = true;
+  String? storName;
+  bool _autoGenerateBarcode = false;
+
 
   final List<String> _unitOptions = ['ADET', 'KİLO', 'LİTRE', 'METRE'];
 
   @override
   void initState() {
     super.initState();
+    final box = GetStorage();
     _partNameController = TextEditingController();
     _barcodeController = TextEditingController();
     _categoryController = TextEditingController();
@@ -41,7 +45,13 @@ class _InventoryAddItemState extends State<InventoryAddItem> {
     _locationController = TextEditingController();
     _purchasePriceController = TextEditingController();
     _salePriceController = TextEditingController();
-    _selectedUnit = _unitOptions[0]; // پیش‌فرض: عدد
+    _selectedUnit = _unitOptions[0];
+    final UserController userController = Get.find<UserController>();
+    storName = userController.storeName.value;
+
+    final barcode = sendBarcodeRequest();
+    print('barcode');
+    print(barcode);
   }
 
   @override
@@ -56,12 +66,44 @@ class _InventoryAddItemState extends State<InventoryAddItem> {
     super.dispose();
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    _sendToBackend();
+  String getInitials(String storName) {
+    final words = storName.trim().split(RegExp(r'\s+'));
+    final initials = words.map((word) {
+      if (word.isNotEmpty) {
+        return word[0].toUpperCase();
+      }
+      return '';
+    }).join();
+    return initials;
   }
 
-  void _sendToBackend() async {
+  Future<String?> sendBarcodeRequest() async {
+    final prefix = getInitials(storName!); // تابعی که حروف اول رو میگیره
+    final apiResponse = await InventoryApi().getNextBarcode(prefix);
+
+    if (apiResponse.status == 'success') {
+      print('Barcode');
+      print(apiResponse.data);
+      return apiResponse.data;  // بارکد به صورت String
+    } else {
+      print('Error: ${apiResponse.message}');
+      return null;
+    }
+  }
+
+
+  void _submit() async{
+    if (!_formKey.currentState!.validate()) return;
+    await _sendToBackend();
+    final newBarcode = await sendBarcodeRequest();
+    if (newBarcode != null) {
+      setState(() {
+        _barcodeController.text = newBarcode;
+      });
+    }
+  }
+
+  Future<void> _sendToBackend() async {
     final UserController userController = Get.find<UserController>();
     final user = userController.user.value;
 
@@ -213,8 +255,28 @@ class _InventoryAddItemState extends State<InventoryAddItem> {
                       value: _isActive,
                       onChanged: (v) => setState(() => _isActive = v),
                     ),
+                    const SizedBox(width: 20),
+                    const Text('Barkod Oluştur:'),
+                    Switch(
+                      value: _autoGenerateBarcode,
+                      onChanged: (val) async {
+                        setState(() {
+                          _autoGenerateBarcode = val;
+                        });
+
+                        if (val) {
+                          final newBarcode = await sendBarcodeRequest();
+                          if (newBarcode != null) {
+                            setState(() {
+                              _barcodeController.text = newBarcode;
+                            });
+                          }
+                        }
+                      },
+                    ),
                   ],
                 ),
+
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton.icon(

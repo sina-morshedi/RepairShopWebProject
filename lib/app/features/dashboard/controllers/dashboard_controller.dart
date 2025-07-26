@@ -2,6 +2,7 @@ import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/TaskStatusCountDTO.dart';
+import '../../../shared_components/CarEntry.dart';
 
 
 class DashboardController extends GetxController {
@@ -25,6 +26,23 @@ class DashboardController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+  }
+
+  var showCarEntry = false.obs;
+
+  void showCarEntryWidget() {
+    showCarEntry.value = true;
+  }
+
+  void hideCarEntryWidget() {
+    showCarEntry.value = false;
+  }
+
+  final RxString searchText = ''.obs;
+
+  void onSearch(String value) {
+    searchText.value = '';
+    searchText.value = value;
   }
 
   // Data

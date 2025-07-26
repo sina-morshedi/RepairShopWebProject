@@ -11,7 +11,9 @@ import 'package:repair_shop_web/app/utils/helpers/app_helpers.dart';
 enum CarFormMode { newCar, searchByPlate }
 
 class InsertCarInfoForm extends StatefulWidget {
-  const InsertCarInfoForm({Key? key}) : super(key: key);
+  final void Function(String plate)? onSuccess; // 👈 این خط اضافه بشه
+
+  const InsertCarInfoForm({Key? key, this.onSuccess}) : super(key: key);
 
   @override
   _InsertCarInfoFormState createState() => _InsertCarInfoFormState();
@@ -60,7 +62,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
   void loadCarInfoByPlate(String plate) async{
     final ApiResponse<CarInfoDTO> response = await backend_services()
         .getCarInfoByLicensePlate(searchPlateController.text.trim().toUpperCase());
-    if (response.status == 'successful' && response.data != null) {
+    if (response.status == 'success' && response.data != null) {
       final car = response.data!;
 
       setState(() {
@@ -98,11 +100,6 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
       return false;
     }
 
-    if (RegExp(r'[a-z]').hasMatch(str)) {
-      StringHelper.showErrorDialog(context, "$tag: küçük harf kullanma");
-      return false;
-    }
-
     return true;
   }
 
@@ -125,24 +122,24 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
   }
 
   Future<void> saveEditCarInfo() async {
-    if (validateString(tag_labelText[0], chassisController.text) == false)
+    if (validateString(tag_labelText[0], chassisController.text.toUpperCase()) == false)
       return;
-    if (validateString(tag_labelText[1], motorController.text) == false)
+    if (validateString(tag_labelText[1], motorController.text.toUpperCase()) == false)
       return;
-    if (validateString(tag_labelText[2], plateController.text) ==
+    if (validateString(tag_labelText[2], plateController.text.toUpperCase()) ==
         false)
       return;
-    if (validateString(tag_labelText[3], brandController.text) == false) return;
-    if (validateString(tag_labelText[4], modelController.text) == false) return;
-    if (validateString(tag_labelText[6], fuelTypeController.text) == false)
+    if (validateString(tag_labelText[3], brandController.text.toUpperCase()) == false) return;
+    if (validateString(tag_labelText[4], modelController.text.toUpperCase()) == false) return;
+    if (validateString(tag_labelText[6], fuelTypeController.text.toUpperCase()) == false)
       return;
-    if (validateNumber(tag_labelText[5], yearController.text) == false) return;
+    if (validateNumber(tag_labelText[5], yearController.text.toUpperCase()) == false) return;
 
     final carInfo = CarInfo(
       chassisNo: chassisController.text.toUpperCase(),
       motorNo: motorController.text.toUpperCase(),
       licensePlate: plateController.text.toUpperCase(),
-      brand: brandController.text.trim(),
+      brand: brandController.text.trim().toUpperCase(),
       brandModel: modelController.text.toUpperCase(),
       modelYear: int.tryParse(yearController.text),
       fuelType: fuelTypeController.text.toUpperCase(),
@@ -151,19 +148,19 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
 
     if (_mode != CarFormMode.newCar){
       final updatedCar = CarInfo(
-        chassisNo: chassisController.text.trim(),
-        motorNo: motorController.text.trim(),
-        licensePlate: plateController.text.trim(),
-        brand: brandController.text.trim(),
-        brandModel: modelController.text.trim(),
+        chassisNo: chassisController.text.trim().toUpperCase(),
+        motorNo: motorController.text.trim().toUpperCase(),
+        licensePlate: plateController.text.trim().toUpperCase(),
+        brand: brandController.text.trim().toUpperCase(),
+        brandModel: modelController.text.trim().toUpperCase(),
         modelYear: int.tryParse(yearController.text.trim()),
-        fuelType: fuelTypeController.text,
+        fuelType: fuelTypeController.text.toUpperCase(),
         dateTime: DateTime.now().toIso8601String(),
       );
 
       final ApiResponse response = await backend_services()
           .updateCarInfoByLicensePlate(
-        plateController.text.trim(),
+        plateController.text.trim().toUpperCase(),
         updatedCar,
       );
       if (response.status != 'error') {
@@ -177,6 +174,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
       );
       if (response.status != 'error') {
         StringHelper.showInfoDialog(context, 'başarılı');
+        widget.onSuccess?.call(plateController.text.trim().toUpperCase());
       } else {
         StringHelper.showErrorDialog(context, '${response.message}');
       }
@@ -248,13 +246,21 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
               padding: const EdgeInsets.only(bottom: 20),
               child: TextFormField(
                 controller: searchPlateController,
+                onFieldSubmitted: (_) {
+                  final plate = searchPlateController.text.trim().toUpperCase();
+                  if (plate.isEmpty) {
+                    Get.snackbar("Hata", "Lütfen plaka numarası girin");
+                    return;
+                  }
+                  loadCarInfoByPlate(plate);
+                },
                 decoration: InputDecoration(
                   labelText: "Plaka Numarası Girin",
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: const Icon(EvaIcons.searchOutline),
                     onPressed: () {
-                      final plate = searchPlateController.text.trim();
+                      final plate = searchPlateController.text.trim().toUpperCase();
                       if (plate.isEmpty) {
                         Get.snackbar("Hata", "Lütfen plaka numarası girin");
                         return;
@@ -264,6 +270,7 @@ class _InsertCarInfoFormState extends State<InsertCarInfoForm>{
                   ),
                 ),
               ),
+
             ),
 
           Form(

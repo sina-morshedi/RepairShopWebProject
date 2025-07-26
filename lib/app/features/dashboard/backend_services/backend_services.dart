@@ -2,6 +2,7 @@ library backend_service;
 
 import 'package:flutter/material.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
+import 'package:repair_shop_web/app/features/dashboard/models/SettingStatusDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/RolesDTO.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CustomerDTO.dart';
@@ -38,6 +39,7 @@ part 'CarRepairLogApi.dart';
 part 'CustomerApi.dart';
 part 'InventoryApi.dart';
 part 'InventoryTransactionApi.dart';
+part 'SettingStatusApi.dart';
 
 class backend_services {
   Future<ApiResponse<List<UserProfileDTO>>> fetchAllProfile() async {

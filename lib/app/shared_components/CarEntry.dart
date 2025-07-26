@@ -9,7 +9,10 @@ import 'CustomerInfoCard.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 
 class CarEntry extends StatefulWidget {
-  const CarEntry({super.key});
+  final String? initialPlate;
+  final VoidCallback? onEntrySuccess;
+
+  const CarEntry({super.key, this.initialPlate, this.onEntrySuccess});
 
   @override
   State<CarEntry> createState() => _CarEntryState();
@@ -38,6 +41,16 @@ class _CarEntryState extends State<CarEntry> {
     'İŞ BİTTİ': 'assets/images/vector/finish-flag.svg',
     'FATURA': 'assets/images/vector/bill.svg',
   };
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialPlate != null && widget.initialPlate!.isNotEmpty) {
+      _plateController.text = widget.initialPlate!.toUpperCase();
+      _searchPlate();
+    }
+  }
+
 
   Future<void> _searchPlate() async {
     final plate = _plateController.text.trim().toUpperCase();
@@ -77,7 +90,7 @@ class _CarEntryState extends State<CarEntry> {
     } else {
       foundLog = false;
       StringHelper.showErrorDialog(
-          context, 'Log Response: ${logResponse.message!}');
+          context, logResponse.message!);
     }
 
     final taskStatus = await TaskStatusApi().getTaskStatusByName('GİRMEK');
@@ -86,7 +99,7 @@ class _CarEntryState extends State<CarEntry> {
         taskStatusLog = taskStatus.data;
       });
     } else {
-      StringHelper.showErrorDialog(context, 'Task Status Response: ${taskStatus.message!}');
+      StringHelper.showErrorDialog(context, taskStatus.message!);
     }
   }
 
@@ -127,10 +140,11 @@ class _CarEntryState extends State<CarEntry> {
 
       final response = await CarRepairLogApi().createLog(logRequest);
 
-      if (response.status == 'success' && response.data != null)
+      if (response.status == 'success' && response.data != null) {
         StringHelper.showInfoDialog(context, 'Araba girişi kaydedildi');
-      else
-        StringHelper.showErrorDialog(context, 'Create Log: ${response.message!}');
+        widget.onEntrySuccess?.call();
+      } else
+        StringHelper.showErrorDialog(context, response.message!);
     }
   }
 
@@ -141,17 +155,22 @@ class _CarEntryState extends State<CarEntry> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: _plateController,
-            decoration: InputDecoration(
-              labelText: 'Plaka giriniz',
-              suffixIcon: IconButton(
-                icon: const Icon(EvaIcons.search),
-                onPressed: _searchPlate,
+          if (widget.initialPlate == null) ...[
+            TextField(
+              controller: _plateController,
+              onSubmitted: (_) => _searchPlate(),
+              decoration: InputDecoration(
+                labelText: 'Plaka giriniz',
+                suffixIcon: IconButton(
+                  icon: const Icon(EvaIcons.search),
+                  onPressed: _searchPlate,
+                ),
+                border: const OutlineInputBorder(),
               ),
-              border: const OutlineInputBorder(),
             ),
-          ),
+            const SizedBox(height: 16),
+          ],
+
           const SizedBox(height: 16),
 
           // کارت ماشین با آیکون ماشین و تم روشن
@@ -165,6 +184,7 @@ class _CarEntryState extends State<CarEntry> {
             if (selectedCar != null) ...[
               TextField(
                 controller: _customerNameController,
+                onSubmitted: (_) => _searchCustomer(),
                 decoration: InputDecoration(
                   labelText: 'Müşteri adı',
                   suffixIcon: IconButton(

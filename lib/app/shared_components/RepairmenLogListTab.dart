@@ -6,7 +6,14 @@ import 'RepairmanLogTask.dart';
 import 'RepairmanWorkespace.dart';
 
 class RepairmenLogListTab extends StatefulWidget {
-  const RepairmenLogListTab({super.key});
+  final String? plate; // پلاک دریافتی از بیرون
+  final void Function(bool confirmed)? onConfirmed; // کال‌بک تأیید
+
+  const RepairmenLogListTab({
+    super.key,
+    this.plate,
+    this.onConfirmed,
+  });
 
   @override
   State<RepairmenLogListTab> createState() => _RepairmenLogListTabState();
@@ -52,84 +59,83 @@ class _RepairmenLogListTabState extends State<RepairmenLogListTab> {
 
   @override
   Widget build(BuildContext context) {
-    return repairmen.isEmpty
-        ? const Center(child: CircularProgressIndicator())
-        : Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Tamirci Seçin:",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<UserProfileDTO>(
-            value: repairmen.contains(selectedRepairman)
-                ? selectedRepairman
-                : null,
-            decoration: InputDecoration(
-              labelText: 'Tamircilar',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            ),
-            items: repairmen
-                .map((user) => DropdownMenuItem<UserProfileDTO>(
-              value: user,
-              child: Text('${user.firstName} ${user.lastName}'),
-            ))
-                .toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedRepairman = value;
-                selectedTaskType = null;
-              });
-            },
-          ),
-          if (selectedRepairman != null) ...[
-            const SizedBox(height: 24),
+    return Center(
+      child: repairmen.isEmpty
+          ? const CircularProgressIndicator()
+          : SizedBox( // اینجا ارتفاع محدود شد
+        height: 600, // یا هر ارتفاع معقول برای محیط تو
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
             const Text(
-              "Görev Türünü Seçin:",
+              "Tamirci Seçin:",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: selectedTaskType,
+            DropdownButtonFormField<UserProfileDTO>(
+              value: repairmen.contains(selectedRepairman)
+                  ? selectedRepairman
+                  : null,
               decoration: InputDecoration(
-                labelText: 'Görevler',
+                labelText: 'Tamircilar',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
-              items: taskOptions
-                  .map((task) => DropdownMenuItem<String>(
-                value: task,
-                child: Text(task),
+              items: repairmen
+                  .map((user) => DropdownMenuItem<UserProfileDTO>(
+                value: user,
+                child: Text('${user.firstName} ${user.lastName}'),
               ))
                   .toList(),
               onChanged: (value) {
                 setState(() {
-                  selectedTaskType = value;
+                  selectedRepairman = value;
+                  selectedTaskType = null;
                 });
               },
             ),
-          ],
-          const SizedBox(height: 24),
-          // حالا محتوای پایین را داخل Expanded + SingleChildScrollView می‌گذاریم
-          if (selectedRepairman != null && selectedTaskType != null)
-            Expanded(
-              child: SingleChildScrollView(
+            if (selectedRepairman != null) ...[
+              const SizedBox(height: 24),
+              const Text(
+                "Görev Türünü Seçin:",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: selectedTaskType,
+                decoration: InputDecoration(
+                  labelText: 'Görevler',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                ),
+                items: taskOptions
+                    .map((task) => DropdownMenuItem<String>(
+                  value: task,
+                  child: Text(task),
+                ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedTaskType = value;
+                  });
+                },
+              ),
+            ],
+            if (selectedRepairman != null && selectedTaskType != null)
+              Expanded(
                 child: selectedTaskType == 'Yapılacak işler'
                     ? RepairmanLogTask(user: selectedRepairman!)
                     : RepairmanWorkespace(user: selectedRepairman!),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

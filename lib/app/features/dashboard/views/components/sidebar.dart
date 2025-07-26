@@ -34,11 +34,6 @@ class Sidebar extends StatelessWidget {
         label: "Dashboard",
       ),
       SelectionButtonData(
-        activeIcon: EvaIcons.archive,
-        icon: EvaIcons.archiveOutline,
-        label: "Raporlar",
-      ),
-      SelectionButtonData(
         activeIcon: EvaIcons.person,
         icon: EvaIcons.personOutline,
         label: "Müşteri bilgilerini ekle",
@@ -54,8 +49,14 @@ class Sidebar extends StatelessWidget {
         icon: FontAwesomeIcons.stethoscope,
         label: "Araba arıza raporu alın",
       ),
-
     ];
+    if (permissionName == "Yönetici") {
+      selectionData.add(SelectionButtonData(
+        activeIcon: EvaIcons.person,
+        icon: EvaIcons.briefcaseOutline,
+        label: "Proje yönetimi",
+      ));
+    }
     if(permissionName == 'Yönetici' || permissionName == 'Tamirci'){
       selectionData.add(SelectionButtonData(
         activeIcon: FontAwesomeIcons.screwdriverWrench,
@@ -70,15 +71,8 @@ class Sidebar extends StatelessWidget {
         label: "Fatura",
       ));
     }
-    if (permissionName == "Yönetici") {
-      selectionData.add(SelectionButtonData(
-        activeIcon: EvaIcons.person,
-        icon: EvaIcons.briefcaseOutline,
-        label: "Proje yönetimi",
-      ));
-    }
     // Add "ayarlar" button only if permission is "Yönetici"
-    if (permissionName == "Yönetici") {
+    if (permissionName == "Yönetici" && userController.isInventoryEnabled) {
       selectionData.add(
         SelectionButtonData(
           activeIcon: EvaIcons.archive,
@@ -87,6 +81,13 @@ class Sidebar extends StatelessWidget {
         ),
       );
     }
+    selectionData.add(
+      SelectionButtonData(
+        activeIcon: EvaIcons.archive,
+        icon: EvaIcons.archiveOutline,
+        label: "Raporlar",
+      ),
+    );
     if (permissionName == "Yönetici") {
       selectionData.add(
         SelectionButtonData(

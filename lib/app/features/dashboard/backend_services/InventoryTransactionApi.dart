@@ -152,10 +152,9 @@ class InventoryTransactionApi {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
         return ApiResponse(
           status: 'success',
-          data: InventoryTransactionResponseDTO.fromJson(data),
+          message: response.body,
         );
       } else {
         return ApiResponse(

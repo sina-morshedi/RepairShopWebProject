@@ -71,7 +71,7 @@ class _MainLayoutState extends State<MainLayout> {
                             onPressed: openDrawer,
                           ),
                         ),
-                      const Expanded(child: Header()),
+                      //const Expanded(child: Header()),
                     ],
                   ),
                 ),

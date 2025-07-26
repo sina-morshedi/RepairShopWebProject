@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import '../features/dashboard/backend_services/backend_services.dart';
 import '../features/dashboard/models/CarRepairLogResponseDTO.dart';
 import '../features/dashboard/models/TaskStatusUserRequestDTO.dart';
@@ -7,12 +9,12 @@ import '../features/dashboard/models/UserProfileDTO.dart';
 import '../utils/helpers/app_helpers.dart';
 import 'CarRepairLogListView.dart';
 
-class RepairmanLogTask extends StatefulWidget {
+class RepairmanLogTaskInFlow extends StatefulWidget {
   final UserProfileDTO user;
-  final String? plate; // شماره پلاک به صورت اختیاری
-  final VoidCallback? onConfirmed; // برای فراخوانی پس از تأیید موفق
+  final String? plate;
+  final VoidCallback? onConfirmed;
 
-  const RepairmanLogTask({
+  const RepairmanLogTaskInFlow({
     Key? key,
     required this.user,
     this.plate,
@@ -20,10 +22,10 @@ class RepairmanLogTask extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<RepairmanLogTask> createState() => _RepairmanLogTaskState();
+  State<RepairmanLogTaskInFlow> createState() => _RepairmanLogTaskInFlowState();
 }
 
-class _RepairmanLogTaskState extends State<RepairmanLogTask> {
+class _RepairmanLogTaskInFlowState extends State<RepairmanLogTaskInFlow> {
   late UserProfileDTO user;
   List<CarRepairLogResponseDTO> logs = [];
 
@@ -62,11 +64,12 @@ class _RepairmanLogTaskState extends State<RepairmanLogTask> {
     if (response.status == 'success' && response.data != null) {
       List<CarRepairLogResponseDTO> allLogs = response.data!;
 
-      // ✅ اگر پلاک مشخص شده بود، فقط اون‌ها رو نگه داریم
       if (widget.plate != null && widget.plate!.isNotEmpty) {
-        allLogs = allLogs.where((log) =>
+        allLogs = allLogs
+            .where((log) =>
         log.carInfo.licensePlate.toUpperCase() ==
-            widget.plate!.toUpperCase()).toList();
+            widget.plate!.toUpperCase())
+            .toList();
       }
 
       setState(() {
@@ -90,10 +93,18 @@ class _RepairmanLogTaskState extends State<RepairmanLogTask> {
     final responseTask = await TaskStatusApi().getTaskStatusByName("BAŞLANGIÇ");
     if (responseTask.status == 'success' && responseTask.data != null) {
       final customerId = log.customer?.id ?? "";
+      final UserController userController = Get.find<UserController>();
+      final creatorUser = userController.user.value;
+
+      if(creatorUser == null){
+        StringHelper.showErrorDialog(context, 'Kullanıcı bilgileri bulunamadı.');
+        return;
+      }
+
 
       final request = CarRepairLogRequestDTO(
         carId: log.carInfo.id,
-        creatorUserId: user.userId,
+        creatorUserId: creatorUser!.userId,
         taskStatusId: responseTask.data!.id!,
         problemReportId: log.problemReport!.id,
         assignedUserId: log.assignedUser!.userId,
@@ -107,7 +118,7 @@ class _RepairmanLogTaskState extends State<RepairmanLogTask> {
       if (response.status == 'success') {
         if (mounted) {
           StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
-          widget.onConfirmed?.call(); // ✅ فراخوانی callback بعد از موفقیت
+          widget.onConfirmed?.call();
           await _loadUserAndLogs();
         }
       } else {
@@ -126,46 +137,71 @@ class _RepairmanLogTaskState extends State<RepairmanLogTask> {
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding:
-            const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            child: Row(
-              children: [
-                Text('$firstName $lastName',
-                    overflow: TextOverflow.ellipsis),
-                const Spacer(),
-                Text(roleName, overflow: TextOverflow.ellipsis),
-              ],
+    return Container(
+      constraints: const BoxConstraints(
+        maxHeight: 500,
+      ),
+      child: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // کارت بالا: حتما Expanded یا SizedBox با width پر شده
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),// کارت پهن بشه روی کل عرض
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        '$firstName $lastName',
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          roleName,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0), // یا مقدار دلخواه
+              child: CarRepairLogListView(
+                logs: logs,
+                buttonBuilder: (log) {
+                  return {
+                    'text': 'İşe başlıyorum.',
+                    'onPressed': () {
+                      _handleLogButtonPressed(log);
+                    },
+                  };
+                },
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 24),
-        const Text("Çalışanın Görevleri"),
-        const SizedBox(height: 12),
-        Expanded(
-          child: CarRepairLogListView(
-            logs: logs,
-            buttonBuilder: (log) {
-              return {
-                'text': 'İşe başlıyorum.',
-                'onPressed': () {
-                  _handleLogButtonPressed(log);
-                },
-              };
-            },
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
-}
 
+}

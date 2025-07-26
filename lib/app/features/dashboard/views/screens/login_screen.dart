@@ -4,11 +4,14 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:repair_shop_web/app/config/routes/app_pages.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/ApiEndpoints.dart';
+import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
 import 'dart:convert';
 import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/UserProfileDTO.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -127,16 +130,23 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         final data = jsonDecode(response.body);
         final token = data['token'];
 
-        UserProfileDTO userProfileDTO = UserProfileDTO.fromJson(data['profile']);
+        Map<String, dynamic> payload = Jwt.parseJwt(token);
+        bool inventoryEnabled = payload['inventoryEnabled'] ?? false;
+        bool customerEnabled = payload['customerEnabled'] ?? false;
+
+
+        // حالا می‌تونی این مقادیر رو ذخیره کنی یا به کنترلرها پاس بدی
+        // مثلاً می‌تونی به userController اضافه‌شون کنی
         final userController = Get.find<UserController>();
-        userController.setUser(userProfileDTO);
-        print(userProfileDTO);
-        print(token);
+        userController.setUser(UserProfileDTO.fromJson(data['profile']));
+        userController.storeName(storeName);
+        userController.inventoryEnabled.value = inventoryEnabled;
+        userController.customerEnabled.value = customerEnabled;
 
         final box = GetStorage();
+
         box.write('token', token);
         if (_rememberMe) {
-          // ذخیره اطلاعات
           box.write('saved_username', username);
           box.write('saved_password', password);
           box.write('saved_storeName', storeName);
@@ -232,6 +242,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       const SizedBox(height: 20),
                       TextField(
                         controller: _storeNameController,
+                        onSubmitted: (_) => _login(), // ← این خط اضافه شد
                         style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
                           labelText: 'Tamirhane Adı',
@@ -242,6 +253,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           fillColor: Colors.grey[100],
                         ),
                       ),
+
                       const SizedBox(height: 20),
                       Row(
                         children: [

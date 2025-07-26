@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import '../features/dashboard/models/CarRepairLogResponseDTO.dart';
 import '../features/dashboard/models/TaskStatusDTO.dart';
 import '../utils/helpers/app_helpers.dart';
@@ -20,15 +21,23 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../features/dashboard/controllers/UserController.dart';
 import 'package:get/get.dart';
 
-class RepairmanWorkespace extends StatefulWidget {
+class RepairmanWorkespaceInFlow extends StatefulWidget {
   final UserProfileDTO user;
-  const RepairmanWorkespace({super.key, required this.user});
+  final String? plate;
+  final VoidCallback? onConfirmed;
+
+  const RepairmanWorkespaceInFlow({
+    Key? key,
+    required this.user,
+    this.plate,
+    this.onConfirmed,
+  }) : super(key: key);
 
   @override
-  State<RepairmanWorkespace> createState() => _RepairmanWorkespaceState();
+  State<RepairmanWorkespaceInFlow> createState() => _RepairmanWorkespaceInFlowState();
 }
 
-class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
+class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
   final userController = Get.find<UserController>();
   late UserProfileDTO user;
   final Map<String, String> statusSvgMap = const {
@@ -60,6 +69,7 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
     super.initState();
     user = widget.user;
     _loadCarsFromBackend();
+    print('init');
   }
 
   @override
@@ -89,7 +99,8 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
 
     if (response.status == 'success') {
       logs = response.data!;
-
+      print('logs');
+      print(logs);
       final loadedCars = logs!.map<Map<String, dynamic>>((log) {
         final car = log.carInfo;
         return {
@@ -443,7 +454,7 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
       if (newTaskStatusName.toUpperCase() == 'İŞ BİTTİ') {
         logs!.removeAt(index);
         cars.removeAt(index);
-
+        widget.onConfirmed?.call();
         _rebuildControllersAndSearchResults();
 
         setState(() {});
@@ -609,201 +620,208 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
     partSearchResults = newPartSearchResults;
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: ListView.builder(
-          itemCount: cars.length,
-          itemBuilder: (context, carIndex) {
-            final car = cars[carIndex];
-            final isExpanded = car["isExpanded"] as bool? ?? false;
+    return Container(
+      constraints: const BoxConstraints(
+        maxHeight: 600, // یا هر محدودیت دلخواهی
+      ),
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: cars.length,
+              itemBuilder: (context, carIndex) {
+                final car = cars[carIndex];
+                final isExpanded = car["isExpanded"] as bool? ?? false;
 
-            final partNames = partNameControllers.containsKey(carIndex) && partNameControllers[carIndex] != null
-                ? partNameControllers[carIndex]!
-                : <TextEditingController>[];
+                final partNames = partNameControllers.containsKey(carIndex) && partNameControllers[carIndex] != null
+                    ? partNameControllers[carIndex]!
+                    : <TextEditingController>[];
 
-            final partSearchMap = partSearchResults.containsKey(carIndex) && partSearchResults[carIndex] != null
-                ? partSearchResults[carIndex]!
-                : <int, List<InventoryItemDTO>>{};
+                final partSearchMap = partSearchResults.containsKey(carIndex) && partSearchResults[carIndex] != null
+                    ? partSearchResults[carIndex]!
+                    : <int, List<InventoryItemDTO>>{};
 
-            return GestureDetector(
-              onTap: () => setState(() => car["isExpanded"] = !isExpanded),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: isExpanded
-                    ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Plaka: ${car['licensePlate']}", style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text("Marka: ${car['brand']}"),
-                    Text("Model: ${car['model']}"),
-                    Text("Yıl: ${car['year']}"),
-                    const SizedBox(height: 8),
-                    ...List.generate(partNames.length, (partIndex) {
-                      final suggestions = partSearchMap.containsKey(partIndex) && partSearchMap[partIndex] != null
-                          ? partSearchMap[partIndex]!
-                          : <InventoryItemDTO>[];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: TextField(
-                                    controller: partNames[partIndex],
-                                    decoration: const InputDecoration(
-                                      hintText: "Parça adı",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    onChanged: (value) {
-                                      if(userController.isInventoryEnabled)
-                                        searchParts(carIndex, partIndex, value);
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  width: 50,
-                                  child: TextField(
-                                    controller: quantityControllers.containsKey(carIndex) && quantityControllers[carIndex] != null
-                                        ? quantityControllers[carIndex]![partIndex]
-                                        : TextEditingController(text: "1"),
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      hintText: "Adet",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(EvaIcons.plusCircleOutline),
-                                  onPressed: () => addPartField(carIndex),
-                                ),
-                                if (partNames.length > 1)
-                                  IconButton(
-                                    icon: const Icon(
-                                      EvaIcons.minusCircleOutline,
-                                      color: Colors.red,
-                                    ),
-                                    onPressed: () => removePartField(carIndex, partIndex),
-                                  ),
-                              ],
-                            ),
-                            if (suggestions.isNotEmpty)
-                              Container(
-                                constraints: const BoxConstraints(maxHeight: 150),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade800),
-                                  color: Colors.black,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 3,
-                                      offset: const Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: suggestions.length,
-                                  itemBuilder: (context, suggestionIndex) {
-                                    final suggestion = suggestions[suggestionIndex];
-                                    return ListTile(
-                                      title: Text(
-                                        suggestion.partName,
-                                        style: const TextStyle(color: Colors.white),
-                                      ),
-                                      onTap: () {
-                                        partNames[partIndex].text = suggestion.partName;
-                                        setState(() {
-                                          partSearchMap[partIndex] = [];
-                                        });
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    }),
-                    const SizedBox(height: 12),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => _showConfirmDialog(context, carIndex, "Save"),
-                            child: const Text("Kaydet"),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton(
-                            onPressed: () => _showConfirmDialog(context, carIndex, "Load"),
-                            child: const Text("Yükle"),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton(
-                            onPressed: () => _showConfirmDialog(context, carIndex, "Finish Job"),
-                            child: const Text("İş Bitir"),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton(
-                            onPressed: () => _showPauseDialog(context, carIndex),
-                            child: const Text("Görev Duraklat"),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-                    : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SvgPicture.asset(
-                          statusSvgMap[car['taskStatusName']] ?? 'assets/images/vector/stop.svg',
-                          width: 32,
-                          height: 32,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          "${car['licensePlate']} - ${car['taskStatusName']}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                return GestureDetector(
+                  onTap: () => setState(() => car["isExpanded"] = !isExpanded),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
-                    Icon(isExpanded ? MdiIcons.chevronUp : MdiIcons.chevronDown)
+                    child: isExpanded
+                        ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Plaka: ${car['licensePlate']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text("Marka: ${car['brand']}"),
+                        Text("Model: ${car['model']}"),
+                        Text("Yıl: ${car['year']}"),
+                        const SizedBox(height: 8),
+                        ...List.generate(partNames.length, (partIndex) {
+                          final suggestions = partSearchMap.containsKey(partIndex) && partSearchMap[partIndex] != null
+                              ? partSearchMap[partIndex]!
+                              : <InventoryItemDTO>[];
 
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: TextField(
+                                        controller: partNames[partIndex],
+                                        decoration: const InputDecoration(
+                                          hintText: "Parça adı",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        onChanged: (value) {
+                                          if(userController.isInventoryEnabled)
+                                            searchParts(carIndex, partIndex, value);
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    SizedBox(
+                                      width: 50,
+                                      child: TextField(
+                                        controller: quantityControllers.containsKey(carIndex) && quantityControllers[carIndex] != null
+                                            ? quantityControllers[carIndex]![partIndex]
+                                            : TextEditingController(text: "1"),
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(
+                                          hintText: "Adet",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(EvaIcons.plusCircleOutline),
+                                      onPressed: () => addPartField(carIndex),
+                                    ),
+                                    if (partNames.length > 1)
+                                      IconButton(
+                                        icon: const Icon(
+                                          EvaIcons.minusCircleOutline,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () => removePartField(carIndex, partIndex),
+                                      ),
+                                  ],
+                                ),
+                                if (suggestions.isNotEmpty)
+                                  Container(
+                                    constraints: const BoxConstraints(
+                                      maxHeight: 150,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey.shade800),
+                                      color: Colors.black,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 3,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: suggestions.length,
+                                      itemBuilder: (context, suggestionIndex) {
+                                        final suggestion = suggestions[suggestionIndex];
+                                        return ListTile(
+                                          title: Text(
+                                            suggestion.partName,
+                                            style: const TextStyle(color: Colors.white),
+                                          ),
+                                          onTap: () {
+                                            partNames[partIndex].text = suggestion.partName;
+                                            setState(() {
+                                              partSearchMap[partIndex] = [];
+                                            });
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 12),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: () => _showConfirmDialog(context, carIndex, "Save"),
+                                child: const Text("Kaydet"),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed: () => _showConfirmDialog(context, carIndex, "Load"),
+                                child: const Text("Yükle"),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed: () => _showConfirmDialog(context, carIndex, "Finish Job"),
+                                child: const Text("İş Bitir"),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed: () => _showPauseDialog(context, carIndex),
+                                child: const Text("Görev Duraklat"),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                        : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            SvgPicture.asset(
+                              statusSvgMap[car['taskStatusName']] ?? 'assets/images/vector/stop.svg',
+                              width: 32,
+                              height: 32,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              "${car['licensePlate']} - ${car['taskStatusName']}",
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Icon(isExpanded ? MdiIcons.chevronUp : MdiIcons.chevronDown)
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
+
 }

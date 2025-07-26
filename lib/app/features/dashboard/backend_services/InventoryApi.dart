@@ -1,6 +1,6 @@
 part of 'backend_services.dart';
 
-class InventoryApi {
+  class InventoryApi {
   // گرفتن لیست کل قطعات
   Future<ApiResponse<List<InventoryItemDTO>>> getAllItems() async {
     final String backendUrl = ApiEndpoints.inventoryGetAllItems;
@@ -19,6 +19,38 @@ class InventoryApi {
         return ApiResponse(
           status: 'success',
           data: items,
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
+  Future<ApiResponse<String>> getNextBarcode(String prefix) async {
+    final String backendUrl = '${ApiEndpoints.inventoryNextBarcode}?prefix=$prefix';
+
+    print('backendUrl');
+    print(backendUrl);
+    try {
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
+
+      if (response.statusCode == 200) {
+        final String barcode = response.body;
+
+        return ApiResponse(
+          status: 'success',
+          data: barcode,
         );
       } else {
         return ApiResponse(
@@ -205,7 +237,7 @@ class InventoryApi {
       if (response.statusCode == 204 || response.statusCode == 200) {
         return ApiResponse(
           status: 'success',
-          message: 'قطعه با موفقیت غیرفعال شد.',
+          message: 'Parça başarıyla devre dışı bırakıldı.',
         );
       } else {
         return ApiResponse(
@@ -234,7 +266,7 @@ class InventoryApi {
       if (response.statusCode == 200) {
         return ApiResponse(
           status: 'success',
-          message: 'قطعه با موفقیت حذف شد.',
+          message: 'Parça başarıyla silindi.',
         );
       } else {
         return ApiResponse(

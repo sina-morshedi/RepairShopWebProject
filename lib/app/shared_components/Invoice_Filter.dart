@@ -282,6 +282,7 @@ class _InvoiceFilterState extends State<InvoiceFilter> {
                 Expanded(
                   child: TextField(
                     controller: _licensePlateController,
+                    onSubmitted: (_) => _search(),
                     decoration: const InputDecoration(
                       labelText: 'Plaka ile ara',
                       border: OutlineInputBorder(),
@@ -301,6 +302,7 @@ class _InvoiceFilterState extends State<InvoiceFilter> {
                 Expanded(
                   child: TextField(
                     controller: _customerNameController,
+                    onSubmitted: (_) => _searchCustomer(),
                     decoration: const InputDecoration(
                       labelText: 'Müşteri adı ile ara',
                       border: OutlineInputBorder(),
@@ -322,6 +324,7 @@ class _InvoiceFilterState extends State<InvoiceFilter> {
                 onSelected: (c) {
                   setState(() {
                     selectedCustomer = c;
+                    _customerNameController.text = c.fullName;
                     customerData = null;
                   });
                 },

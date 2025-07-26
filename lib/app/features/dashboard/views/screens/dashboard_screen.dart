@@ -1,28 +1,40 @@
-library dashboard;
-
-import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
-import 'package:repair_shop_web/app/features/dashboard/models/profile.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:repair_shop_web/app/constans/app_constants.dart';
 import 'package:repair_shop_web/app/features/dashboard/controllers/dashboard_controller.dart';
+import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
+import '../../../../shared_components/TaskFlowManager.dart';  // مسیر درست را تنظیم کن
+// import ویجت کارت پروگرس اگر جداست:
+// import 'path_to_progress_report_card.dart';
 
 class DashboardScreen extends GetView<DashboardController> {
-  const DashboardScreen({Key? key}) : super(key: key);
+  DashboardScreen({Key? key}) : super(key: key);
 
+  // کلید برای دسترسی به State داخل TaskFlowManager
+  final GlobalKey<TaskFlowManagerState> taskFlowKey = GlobalKey<TaskFlowManagerState>();
 
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.initTaskStatusCounts(context);
-
     });
+
+    // وقتی کاربر سرچ می‌کند، مقدار را به TaskFlowManager ارسال کن
+    void onSearchHandler(String plate) {
+      taskFlowKey.currentState?.triggerSearch(plate, context);
+    }
+
     return SingleChildScrollView(
       child: ResponsiveBuilder(
         mobileBuilder: (context, constraints) {
           return Column(
             children: [
-              const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-              _buildProgress(axis: Axis.vertical),
               const SizedBox(height: kSpacing),
-
+              _buildHeader(onSearch: onSearchHandler),
+              const SizedBox(height: kSpacing),
+              _buildProgressCard(),
+              const SizedBox(height: kSpacing),
+              TaskFlowManager(controller: controller, key: taskFlowKey),
             ],
           );
         },
@@ -34,14 +46,12 @@ class DashboardScreen extends GetView<DashboardController> {
                 flex: (constraints.maxWidth < 950) ? 6 : 9,
                 child: Column(
                   children: [
-                    const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-                    _buildProgress(
-                      axis: (constraints.maxWidth < 950)
-                          ? Axis.vertical
-                          : Axis.horizontal,
-                    ),
-                    const SizedBox(height: kSpacing * 2),
-
+                    const SizedBox(height: kSpacing),
+                    _buildHeader(onSearch: onSearchHandler),
+                    const SizedBox(height: kSpacing),
+                    _buildProgressCard(),
+                    const SizedBox(height: kSpacing),
+                    TaskFlowManager(controller: controller, key: taskFlowKey),
                   ],
                 ),
               ),
@@ -56,20 +66,19 @@ class DashboardScreen extends GetView<DashboardController> {
                 Flexible(
                   flex: (constraints.maxWidth < 1360) ? 4 : 3,
                   child: Container(
-                    color: Colors.grey[200], // فقط برای دیدن ارتفاع سایدبار
+                    color: Colors.grey[200],
                   ),
                 ),
                 Flexible(
                   flex: 9,
                   child: Column(
                     children: [
-                      const SizedBox(height: kSpacing),
-                      _buildProgress(axis: (constraints.maxWidth < 950)
-                          ? Axis.vertical
-                          : Axis.horizontal,
-                      ),
                       const SizedBox(height: kSpacing * 2),
-                      // بقیه ویجت‌ها...
+                      _buildHeader(onSearch: onSearchHandler),
+                      const SizedBox(height: kSpacing),
+                      _buildProgressCard(),
+                      const SizedBox(height: kSpacing),
+                      TaskFlowManager(controller: controller, key: taskFlowKey),
                     ],
                   ),
                 ),
@@ -77,113 +86,52 @@ class DashboardScreen extends GetView<DashboardController> {
             ),
           );
         },
-
       ),
     );
   }
 
-  Widget _buildHeader({Function()? onPressedMenu}) {
+  Widget _buildHeader({Function(String value)? onSearch}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: Row(
-        children: [
-          if (onPressedMenu != null)
-            Padding(
-              padding: const EdgeInsets.only(right: kSpacing),
-              child: IconButton(
-                onPressed: onPressedMenu,
-                icon: const Icon(EvaIcons.menu),
-                tooltip: "menu",
-              ),
-            ),
-          const Expanded(child: Header()),
-        ],
-      ),
+      child: Header(onSearchSubmit: onSearch),
     );
   }
 
-  Widget _buildProgress({Axis axis = Axis.horizontal}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: Obx(() {
-        final undoneToCount = ["GİRMEK", "SORUN GİDERME", "USTA"];
+  Widget _buildProgressCard() {
+    return Obx(() {
+      final undoneToCount = ["GİRMEK", "SORUN GİDERME", "USTA"];
+      final totalUndone = controller.taskStatusCounts
+          .where((e) => undoneToCount.contains(e.taskStatusName))
+          .fold<int>(0, (sum, e) => sum + e.count);
 
-        final totalUndone = controller.taskStatusCounts
-            .where((e) => undoneToCount.contains(e.taskStatusName))
-            .fold<int>(0, (sum, e) => sum + e.count);
+      final inProgressToCount = ["BAŞLANGIÇ", "DURAKLAT"];
+      final totalInProgress = controller.taskStatusCounts
+          .where((e) => inProgressToCount.contains(e.taskStatusName))
+          .fold<int>(0, (sum, e) => sum + e.count);
 
+      final doneToCount = ["İŞ BİTTİ", "FATURA"];
+      final totalDone = controller.taskStatusCounts
+          .where((e) => doneToCount.contains(e.taskStatusName))
+          .fold<int>(0, (sum, e) => sum + e.count);
 
-        final inProgressToCount = ["BAŞLANGIÇ", "DURAKLAT"];
+      final totalTasks = totalUndone + totalInProgress + totalDone;
+      final percentDone = totalTasks > 0
+          ? double.parse(((totalInProgress / totalTasks) * 100).toStringAsFixed(1))
+          : 0.0;
 
-        int totalInProgress = controller.taskStatusCounts
-            .where((e) => inProgressToCount.contains(e.taskStatusName))
-            .fold<int>(0, (sum, e) => sum + e.count);
-
-        final doneToCount = ["İŞ BİTTİ", "FATURA"];
-        int totalDone = controller.taskStatusCounts
-            .where((e) => doneToCount.contains(e.taskStatusName))
-            .fold<int>(0, (sum, e) => sum + e.count);
-
-        final totalTasks = totalUndone + totalInProgress + totalDone;
-        final percentDone = totalTasks > 0
-            ? double.parse(((totalInProgress / totalTasks) * 100).toStringAsFixed(1))
-            : 0.0;
-
-        if (axis == Axis.horizontal) {
-          return Row(
-            children: [
-              Flexible(
-                flex: 5,
-                child: ProgressCard(
-                  data: ProgressCardData(
-                    totalUndone: totalUndone,
-                    totalTaskInProress: totalInProgress,
-                  ),
-                  onPressedCheck: () {},
-                ),
-              ),
-              const SizedBox(width: kSpacing / 2),
-              Flexible(
-                flex: 4,
-                child: ProgressReportCard(
-                  data: ProgressReportCardData(
-                    title: "Sprint Status",
-                    doneTask: totalDone,
-                    percent: percentDone/100,
-                    task: totalTasks,
-                    undoneTask: totalUndone,
-                    inProgressTask: totalInProgress
-                  ),
-                ),
-              ),
-            ],
-          );
-        } else {
-          return Column(
-            children: [
-              ProgressCard(
-                data: ProgressCardData(
-                  totalUndone: totalUndone,
-                  totalTaskInProress: totalInProgress,
-                ),
-                onPressedCheck: () {},
-              ),
-              const SizedBox(height: kSpacing / 2),
-              ProgressReportCard(
-                data: ProgressReportCardData(
-                  title: "Sprint Status",
-                  doneTask: totalDone,
-                  percent: percentDone/100,
-                  task: totalTasks,
-                  undoneTask: totalUndone,
-                  inProgressTask: totalInProgress
-                ),
-              ),
-            ],
-          );
-        }
-      }),
-    );
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kSpacing),
+        child: ProgressReportCard(
+          data: ProgressReportCardData(
+            title: "Sprint Status",
+            doneTask: totalDone,
+            percent: percentDone / 100,
+            task: totalTasks,
+            undoneTask: totalUndone,
+            inProgressTask: totalInProgress,
+          ),
+        ),
+      );
+    });
   }
-
 }

@@ -82,7 +82,7 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
       selectedCar = carResponse.data;
     else {
       StringHelper.showErrorDialog(
-          context, 'Car Response: ${carResponse.message!}');
+          context, carResponse.message!);
       return;
     }
 
@@ -103,7 +103,7 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
     } else {
       foundLog = false;
       StringHelper.showErrorDialog(
-          context, 'Log Response: ${logResponse.message!}');
+          context, logResponse.message!);
     }
 
     final taskStatus  = await TaskStatusApi().getTaskStatusByName('GİRMEK');
@@ -114,7 +114,7 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
       });
 
     } else
-      StringHelper.showErrorDialog(context, 'Task Status Respone: ${taskStatus.message!}');
+      StringHelper.showErrorDialog(context, taskStatus.message!);
 
   }
 

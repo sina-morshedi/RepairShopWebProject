@@ -38,7 +38,7 @@ class _InventoryTransactionsTableState
 
 
   int currentPage = 0;
-  final int pageSize = 10;
+  final int pageSize = 9;
 
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();

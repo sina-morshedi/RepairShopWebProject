@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:repair_shop_web/app/features/dashboard/backend_services/backend_services.dart';
-import 'package:repair_shop_web/app/features/dashboard/controllers/UserController.dart';
 import 'package:repair_shop_web/app/shared_imports/shared_imports.dart';
 import 'package:repair_shop_web/app/features/dashboard/models/CarInfoDTO.dart';
 
 class ProjectmanageForm extends StatefulWidget {
+  final String? plate;
+  final void Function(bool assigned)? onAssignChanged;
+
+  const ProjectmanageForm({
+    Key? key,
+    this.plate,
+    this.onAssignChanged,
+  }) : super(key: key);
+
   @override
   _ProjectmanageFormState createState() => _ProjectmanageFormState();
 }
 
-class _ProjectmanageFormState extends State<ProjectmanageForm>{
+class _ProjectmanageFormState extends State<ProjectmanageForm> {
   List<CarRepairLogResponseDTO>? carRepairLogs;
   List<UserProfileDTO>? users;
   List<TaskStatusDTO>? taskStatus;
@@ -19,7 +27,6 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
 
   bool isLoading = true;
   String? errorMessage;
-
 
   final Map<String, String> statusSvgMap = const {
     'GÖREV YOK': 'assets/images/vector/stop.svg',
@@ -36,6 +43,7 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
     super.initState();
     fetchLatestLogs();
   }
+
   String? findTaskStatusIdByName(String name) {
     if (taskStatus == null) return null;
     final found = taskStatus!.firstWhere(
@@ -54,9 +62,16 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
     final usersLogs = await backend_services().fetchAllProfile();
     final taskStatusLog = await TaskStatusApi().getAllStatuses();
 
-    if (carLogs.status == 'success' && usersLogs.status == 'success') {
+    if (carLogs.status == 'success' && usersLogs.status == 'success' && taskStatusLog.status == 'success') {
+      List<CarRepairLogResponseDTO> tempLogs = carLogs.data!;
+
+      if (widget.plate != null && widget.plate!.isNotEmpty) {
+        tempLogs = tempLogs.where((log) =>
+        (log.carInfo?.licensePlate?.toUpperCase() ?? '') == widget.plate!.toUpperCase()
+        ).toList();
+      }
       setState(() {
-        carRepairLogs = carLogs.data!;
+        carRepairLogs = tempLogs;
         users = usersLogs.data!;
         taskStatus = taskStatusLog.data!;
         selectedUserIds = List.filled(carRepairLogs!.length, null);
@@ -64,10 +79,9 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
         isLoading = false;
       });
     } else {
-      if(carLogs.status == 'error')
-        StringHelper.showErrorDialog(context, carLogs.message!);
-      if(usersLogs.status == 'error')
-        StringHelper.showErrorDialog(context, usersLogs.message!);
+      if (carLogs.status == 'error') StringHelper.showErrorDialog(context, carLogs.message!);
+      if (usersLogs.status == 'error') StringHelper.showErrorDialog(context, usersLogs.message!);
+      if (taskStatusLog.status == 'error') StringHelper.showErrorDialog(context, taskStatusLog.message!);
 
       setState(() {
         isLoading = false;
@@ -96,8 +110,10 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
       setState(() {
         approvedFlags[index] = true;
       });
-    }
-    else
+      if (widget.onAssignChanged != null) {
+        widget.onAssignChanged!(true);
+      }
+    } else
       StringHelper.showErrorDialog(context, response.message!);
   }
 
@@ -111,16 +127,26 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
       return const Center(child: Text("Hiçbir rapor bulunamadı."));
     }
 
+    final displayLogs = widget.plate != null && widget.plate!.isNotEmpty
+        ? carRepairLogs!.where((log) =>
+    (log.carInfo?.licensePlate?.toUpperCase() ?? '') == widget.plate!.toUpperCase()).toList()
+        : carRepairLogs!;
+
+    if (displayLogs.isEmpty) {
+      return const Center(child: Text("İlgili kayıt bulunamadı."));
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
-        children: List.generate(carRepairLogs!.length, (index) {
-          final log = carRepairLogs![index];
+        children: List.generate(displayLogs.length, (index) {
+          final log = displayLogs[index];
           final carInfo = log.carInfo;
           final taskStatusName = log.taskStatus?.taskStatusName ?? '';
           final svgPath = statusSvgMap[taskStatusName];
-          final selectedUserId = selectedUserIds[index];
-          final approved = approvedFlags[index];
+          final originalIndex = carRepairLogs!.indexOf(log);
+          final selectedUserId = selectedUserIds[originalIndex];
+          final approved = approvedFlags[originalIndex];
 
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -129,7 +155,6 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // مشخصات خودرو
                   Expanded(
                     flex: 3,
                     child: Column(
@@ -146,7 +171,6 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
                     ),
                   ),
 
-                  // Dropdown با border
                   Expanded(
                     flex: 2,
                     child: Container(
@@ -168,7 +192,8 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
-                              selectedUserIds[index] = value;
+                              selectedUserIds[originalIndex] = value;
+                              approvedFlags[originalIndex] = false; // وقتی کاربر انتخاب تغییر داد، دکمه غیرفعال شود
                             });
                           },
                         ),
@@ -178,7 +203,6 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
 
                   const SizedBox(width: 12),
 
-                  // آیکون SVG بین دراپ‌داون و تیک
                   if (svgPath != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -195,40 +219,32 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
 
                   Column(
                     children: [
-                      if (!approved)
-                        GestureDetector(
-                          onTap: () {
-                            _saveCarLog(index);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.green.shade100,
-                            ),
-                            padding: const EdgeInsets.all(8),
-                            child: const Icon(
-                              Icons.check,
-                              color: Colors.green,
-                              size: 32,
-                            ),
-                          ),
-                        )
-                      else
-                        Container(
+                      GestureDetector(
+                        onTap: selectedUserIds[originalIndex] != null && !approvedFlags[originalIndex]
+                            ? () {
+                          _saveCarLog(originalIndex); // فقط ذخیره می‌کنیم، approvedFlag در داخل متد تنظیم میشه
+                        }
+                            : null, // غیرفعال در صورت نبود تعمیرکار یا قبلاً تایید شده
+                        child: Container(
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,  // دایره‌ای نگه می‌داریم
-                            color: Colors.grey.shade400,  // رنگ سبز خاکستری
+                            shape: BoxShape.circle,
+                            color: selectedUserIds[originalIndex] != null && !approvedFlags[originalIndex]
+                                ? Colors.green.shade100
+                                : Colors.grey.shade300,
                           ),
                           padding: const EdgeInsets.all(8),
-                          child: const Icon(
-                            Icons.check,  // همان آیکون تیک
-                            color: Colors.grey,  // رنگ خاکستری
+                          child: Icon(
+                            Icons.check,
+                            color: selectedUserIds[originalIndex] != null && !approvedFlags[originalIndex]
+                                ? Colors.green
+                                : Colors.grey,
                             size: 32,
                           ),
                         ),
+                      ),
+
                     ],
                   ),
-
                 ],
               ),
             ),
@@ -237,5 +253,4 @@ class _ProjectmanageFormState extends State<ProjectmanageForm>{
       ),
     );
   }
-
 }
