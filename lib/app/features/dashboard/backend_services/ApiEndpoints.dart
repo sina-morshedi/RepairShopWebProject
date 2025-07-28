@@ -20,6 +20,7 @@ class ApiEndpoints {
   static const String registerUser = "$_baseUrl/auth/register";
   static const String registerCar = "$_baseUrl/cars/insertCarInfo";
   static const String getCarInfo = "$_baseUrl/cars/getCarInfo";
+  static const String searchCarInfo = "$_baseUrl/cars/searchCarInfo";
   static const String updateCarInfo = "$_baseUrl/cars/updateCarInfo";
   static const String insertTaskStatus = "$_baseUrl/task_status";
   static const String getTaskStatusByName = "$_baseUrl/task_status/getByStatusName";
@@ -90,6 +91,7 @@ class ApiEndpoints {
   static const String inventorySaleLogsGetAll = "$_baseUrl/inventorySaleLogs/get-all";
   static const String inventorySaleLogsSearchByCustomer = "$_baseUrl/inventorySaleLogs/searchByCustomer";
   static const String inventorySaleLogsSearchByDate = "$_baseUrl/inventorySaleLogs/searchByDate";
+  static const String inventorySaleLogsGetNonZeroRemaining= "$_baseUrl/inventorySaleLogs/get-nonzero-remaining";
 
   static const String settingGetStatus = "$_baseUrl/settings/status";
 

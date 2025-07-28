@@ -30,6 +30,43 @@ class CarInfoApi {
     }
   }
 
+  Future<ApiResponse<List<CarInfoDTO>>> searchCarsByLicensePlateKeyword(String keyword) async {
+    final uri = Uri.parse('${ApiEndpoints.searchCarInfo}?keyword=$keyword');
+
+    try {
+      final response = await http.get(
+        uri,
+        headers: BackendUtils.buildHeader(),
+      );
+
+      final jsonData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        // فرض بر این است که پاسخ، لیستی از ماشین‌هاست
+        final List<CarInfoDTO> carList = (jsonData as List)
+            .map((item) => CarInfoDTO.fromJson(item))
+            .toList();
+
+        return ApiResponse<List<CarInfoDTO>>(
+          status: "success",
+          data: carList,
+          message: "",
+        );
+      } else {
+        return ApiResponse<List<CarInfoDTO>>(
+          status: "error",
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse<List<CarInfoDTO>>(
+        status: "error",
+        message: "Sunucuya erişilemedi: $e",
+      );
+    }
+  }
+
+
   Future<ApiResponse<void>> updateCarInfoByLicensePlate(String licensePlate, CarInfo updatedCar) async {
     final response = await http.put(
       Uri.parse('${ApiEndpoints.updateCarInfo}/$licensePlate'),

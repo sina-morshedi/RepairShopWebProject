@@ -10,6 +10,10 @@ import '../features/dashboard/backend_services/backend_services.dart';
 import '../features/dashboard/controllers/UserController.dart';
 import '../utils/helpers/app_helpers.dart';
 import 'package:get/get.dart';
+import '../utils/helpers/SaleInvoicePdfHelper.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class InventorySaleLogDetailCard extends StatefulWidget {
   final InventorySaleLogDTO log;
@@ -33,6 +37,8 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
   final Map<String, TextEditingController> _quantityControllers = {};
   final UserController userController = Get.find<UserController>();
   UserProfileDTO? user;
+  pw.Font? customFont;
+  pw.MemoryImage? logoImage;
 
   bool _isSavingPayment = false;
 
@@ -44,6 +50,17 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
     for (var item in currentLog.soldItems ?? []) {
       _quantityControllers[item.inventoryItemId!] = TextEditingController(text: item.quantitySold?.toString() ?? '0');
     }
+    loadAssets();
+  }
+
+  Future<void> loadAssets() async {
+    final fontData = await rootBundle.load("assets/fonts/Vazirmatn-Regular.ttf");
+    final imageData = await rootBundle.load("images/logo.png");
+
+    setState(() {
+      customFont = pw.Font.ttf(fontData);
+      logoImage = pw.MemoryImage(imageData.buffer.asUint8List());
+    });
   }
 
   @override
@@ -275,9 +292,18 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
           ListTile(
             title: Text('Satış Tarihi: ${currentLog.saleDate?.toLocal().toString().split(' ')[0] ?? '-'}'),
             subtitle: Text('Müşteri: ${currentLog.customerName ?? '-'}'),
-            trailing: IconButton(
-              icon: Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
-              onPressed: () => setState(() => _isExpanded = !_isExpanded),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (currentLog.remainingAmount == 0)
+                  Icon(MdiIcons.checkCircle, color: Colors.green), // تیک سبز
+                IconButton(
+                  icon: Icon(
+                    _isExpanded ? MdiIcons.chevronUp : MdiIcons.chevronDown, // استفاده از Material Design Icons
+                  ),
+                  onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                ),
+              ],
             ),
             onTap: () => setState(() => _isExpanded = !_isExpanded),
           ),
@@ -379,15 +405,17 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
                     ],
                   ),
                   const SizedBox(height: 12),
-                  TextField(
-                    controller: _paymentController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Ödenen Tutar',
-                      border: OutlineInputBorder(),
-                      prefixText: '₺ ',
+                  if (currentLog.remainingAmount != 0)
+                    TextField(
+                      controller: _paymentController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        labelText: 'Ödenen Tutar',
+                        border: OutlineInputBorder(),
+                        prefixText: '₺ ',
+                      ),
                     ),
-                  ),
+
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -413,6 +441,19 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
                           onPressed: _isSavingPayment ? null : _handleUpdateQuantities,
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
                           child: const Text('Parça Miktarını Güncelle'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          label: const Text('Fatura PDF'),
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey),
+                          onPressed: () async {
+                            await SaleInvoicePdfHelper.generateAndDownloadSaleInvoicePdf(
+                                customFont: customFont!,
+                                logoImage: logoImage!,
+                                saleLog: widget.log);
+                          },
                         ),
                       ),
                     ],

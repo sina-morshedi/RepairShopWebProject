@@ -189,5 +189,30 @@ class InventorySaleLogApi {
       return ApiResponse(status: 'error', message: 'İstisna oluştu: $e');
     }
   }
+  // گرفتن لاگ‌های فروش که remainingAmount آنها مخالف صفر است
+  Future<ApiResponse<List<InventorySaleLogDTO>>> getSaleLogsWithNonZeroRemaining() async {
+    final String backendUrl = ApiEndpoints.inventorySaleLogsGetNonZeroRemaining;
+
+    try {
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> dataList = jsonDecode(response.body);
+        final List<InventorySaleLogDTO> logs =
+        dataList.map((e) => InventorySaleLogDTO.fromJson(e)).toList();
+
+        return ApiResponse(status: 'success', data: logs);
+      } else {
+        return ApiResponse(status: 'error', message: response.body);
+      }
+    } catch (e) {
+      return ApiResponse(status: 'error', message: 'İstisna oluştu: $e');
+    }
+  }
+
+
 
 }

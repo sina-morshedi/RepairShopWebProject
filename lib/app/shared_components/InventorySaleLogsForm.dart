@@ -13,7 +13,7 @@ class InventorySaleLogsForm extends StatefulWidget {
 }
 
 class _InventorySaleLogsFormState extends State<InventorySaleLogsForm> {
-  final TextEditingController _customerSearchController = TextEditingController();
+  final TextEditingController _remainingCustomerController = TextEditingController();
 
   List<CustomerDTO> customerSearchResults = [];
   CustomerDTO? selectedCustomer;
@@ -21,14 +21,18 @@ class _InventorySaleLogsFormState extends State<InventorySaleLogsForm> {
   List<InventorySaleLogDTO> customerSaleLogs = [];
   bool isLoadingSaleLogs = false;
 
-  late VoidCallback _customerListener;
+  bool _allLogsSelected = true;
+  bool _remainingZeroSelected = false;
+  bool _remainingNonZeroSelected = false;
+
+  late VoidCallback _remainingCustomerListener;
 
   @override
   void initState() {
     super.initState();
 
-    _customerListener = () {
-      final keyword = _customerSearchController.text.trim();
+    _remainingCustomerListener = () {
+      final keyword = _remainingCustomerController.text.trim();
       if (keyword.length < 2) {
         setState(() {
           customerSearchResults = [];
@@ -40,7 +44,64 @@ class _InventorySaleLogsFormState extends State<InventorySaleLogsForm> {
       _searchCustomers(keyword);
     };
 
-    _customerSearchController.addListener(_customerListener);
+    _remainingCustomerController.addListener(_remainingCustomerListener);
+    _fetchAllSaleLogs();
+  }
+
+  @override
+  void dispose() {
+    _remainingCustomerController.removeListener(_remainingCustomerListener);
+    _remainingCustomerController.dispose();
+    super.dispose();
+  }
+
+  void _onAllLogsChanged(bool? val) {
+    setState(() {
+      _allLogsSelected = val ?? false;
+      if (_allLogsSelected) {
+        _remainingZeroSelected = false;
+        _remainingNonZeroSelected = false;
+        _remainingCustomerController.clear();
+        customerSearchResults.clear();
+        selectedCustomer = null;
+        customerSaleLogs = [];
+        _fetchAllSaleLogs();
+      }
+    });
+  }
+
+  void _onRemainingZeroChanged(bool? val) {
+    setState(() {
+      _remainingZeroSelected = val ?? false;
+      if (_remainingZeroSelected) {
+        _allLogsSelected = false;
+        _remainingNonZeroSelected = false;
+        _remainingCustomerController.clear();
+        customerSearchResults.clear();
+        selectedCustomer = null;
+        customerSaleLogs = [];
+        _fetchSaleLogsWithNonRemainingZero();
+      }
+    });
+  }
+
+  void _onRemainingNonZeroChanged(bool? val) {
+    setState(() {
+      _remainingNonZeroSelected = val ?? false;
+      if (_remainingNonZeroSelected) {
+        _allLogsSelected = false;
+        _remainingZeroSelected = false;
+        customerSaleLogs = [];
+        selectedCustomer = null;
+        _remainingCustomerController.clear();
+        customerSearchResults.clear();
+      } else {
+        _remainingCustomerController.clear();
+        customerSearchResults.clear();
+        selectedCustomer = null;
+        customerSaleLogs = [];
+      }
+    });
   }
 
   Future<void> _searchCustomers(String keyword) async {
@@ -56,49 +117,86 @@ class _InventorySaleLogsFormState extends State<InventorySaleLogsForm> {
     }
   }
 
-  Future<void> _fetchSaleLogsForCustomer(String customerName) async {
+  Future<void> _fetchAllSaleLogs() async {
     setState(() {
       isLoadingSaleLogs = true;
-      customerSaleLogs = [];
     });
-
-    try {
-      final response = await InventorySaleLogApi().searchByCustomerName(customerName);
-      if (response.status == 'success' && response.data != null) {
-        setState(() {
-          customerSaleLogs = response.data!;
-        });
-      } else {
-        setState(() {
-          customerSaleLogs = [];
-        });
-        StringHelper.showErrorDialog(context, response.message ?? 'Kayıt bulunamadı.');
-      }
-    } catch (e) {
+    final response = await InventorySaleLogApi().getAllSaleLogs();
+    if (response.status == 'success' && response.data != null) {
+      setState(() {
+        customerSaleLogs = response.data!;
+      });
+    } else {
       setState(() {
         customerSaleLogs = [];
       });
-      StringHelper.showErrorDialog(context, e.toString());
-    } finally {
-      setState(() {
-        isLoadingSaleLogs = false;
-      });
+      if (response.message != null) {
+        StringHelper.showErrorDialog(context, response.message!);
+      }
     }
+    setState(() {
+      isLoadingSaleLogs = false;
+    });
+  }
+
+  Future<void> _fetchSaleLogsWithNonRemainingZero() async {
+    setState(() {
+      isLoadingSaleLogs = true;
+    });
+    final response = await InventorySaleLogApi().getSaleLogsWithNonZeroRemaining();
+    if (response.status == 'success' && response.data != null) {
+      setState(() {
+        customerSaleLogs = response.data!;
+        print('customerSaleLogs');
+        print(customerSaleLogs);
+      });
+    } else {
+      setState(() {
+        customerSaleLogs = [];
+      });
+      if (response.message != null) {
+        StringHelper.showErrorDialog(context, response.message!);
+      }
+    }
+    setState(() {
+      isLoadingSaleLogs = false;
+    });
+  }
+
+  Future<void> _fetchSaleLogsWithRemainingNonZeroByCustomer(String customerName) async {
+    setState(() {
+      isLoadingSaleLogs = true;
+    });
+    final response = await InventorySaleLogApi().searchByCustomerName(customerName);
+    if (response.status == 'success' && response.data != null) {
+      setState(() {
+        customerSaleLogs = response.data!;
+      });
+    } else {
+      setState(() {
+        customerSaleLogs = [];
+      });
+      if (response.message != null) {
+        StringHelper.showErrorDialog(context, response.message!);
+      }
+    }
+    setState(() {
+      isLoadingSaleLogs = false;
+    });
   }
 
   void _onCustomerSelected(CustomerDTO customer) {
     setState(() {
       selectedCustomer = customer;
 
-      // برای جلوگیری از تکرار سرچ، Listener رو موقتاً حذف و مقدار رو ست کن
-      _customerSearchController.removeListener(_customerListener);
-      _customerSearchController.text = customer.fullName;
-      _customerSearchController.addListener(_customerListener);
+      _remainingCustomerController.removeListener(_remainingCustomerListener);
+      _remainingCustomerController.text = customer.fullName;
+      _remainingCustomerController.addListener(_remainingCustomerListener);
 
       customerSearchResults.clear();
     });
 
-    _fetchSaleLogsForCustomer(customer.fullName);
+    _fetchSaleLogsWithRemainingNonZeroByCustomer(customer.fullName);
   }
 
   @override
@@ -109,31 +207,62 @@ class _InventorySaleLogsFormState extends State<InventorySaleLogsForm> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            TextField(
-              controller: _customerSearchController,
-              decoration: const InputDecoration(
-                labelText: 'Müşteri Ara',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CheckboxListTile(
+                    title: const Text('Tüm Kayıtlar'),
+                    value: _allLogsSelected,
+                    onChanged: _onAllLogsChanged,
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Ödenmemiş'),
+                    value: _remainingZeroSelected,
+                    onChanged: _onRemainingZeroChanged,
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                  CheckboxListTile(
+                    title: const Text('İsme Göre Ara'),
+                    value: _remainingNonZeroSelected,
+                    onChanged: _onRemainingNonZeroChanged,
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                ],
               ),
             ),
-            if (customerSearchResults.isNotEmpty)
-              Expanded(
-                flex: 0,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: customerSearchResults.length,
-                  itemBuilder: (context, index) {
-                    final customer = customerSearchResults[index];
-                    return ListTile(
-                      title: Text(customer.fullName),
-                      subtitle: Text(customer.phone ?? ''),
-                      onTap: () => _onCustomerSelected(customer),
-                    );
-                  },
+
+            if (_remainingNonZeroSelected) ...[
+              TextField(
+                controller: _remainingCustomerController,
+                decoration: const InputDecoration(
+                  labelText: 'Müşteri Ara',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
                 ),
               ),
+              if (customerSearchResults.isNotEmpty)
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 150),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: customerSearchResults.length,
+                    itemBuilder: (context, index) {
+                      final customer = customerSearchResults[index];
+                      return ListTile(
+                        title: Text(customer.fullName),
+                        subtitle: Text(customer.phone ?? ''),
+                        onTap: () => _onCustomerSelected(customer),
+                      );
+                    },
+                  ),
+                ),
+            ],
+
             const SizedBox(height: 16),
+
             if (isLoadingSaleLogs)
               const Center(child: CircularProgressIndicator())
             else if (customerSaleLogs.isEmpty)
@@ -153,17 +282,9 @@ class _InventorySaleLogsFormState extends State<InventorySaleLogsForm> {
                   },
                 ),
               ),
-
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _customerSearchController.removeListener(_customerListener);
-    _customerSearchController.dispose();
-    super.dispose();
   }
 }
