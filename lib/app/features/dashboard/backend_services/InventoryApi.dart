@@ -37,8 +37,6 @@ part of 'backend_services.dart';
   Future<ApiResponse<String>> getNextBarcode(String prefix) async {
     final String backendUrl = '${ApiEndpoints.inventoryNextBarcode}?prefix=$prefix';
 
-    print('backendUrl');
-    print(backendUrl);
     try {
       final response = await http.get(
         Uri.parse(backendUrl),

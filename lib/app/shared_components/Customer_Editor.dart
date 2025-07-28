@@ -104,6 +104,7 @@ class EditCustomerDialog extends StatefulWidget {
 }
 
 class _EditCustomerDialogState extends State<EditCustomerDialog> {
+  bool isSaving = false;
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
@@ -145,6 +146,10 @@ class _EditCustomerDialogState extends State<EditCustomerDialog> {
   Future<void> _updateCustomer() async {
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() {
+      isSaving = true;
+    });
+
     final updatedCustomer = CustomerDTO(
       id: widget.customer.id,
       fullName: _nameController.text.trim(),
@@ -154,71 +159,103 @@ class _EditCustomerDialogState extends State<EditCustomerDialog> {
     );
 
     final response = await CustomerApi().updateCustomer(updatedCustomer);
-    if (response.status == 'success') {
-      StringHelper.showInfoDialog(context, "Müşteri güncellendi");
-      widget.onUpdated();
-      Navigator.pop(context);
-    } else {
-      StringHelper.showErrorDialog(context, "Güncelleme hatası: ${response.message}");
+
+    if (mounted) {
+      setState(() {
+        isSaving = false;
+      });
+
+      if (response.status == 'success') {
+        StringHelper.showInfoDialog(context, "Müşteri güncellendi");
+        widget.onUpdated();
+        Navigator.pop(context);
+      } else {
+        StringHelper.showErrorDialog(context, "Güncelleme hatası: ${response.message}");
+      }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text("Müşteri Bilgilerini Güncelle", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nameController,
-                decoration: _inputDecoration("Ad Soyad", EvaIcons.personOutline),
-                validator: (value) =>
-                value == null || value.isEmpty ? "Lütfen ad girin" : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _phoneController,
-                decoration: _inputDecoration("Telefon Numarası", EvaIcons.phoneOutline),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nationalIdController,
-                decoration: _inputDecoration("T.C. Kimlik No", EvaIcons.creditCardOutline),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _addressController,
-                decoration: _inputDecoration("Adres", EvaIcons.homeOutline),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("İptal"),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: 500, // یا هر ارتفاع مناسب برای دیالوگ شما
+            maxWidth: 600,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Stack(
+              children: [
+                // محتوای اصلی فرم
+                SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "Müşteri Bilgilerini Güncelle",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: _inputDecoration("Ad Soyad", EvaIcons.personOutline),
+                        validator: (value) =>
+                        value == null || value.isEmpty ? "Lütfen ad girin" : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _phoneController,
+                        decoration: _inputDecoration("Telefon Numarası", EvaIcons.phoneOutline),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _nationalIdController,
+                        decoration: _inputDecoration("T.C. Kimlik No", EvaIcons.creditCardOutline),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _addressController,
+                        decoration: _inputDecoration("Adres", EvaIcons.homeOutline),
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("İptal"),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: isSaving ? null : _updateCustomer,
+                            child: const Text("Güncelle"),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _updateCustomer,
-                    child: const Text("Güncelle"),
+                ),
+
+                // اگر در حالت ذخیره‌سازی است، روی بقیه ویجت‌ها لایه می‌اندازد
+                if (isSaving) ...[
+                  ModalBarrier(
+                    dismissible: false,
+                    color: Colors.black.withOpacity(0.3),
                   ),
+                  const Center(child: CircularProgressIndicator()),
                 ],
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
 }

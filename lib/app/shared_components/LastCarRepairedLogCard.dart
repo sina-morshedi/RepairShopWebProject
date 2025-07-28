@@ -120,7 +120,7 @@ class _LastCarRepairedLogCardState extends State<LastCarRepairedLogCard> {
 
   Future<CarInfoDTO?> fetchCarInfoByPlate(String plate) async {
     // TODO: call your API here
-    final response = await backend_services().getCarInfoByLicensePlate(plate);
+    final response = await CarInfoApi().getCarInfoByLicensePlate(plate);
     if(response.status == 'success')
       return response.data!;
     else

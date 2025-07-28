@@ -24,6 +24,8 @@ class RepairmanLogTask extends StatefulWidget {
 }
 
 class _RepairmanLogTaskState extends State<RepairmanLogTask> {
+  bool isSaving = false;
+
   late UserProfileDTO user;
   List<CarRepairLogResponseDTO> logs = [];
 
@@ -87,8 +89,13 @@ class _RepairmanLogTaskState extends State<RepairmanLogTask> {
   }
 
   Future<void> _handleLogButtonPressed(CarRepairLogResponseDTO log) async {
+    setState(() {
+      isSaving = true;
+    });
+
     final responseTask = await TaskStatusApi().getTaskStatusByName("BAŞLANGIÇ");
     if (responseTask.status == 'success' && responseTask.data != null) {
+      // ادامه عملیات ذخیره
       final customerId = log.customer?.id ?? "";
 
       final request = CarRepairLogRequestDTO(
@@ -107,22 +114,30 @@ class _RepairmanLogTaskState extends State<RepairmanLogTask> {
       if (response.status == 'success') {
         if (mounted) {
           StringHelper.showInfoDialog(context, 'Bilgiler kaydedildi.');
-          widget.onConfirmed?.call(); // ✅ فراخوانی callback بعد از موفقیت
+          setState(() {
+            logs.removeWhere((element) => element == log);
+          });
+          widget.onConfirmed?.call();
           await _loadUserAndLogs();
         }
       } else {
         if (mounted) {
-          StringHelper.showErrorDialog(
-              context, response.message ?? "Hata oluştu");
+          StringHelper.showErrorDialog(context, response.message ?? "Hata oluştu");
         }
       }
     } else {
       if (mounted) {
-        StringHelper.showErrorDialog(
-            context, responseTask.message ?? "Hata oluştu");
+        StringHelper.showErrorDialog(context, responseTask.message ?? "Hata oluştu");
       }
     }
+
+    if (mounted) {
+      setState(() {
+        isSaving = false;
+      });
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -156,12 +171,15 @@ class _RepairmanLogTaskState extends State<RepairmanLogTask> {
             logs: logs,
             buttonBuilder: (log) {
               return {
-                'text': 'İşe başlıyorum.',
-                'onPressed': () {
+                'text': isSaving ? 'Kaydediliyor...' : 'İşe başlıyorum.',
+                'onPressed': isSaving
+                    ? null // غیرفعال کردن دکمه
+                    : () {
                   _handleLogButtonPressed(log);
                 },
               };
             },
+
           ),
         ),
       ],

@@ -34,6 +34,37 @@ class InventoryTransactionApi {
     }
   }
 
+  Future<ApiResponse<int>> getAllTransactionsCount() async {
+    final String backendUrl = ApiEndpoints.inventoryTransactionListCount;
+
+    try {
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final count = data['count'];
+
+        return ApiResponse(
+          status: 'success',
+          data: count,
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
   Future<ApiResponse<List<InventoryTransactionResponseDTO>>> getTransactionsPaged({
     required int page,
     required int size,
@@ -69,14 +100,49 @@ class InventoryTransactionApi {
     }
   }
 
-  Future<ApiResponse<List<InventoryTransactionResponseDTO>>> getTransactionsByDateRange({
+  Future<ApiResponse<int>> getTransactionsByDateRangeCount({
+        required String startDate,
+        required String endDate,
+      }) async {
+    final String backendUrl =
+        '${ApiEndpoints.inventoryTransactionDateRangeCount}?startDate=$startDate&endDate=$endDate';
+
+    try {
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final count = data['count'];
+
+        return ApiResponse(
+          status: 'success',
+          data: count,
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
+  Future<ApiResponse<List<InventoryTransactionResponseDTO>>> getTransactionsByDateRangePaginated({
     required String startDate,
     required String endDate,
     required int page,
     required int size,
   }) async {
     final String backendUrl =
-        '${ApiEndpoints.inventoryTransactionDateRange}?startDate=$startDate&endDate=$endDate&page=$page&size=$size';
+        '${ApiEndpoints.inventoryTransactionDateRangePaginated}?startDate=$startDate&endDate=$endDate&page=$page&size=$size';
 
     try {
       final response = await http.get(
@@ -106,6 +172,8 @@ class InventoryTransactionApi {
       );
     }
   }
+
+
 
   // گرفتن تراکنش با شناسه
   Future<ApiResponse<InventoryTransactionResponseDTO>> getTransactionById(String id) async {

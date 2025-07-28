@@ -1,7 +1,7 @@
 class ApiEndpoints {
   // static const String _baseUrl = "https://fastapi-java-backend-production.up.railway.app";
-  static const String _baseUrl = "https://fastapi-java-backend-jwt-production.up.railway.app";
-  //static const String _baseUrl = "http://localhost:8080";
+  //static const String _baseUrl = "https://fastapi-java-backend-jwt-production.up.railway.app";
+  static const String _baseUrl = "http://localhost:8080";
 
   static const String login = "$_baseUrl/users/login";
   static const String register = "$_baseUrl/register";
@@ -69,12 +69,27 @@ class ApiEndpoints {
   static const String inventoryGetPagedItems = "$_baseUrl/inventory/inventory-items";
 
   static const String inventoryTransactionAdd = "$_baseUrl/inventoryTransaction/add";
+  static const String inventoryTransactionGetByType = "$_baseUrl/inventoryTransaction/type";
+  static const String inventoryTransactionGetByCustomer = "$_baseUrl/inventoryTransaction/customer";
+  static const String inventoryTransactionGetLastByCustomer = "$_baseUrl/inventoryTransaction/customer/last";
   static const String inventoryTransactionList = "$_baseUrl/inventoryTransaction/list";
+  static const String inventoryTransactionListCount = "$_baseUrl/inventoryTransaction/list/count";
+  static const String inventoryTransactionPaged = "$_baseUrl/inventoryTransaction/list/paged";
   static const String inventoryTransactionGetById = "$_baseUrl/inventoryTransaction"; // باید در نهایت /{id} بهش اضافه بشه
   static const String inventoryTransactionDelete = "$_baseUrl/inventoryTransaction/delete"; // در نهایت /{id}
   static const String inventoryTransactionSearchByType = "$_baseUrl/inventoryTransaction/searchByType";
-  static const String inventoryTransactionPaged = "$_baseUrl/inventoryTransaction/paged";
   static const String inventoryTransactionDateRange = "$_baseUrl/inventoryTransaction/date-range";
+  static const String inventoryTransactionDateRangeCount = "$_baseUrl/inventoryTransaction/date-range/count";
+  static const String inventoryTransactionDateRangePaginated = "$_baseUrl/inventoryTransaction/date-range/paged";
+
+  static const String inventorySaleLogsGet = "$_baseUrl/inventorySaleLogs/get";
+  static const String inventorySaleLogsSave = "$_baseUrl/inventorySaleLogs/saveLog";
+  static const String inventorySaleLogsDelete = "$_baseUrl/inventorySaleLogs/delete";
+  static const String inventorySaleLogsUpdate = "$_baseUrl/inventorySaleLogs/update";
+  static const String inventorySaleLogsTotalRemainingAmount = "$_baseUrl/inventorySaleLogs/totalRemainingAmount";
+  static const String inventorySaleLogsGetAll = "$_baseUrl/inventorySaleLogs/get-all";
+  static const String inventorySaleLogsSearchByCustomer = "$_baseUrl/inventorySaleLogs/searchByCustomer";
+  static const String inventorySaleLogsSearchByDate = "$_baseUrl/inventorySaleLogs/searchByDate";
 
   static const String settingGetStatus = "$_baseUrl/settings/status";
 

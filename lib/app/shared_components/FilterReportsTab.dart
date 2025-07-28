@@ -190,6 +190,9 @@ class _FilterReportsTabState extends State<FilterReportsTab> with RouteAware {
                   'onPressed': () async {
                     final response = await CarRepairLogApi().deleteLog(log.id!);
                     if (response.status == 'success') {
+                      setState(() {
+                        filteredReports.removeWhere((element) => element.id == log.id);
+                      });
                       StringHelper.showInfoDialog(context, response.message!);
                     } else {
                       StringHelper.showErrorDialog(context, response.message!);

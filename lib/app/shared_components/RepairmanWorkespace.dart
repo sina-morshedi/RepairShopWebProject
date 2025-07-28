@@ -55,6 +55,8 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
 
   Timer? _debounce;
 
+  bool isSaving = false;
+
   @override
   void initState() {
     super.initState();
@@ -85,7 +87,8 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
       taskStatusNames: ["BAŞLANGIÇ", "DURAKLAT"],
     );
 
-    final response = await CarRepairLogApi().getLatestLogsByTaskStatusesAndUserId(request);
+    final response =
+        await CarRepairLogApi().getLatestLogsByTaskStatusesAndUserId(request);
 
     if (response.status == 'success') {
       logs = response.data!;
@@ -179,7 +182,8 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
       final response = await InventoryApi().getByPartName(query);
       if (response.status == 'success' && response.data != null) {
         final filtered = response.data!
-            .where((item) => item.partName.toLowerCase().contains(query.toLowerCase()))
+            .where((item) =>
+                item.partName.toLowerCase().contains(query.toLowerCase()))
             .toList();
 
         setState(() {
@@ -246,9 +250,11 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text("$actionLabel Onayı"),
-        content: Text("Araç için $actionLabel işlemini yapmak istediğinize emin misiniz?"),
+        content: Text(
+            "Araç için $actionLabel işlemini yapmak istediğinize emin misiniz?"),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("İptal")),
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(), child: Text("İptal")),
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
@@ -258,8 +264,7 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
                 loadRepairLog(index);
               } else if (action == "Finish Job") {
                 saveRepairLog(index, 'İŞ BİTTİ');
-              } else {
-              }
+              } else {}
             },
             child: Text("Onayla"),
           ),
@@ -287,13 +292,19 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
           "isExpanded": true,
         };
 
-        partNameControllers[index] = updatedLog.partsUsed?.map(
-              (p) => TextEditingController(text: p.partName),
-        ).toList() ?? [TextEditingController()];
+        partNameControllers[index] = updatedLog.partsUsed
+                ?.map(
+                  (p) => TextEditingController(text: p.partName),
+                )
+                .toList() ??
+            [TextEditingController()];
 
-        quantityControllers[index] = updatedLog.partsUsed?.map(
-              (p) => TextEditingController(text: p.quantity.toString()),
-        ).toList() ?? [TextEditingController(text: "1")];
+        quantityControllers[index] = updatedLog.partsUsed
+                ?.map(
+                  (p) => TextEditingController(text: p.quantity.toString()),
+                )
+                .toList() ??
+            [TextEditingController(text: "1")];
 
         // مقداردهی اولیه لیست پیشنهادات برای هر قطعه در حالت لود
         partSearchResults[index] = {};
@@ -302,216 +313,245 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
         }
       });
     } else {
-      StringHelper.showErrorDialog(context, response.message ?? "Sunucu hatası");
+      StringHelper.showErrorDialog(
+          context, response.message ?? "Sunucu hatası");
     }
   }
 
-  Future<void> saveRepairLog(int index, String newTaskStatusName, {String? pauseReason}) async {
-    if (logs == null || index >= logs!.length) return;
+  Future<void> saveRepairLog(int index, String newTaskStatusName,
+      {String? pauseReason}) async {
+    try {
+      setState(() {
+        isSaving = true;
+      });
+      if (logs == null || index >= logs!.length) return;
 
-    final log = logs![index];
+      final log = logs![index];
 
-    // ❌ جلوگیری از DURAKLAT → İŞ BİTTİ
-    if (newTaskStatusName.toUpperCase() == 'İŞ BİTTİ' &&
-        log.taskStatus.taskStatusName.toUpperCase() == 'DURAKLAT') {
-      StringHelper.showErrorDialog(context, "Duraklatılmış bir görev doğrudan İŞ BİTTİ olarak işaretlenemez.");
-      return;
-    }
-
-    final isPause = newTaskStatusName.toUpperCase() == 'DURAKLAT';
-
-    final List<PartUsed> newPartsUsed = [];
-
-    for (int i = 0; i < partNameControllers[index]!.length; i++) {
-      final name = partNameControllers[index]![i].text.trim();
-      final qtyStr = quantityControllers[index]![i].text.trim();
-
-      if (name.isEmpty && qtyStr.isEmpty) {
-        if (isPause) continue;
-        continue;
+      // ❌ جلوگیری از DURAKLAT → İŞ BİTTİ
+      if (newTaskStatusName.toUpperCase() == 'İŞ BİTTİ' &&
+          log.taskStatus.taskStatusName.toUpperCase() == 'DURAKLAT') {
+        StringHelper.showErrorDialog(context,
+            "Duraklatılmış bir görev doğrudan İŞ BİTTİ olarak işaretlenemez.");
+        return;
       }
 
-      if (name.isEmpty) {
-        if (!isPause) {
-          StringHelper.showErrorDialog(context, "Parça adı boş olamaz (satır ${i + 1})");
-          return;
-        }
-        continue;
-      }
+      final isPause = newTaskStatusName.toUpperCase() == 'DURAKLAT';
 
-      if (qtyStr.isEmpty) {
-        if (!isPause) {
-          StringHelper.showErrorDialog(context, "Adet bilgisi boş olamaz (satır ${i + 1})");
-          return;
-        }
-        continue;
-      }
+      final List<PartUsed> newPartsUsed = [];
 
-      final qty = int.tryParse(qtyStr);
-      if (qty == null || qty <= 0) {
-        if (!isPause) {
-          StringHelper.showErrorDialog(context, "Adet değeri geçersiz (satır ${i + 1})");
-          return;
-        }
-        continue;
-      }
+      for (int i = 0; i < partNameControllers[index]!.length; i++) {
+        final name = partNameControllers[index]![i].text.trim();
+        final qtyStr = quantityControllers[index]![i].text.trim();
 
-      final price = await _fetchSalePriceForPart(name);
-      newPartsUsed.add(PartUsed(partName: name, quantity: qty, partPrice: price));
-    }
-
-    // گرفتن وضعیت وظیفه
-    TaskStatusDTO? matchingStatus;
-    final responseTask = await TaskStatusApi().getTaskStatusByName(newTaskStatusName);
-    if (responseTask.status == 'success') {
-      matchingStatus = responseTask.data;
-    } else {
-      StringHelper.showErrorDialog(context, responseTask.message!);
-      return;
-    }
-
-
-    final List<InventoryTransactionRequestDTO> transactionsToAdd = [];
-    if(userController.isInventoryEnabled){
-      // تهیه دو لیست از قطعات قبلی و جدید
-      final Map<String, int> oldPartsQty = {};
-      if (log.partsUsed != null) {
-        for (var part in log.partsUsed!) {
-          oldPartsQty[part.partName] = part.quantity;
-        }
-      }
-
-      final Map<String, int> newPartsQty = {};
-      for (var part in newPartsUsed) {
-        newPartsQty[part.partName] = part.quantity;
-      }
-
-      for (var entry in {...oldPartsQty.keys, ...newPartsQty.keys}) {
-        final oldQty = oldPartsQty[entry] ?? 0;
-        final newQty = newPartsQty[entry] ?? 0;
-        final diff = newQty - oldQty;
-
-        if (diff == 0) continue;
-
-        final inventoryId = await getInventoryIdByName(entry);
-        if (inventoryId == null) {
-          StringHelper.showErrorDialog(context, "'$entry' için parça kimliği bulunamadı.");
-          return;
+        if (name.isEmpty && qtyStr.isEmpty) {
+          if (isPause) continue;
+          continue;
         }
 
-        final transactionType = diff > 0
-            ? TransactionType.CONSUMPTION
-            : TransactionType.RETURN_CONSUMPTION;
-
-        final transactionDto = InventoryTransactionRequestDTO(
-          creatorUserId: log.creatorUser.userId,
-          inventoryItemId: inventoryId,
-          quantity: diff.abs(),
-          type: transactionType,
-          description: diff > 0
-              ? "Tamirhanede kullanım için alındı."
-              : "Depoya iade edildi.",
-          carInfoId: log.carInfo.id,
-          customerId: log.customer?.id,
-          dateTime: DateTime.now(),
-        );
-
-        transactionsToAdd.add(transactionDto);
-      }
-    }
-
-
-    final dto = CarRepairLogRequestDTO(
-      carId: log.carInfo.id,
-      creatorUserId: log.creatorUser.userId,
-      assignedUserId: log.assignedUser?.userId,
-      description: pauseReason,
-      taskStatusId: matchingStatus!.id!,
-      dateTime: DateTime.now(),
-      problemReportId: log.problemReport?.id,
-      partsUsed: newPartsUsed.isEmpty ? null : newPartsUsed,
-      customerId: log.customer?.id ?? "",
-    );
-
-    final response = matchingStatus.taskStatusName.toUpperCase() == 'İŞ BİTTİ'
-        ? await CarRepairLogApi().createLog(dto)
-        : await CarRepairLogApi().updateLog(log.id!, dto);
-
-    if (response.status == 'success') {
-      final updatedLog = response.data!;
-
-      if (newTaskStatusName.toUpperCase() == 'İŞ BİTTİ') {
-        logs!.removeAt(index);
-        cars.removeAt(index);
-
-        _rebuildControllersAndSearchResults();
-
-        setState(() {});
-      } else {
-        logs![index] = updatedLog;
-
-        setState(() {
-          cars[index] = {
-            "licensePlate": updatedLog.carInfo.licensePlate,
-            "brand": updatedLog.carInfo.brand,
-            "model": updatedLog.carInfo.brandModel,
-            "year": updatedLog.carInfo.modelYear.toString(),
-            "taskStatusName": updatedLog.taskStatus.taskStatusName,
-            "isExpanded": true,
-          };
-
-          partNameControllers[index] = updatedLog.partsUsed?.map(
-                (p) => TextEditingController(text: p.partName),
-          ).toList() ?? [TextEditingController()];
-
-          quantityControllers[index] = updatedLog.partsUsed?.map(
-                (p) => TextEditingController(text: p.quantity.toString()),
-          ).toList() ?? [TextEditingController(text: "1")];
-
-          partSearchResults[index] = {};
-          for (int j = 0; j < partNameControllers[index]!.length; j++) {
-            partSearchResults[index]![j] = [];
+        if (name.isEmpty) {
+          if (!isPause) {
+            StringHelper.showErrorDialog(
+                context, "Parça adı boş olamaz (satır ${i + 1})");
+            return;
           }
-        });
+          continue;
+        }
+
+        if (qtyStr.isEmpty) {
+          if (!isPause) {
+            StringHelper.showErrorDialog(
+                context, "Adet bilgisi boş olamaz (satır ${i + 1})");
+            return;
+          }
+          continue;
+        }
+
+        final qty = int.tryParse(qtyStr);
+        if (qty == null || qty <= 0) {
+          if (!isPause) {
+            StringHelper.showErrorDialog(
+                context, "Adet değeri geçersiz (satır ${i + 1})");
+            return;
+          }
+          continue;
+        }
+
+        final price = await _fetchSalePriceForPart(name);
+        newPartsUsed
+            .add(PartUsed(partName: name, quantity: qty, partPrice: price));
       }
 
-      // اینجا اضافه کردم شرط چک کردن فعال بودن اینونتوری
+      // گرفتن وضعیت وظیفه
+      TaskStatusDTO? matchingStatus;
+      final responseTask =
+          await TaskStatusApi().getTaskStatusByName(newTaskStatusName);
+      if (responseTask.status == 'success') {
+        matchingStatus = responseTask.data;
+      } else {
+        StringHelper.showErrorDialog(context, responseTask.message!);
+        return;
+      }
+
+      final List<InventoryTransactionRequestDTO> transactionsToAdd = [];
       if (userController.isInventoryEnabled) {
-        final inventoryApi = InventoryTransactionApi();
+        // تهیه دو لیست از قطعات قبلی و جدید
+        final Map<String, int> oldPartsQty = {};
+        if (log.partsUsed != null) {
+          for (var part in log.partsUsed!) {
+            oldPartsQty[part.partName] = part.quantity;
+          }
+        }
 
-        for (var transaction in transactionsToAdd) {
-          final transactionResponse = await inventoryApi.addTransaction(transaction);
-          if (transactionResponse.status != 'success') {
-            StringHelper.showErrorDialog(context, transactionResponse.message!);
-          } else {
-            final changeRequest = InventoryChangeRequestDTO(
-              itemId: transaction.inventoryItemId,
-              amount: transaction.quantity,
-              updatedAt: DateTime.now(),
-              creatorUserId: log.creatorUser.userId,
-            );
+        final Map<String, int> newPartsQty = {};
+        for (var part in newPartsUsed) {
+          newPartsQty[part.partName] = part.quantity;
+        }
 
-            if (transaction.type == TransactionType.RETURN_CONSUMPTION) {
-              final incrementResponse = await InventoryApi().incrementQuantity(changeRequest);
-              if (incrementResponse.status != 'success') {
-                StringHelper.showErrorDialog(context, 'Envanter artırma işlemi başarısız oldu: ${incrementResponse.message}');
-              }
-            } else if (transaction.type == TransactionType.CONSUMPTION) {
-              final decrementResponse = await InventoryApi().decrementQuantity(changeRequest);
-              if (decrementResponse.status != 'success') {
-                StringHelper.showErrorDialog(context, 'Envanter azaltma işlemi başarısız oldu: ${decrementResponse.message}');
+        for (var entry in {...oldPartsQty.keys, ...newPartsQty.keys}) {
+          final oldQty = oldPartsQty[entry] ?? 0;
+          final newQty = newPartsQty[entry] ?? 0;
+          final diff = newQty - oldQty;
+
+          if (diff == 0) continue;
+
+          final inventoryId = await getInventoryIdByName(entry);
+          if (inventoryId == null) {
+            StringHelper.showErrorDialog(
+                context, "'$entry' için parça kimliği bulunamadı.");
+            return;
+          }
+
+          final transactionType = diff > 0
+              ? TransactionType.CONSUMPTION
+              : TransactionType.RETURN_CONSUMPTION;
+
+          final transactionDto = InventoryTransactionRequestDTO(
+            creatorUserId: log.creatorUser.userId,
+            inventoryItemId: inventoryId,
+            quantity: diff.abs(),
+            type: transactionType,
+            description: diff > 0
+                ? "Tamirhanede kullanım için alındı."
+                : "Depoya iade edildi.",
+            carInfoId: log.carInfo.id,
+            customerId: log.customer?.id,
+            dateTime: DateTime.now(),
+          );
+
+          transactionsToAdd.add(transactionDto);
+        }
+      }
+
+      final dto = CarRepairLogRequestDTO(
+        carId: log.carInfo.id,
+        creatorUserId: log.creatorUser.userId,
+        assignedUserId: log.assignedUser?.userId,
+        description: pauseReason,
+        taskStatusId: matchingStatus!.id!,
+        dateTime: DateTime.now(),
+        problemReportId: log.problemReport?.id,
+        partsUsed: newPartsUsed.isEmpty ? null : newPartsUsed,
+        customerId: log.customer?.id ?? "",
+      );
+
+      final response = matchingStatus.taskStatusName.toUpperCase() == 'İŞ BİTTİ'
+          ? await CarRepairLogApi().createLog(dto)
+          : await CarRepairLogApi().updateLog(log.id!, dto);
+
+      if (response.status == 'success') {
+        final updatedLog = response.data!;
+
+        if (newTaskStatusName.toUpperCase() == 'İŞ BİTTİ') {
+          logs!.removeAt(index);
+          cars.removeAt(index);
+
+          _rebuildControllersAndSearchResults();
+
+          setState(() {});
+        } else {
+          logs![index] = updatedLog;
+
+          setState(() {
+            cars[index] = {
+              "licensePlate": updatedLog.carInfo.licensePlate,
+              "brand": updatedLog.carInfo.brand,
+              "model": updatedLog.carInfo.brandModel,
+              "year": updatedLog.carInfo.modelYear.toString(),
+              "taskStatusName": updatedLog.taskStatus.taskStatusName,
+              "isExpanded": true,
+            };
+
+            partNameControllers[index] = updatedLog.partsUsed
+                    ?.map(
+                      (p) => TextEditingController(text: p.partName),
+                    )
+                    .toList() ??
+                [TextEditingController()];
+
+            quantityControllers[index] = updatedLog.partsUsed
+                    ?.map(
+                      (p) => TextEditingController(text: p.quantity.toString()),
+                    )
+                    .toList() ??
+                [TextEditingController(text: "1")];
+
+            partSearchResults[index] = {};
+            for (int j = 0; j < partNameControllers[index]!.length; j++) {
+              partSearchResults[index]![j] = [];
+            }
+          });
+        }
+
+        // اینجا اضافه کردم شرط چک کردن فعال بودن اینونتوری
+        if (userController.isInventoryEnabled) {
+          final inventoryApi = InventoryTransactionApi();
+
+          for (var transaction in transactionsToAdd) {
+            final transactionResponse =
+                await inventoryApi.addTransaction(transaction);
+            if (transactionResponse.status != 'success') {
+              StringHelper.showErrorDialog(
+                  context, transactionResponse.message!);
+            } else {
+              final changeRequest = InventoryChangeRequestDTO(
+                itemId: transaction.inventoryItemId,
+                amount: transaction.quantity,
+                updatedAt: DateTime.now(),
+                creatorUserId: log.creatorUser.userId,
+              );
+
+              if (transaction.type == TransactionType.RETURN_CONSUMPTION) {
+                final incrementResponse =
+                    await InventoryApi().incrementQuantity(changeRequest);
+                if (incrementResponse.status != 'success') {
+                  StringHelper.showErrorDialog(context,
+                      'Envanter artırma işlemi başarısız oldu: ${incrementResponse.message}');
+                }
+              } else if (transaction.type == TransactionType.CONSUMPTION) {
+                final decrementResponse =
+                    await InventoryApi().decrementQuantity(changeRequest);
+                if (decrementResponse.status != 'success') {
+                  StringHelper.showErrorDialog(context,
+                      'Envanter azaltma işlemi başarısız oldu: ${decrementResponse.message}');
+                }
               }
             }
           }
+        } else {
+          // inventory غیرفعال است، پس تراکنش‌ها ثبت نمی‌شوند
+          debugPrint("Inventory is disabled; skipping inventory transactions.");
         }
-      } else {
-        // inventory غیرفعال است، پس تراکنش‌ها ثبت نمی‌شوند
-        debugPrint("Inventory is disabled; skipping inventory transactions.");
-      }
 
-      StringHelper.showInfoDialog(context, "Bilgiler başarıyla faturaya kaydedildi.");
-    } else {
-      StringHelper.showErrorDialog(context, response.message!);
+        StringHelper.showInfoDialog(
+            context, "Bilgiler başarıyla faturaya kaydedildi.");
+      } else {
+        StringHelper.showErrorDialog(context, response.message!);
+      }
+    } finally {
+      setState(() {
+        isSaving = false;
+      });
     }
   }
 
@@ -533,13 +573,16 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
   }
 
   Future<String?> getInventoryIdByName(String name) async {
-    print('userController.isInventoryEnabled: ${userController.isInventoryEnabled}');
+    print(
+        'userController.isInventoryEnabled: ${userController.isInventoryEnabled}');
     if (!userController.isInventoryEnabled) {
       debugPrint("Inventory disabled; cannot get inventory ID for $name");
       return null;
     }
     final response = await InventoryApi().getByPartName(name);
-    if (response.status == 'success' && response.data != null && response.data!.isNotEmpty) {
+    if (response.status == 'success' &&
+        response.data != null &&
+        response.data!.isNotEmpty) {
       return response.data!.first.id; // فرض بر اینه که اولین آیتم درست باشه
     } else {
       return null;
@@ -552,14 +595,16 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
     final newPartSearchResults = <int, Map<int, List<InventoryItemDTO>>>{};
 
     // Dispose کنترلرهای قدیمی که دیگه تو newMap نیستند
-    final removedKeys = partNameControllers.keys.where((key) => key >= logs!.length).toList();
+    final removedKeys =
+        partNameControllers.keys.where((key) => key >= logs!.length).toList();
     for (var key in removedKeys) {
       for (var ctrl in partNameControllers[key]!) {
         ctrl.dispose();
       }
       partNameControllers.remove(key);
     }
-    final removedQtyKeys = quantityControllers.keys.where((key) => key >= logs!.length).toList();
+    final removedQtyKeys =
+        quantityControllers.keys.where((key) => key >= logs!.length).toList();
     for (var key in removedQtyKeys) {
       for (var ctrl in quantityControllers[key]!) {
         ctrl.dispose();
@@ -575,8 +620,12 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
       // ایجاد کنترلر جدید برای قطعات لاگ i
       final partsUsed = log.partsUsed;
       if (partsUsed != null && partsUsed.isNotEmpty) {
-        newPartNameControllers[i] = partsUsed.map((p) => TextEditingController(text: p.partName)).toList();
-        newQuantityControllers[i] = partsUsed.map((p) => TextEditingController(text: p.quantity.toString())).toList();
+        newPartNameControllers[i] = partsUsed
+            .map((p) => TextEditingController(text: p.partName))
+            .toList();
+        newQuantityControllers[i] = partsUsed
+            .map((p) => TextEditingController(text: p.quantity.toString()))
+            .toList();
       } else {
         newPartNameControllers[i] = [TextEditingController()];
         newQuantityControllers[i] = [TextEditingController(text: "1")];
@@ -609,201 +658,248 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
     partSearchResults = newPartSearchResults;
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: ListView.builder(
-          itemCount: cars.length,
-          itemBuilder: (context, carIndex) {
-            final car = cars[carIndex];
-            final isExpanded = car["isExpanded"] as bool? ?? false;
+    return Stack(
+      children: [
+        Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: ListView.builder(
+              itemCount: cars.length,
+              itemBuilder: (context, carIndex) {
+                final car = cars[carIndex];
+                final isExpanded = car["isExpanded"] as bool? ?? false;
 
-            final partNames = partNameControllers.containsKey(carIndex) && partNameControllers[carIndex] != null
-                ? partNameControllers[carIndex]!
-                : <TextEditingController>[];
+                final partNames = partNameControllers.containsKey(carIndex) &&
+                        partNameControllers[carIndex] != null
+                    ? partNameControllers[carIndex]!
+                    : <TextEditingController>[];
 
-            final partSearchMap = partSearchResults.containsKey(carIndex) && partSearchResults[carIndex] != null
-                ? partSearchResults[carIndex]!
-                : <int, List<InventoryItemDTO>>{};
+                final partSearchMap = partSearchResults.containsKey(carIndex) &&
+                        partSearchResults[carIndex] != null
+                    ? partSearchResults[carIndex]!
+                    : <int, List<InventoryItemDTO>>{};
 
-            return GestureDetector(
-              onTap: () => setState(() => car["isExpanded"] = !isExpanded),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: isExpanded
-                    ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Plaka: ${car['licensePlate']}", style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text("Marka: ${car['brand']}"),
-                    Text("Model: ${car['model']}"),
-                    Text("Yıl: ${car['year']}"),
-                    const SizedBox(height: 8),
-                    ...List.generate(partNames.length, (partIndex) {
-                      final suggestions = partSearchMap.containsKey(partIndex) && partSearchMap[partIndex] != null
-                          ? partSearchMap[partIndex]!
-                          : <InventoryItemDTO>[];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: TextField(
-                                    controller: partNames[partIndex],
-                                    decoration: const InputDecoration(
-                                      hintText: "Parça adı",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    onChanged: (value) {
-                                      if(userController.isInventoryEnabled)
-                                        searchParts(carIndex, partIndex, value);
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  width: 50,
-                                  child: TextField(
-                                    controller: quantityControllers.containsKey(carIndex) && quantityControllers[carIndex] != null
-                                        ? quantityControllers[carIndex]![partIndex]
-                                        : TextEditingController(text: "1"),
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      hintText: "Adet",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(EvaIcons.plusCircleOutline),
-                                  onPressed: () => addPartField(carIndex),
-                                ),
-                                if (partNames.length > 1)
-                                  IconButton(
-                                    icon: const Icon(
-                                      EvaIcons.minusCircleOutline,
-                                      color: Colors.red,
-                                    ),
-                                    onPressed: () => removePartField(carIndex, partIndex),
-                                  ),
-                              ],
-                            ),
-                            if (suggestions.isNotEmpty)
-                              Container(
-                                constraints: const BoxConstraints(maxHeight: 150),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade800),
-                                  color: Colors.black,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 3,
-                                      offset: const Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: suggestions.length,
-                                  itemBuilder: (context, suggestionIndex) {
-                                    final suggestion = suggestions[suggestionIndex];
-                                    return ListTile(
-                                      title: Text(
-                                        suggestion.partName,
-                                        style: const TextStyle(color: Colors.white),
-                                      ),
-                                      onTap: () {
-                                        partNames[partIndex].text = suggestion.partName;
-                                        setState(() {
-                                          partSearchMap[partIndex] = [];
-                                        });
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    }),
-                    const SizedBox(height: 12),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => _showConfirmDialog(context, carIndex, "Save"),
-                            child: const Text("Kaydet"),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton(
-                            onPressed: () => _showConfirmDialog(context, carIndex, "Load"),
-                            child: const Text("Yükle"),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton(
-                            onPressed: () => _showConfirmDialog(context, carIndex, "Finish Job"),
-                            child: const Text("İş Bitir"),
-                          ),
-                          const SizedBox(width: 12),
-                          ElevatedButton(
-                            onPressed: () => _showPauseDialog(context, carIndex),
-                            child: const Text("Görev Duraklat"),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-                    : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SvgPicture.asset(
-                          statusSvgMap[car['taskStatusName']] ?? 'assets/images/vector/stop.svg',
-                          width: 32,
-                          height: 32,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          "${car['licensePlate']} - ${car['taskStatusName']}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                return GestureDetector(
+                  onTap: () => setState(() => car["isExpanded"] = !isExpanded),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
-                    Icon(isExpanded ? MdiIcons.chevronUp : MdiIcons.chevronDown)
+                    child: isExpanded
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Plaka: ${car['licensePlate']}",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Text("Marka: ${car['brand']}"),
+                              Text("Model: ${car['model']}"),
+                              Text("Yıl: ${car['year']}"),
+                              const SizedBox(height: 8),
+                              ...List.generate(partNames.length, (partIndex) {
+                                final suggestions =
+                                    partSearchMap.containsKey(partIndex) &&
+                                            partSearchMap[partIndex] != null
+                                        ? partSearchMap[partIndex]!
+                                        : <InventoryItemDTO>[];
 
-                  ],
-                ),
-              ),
-            );
-          },
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 2,
+                                            child: TextField(
+                                              controller: partNames[partIndex],
+                                              decoration: const InputDecoration(
+                                                hintText: "Parça adı",
+                                                border: OutlineInputBorder(),
+                                              ),
+                                              onChanged: (value) {
+                                                if (userController
+                                                    .isInventoryEnabled)
+                                                  searchParts(carIndex,
+                                                      partIndex, value);
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          SizedBox(
+                                            width: 50,
+                                            child: TextField(
+                                              controller: quantityControllers
+                                                          .containsKey(
+                                                              carIndex) &&
+                                                      quantityControllers[
+                                                              carIndex] !=
+                                                          null
+                                                  ? quantityControllers[
+                                                      carIndex]![partIndex]
+                                                  : TextEditingController(
+                                                      text: "1"),
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                hintText: "Adet",
+                                                border: OutlineInputBorder(),
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                                EvaIcons.plusCircleOutline),
+                                            onPressed: () =>
+                                                addPartField(carIndex),
+                                          ),
+                                          if (partNames.length > 1)
+                                            IconButton(
+                                              icon: const Icon(
+                                                EvaIcons.minusCircleOutline,
+                                                color: Colors.red,
+                                              ),
+                                              onPressed: () => removePartField(
+                                                  carIndex, partIndex),
+                                            ),
+                                        ],
+                                      ),
+                                      if (suggestions.isNotEmpty)
+                                        Container(
+                                          constraints: const BoxConstraints(
+                                              maxHeight: 150),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Colors.grey.shade800),
+                                            color: Colors.black,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black26,
+                                                blurRadius: 3,
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            itemCount: suggestions.length,
+                                            itemBuilder:
+                                                (context, suggestionIndex) {
+                                              final suggestion =
+                                                  suggestions[suggestionIndex];
+                                              return ListTile(
+                                                title: Text(
+                                                  suggestion.partName,
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                                onTap: () {
+                                                  partNames[partIndex].text =
+                                                      suggestion.partName;
+                                                  setState(() {
+                                                    partSearchMap[partIndex] =
+                                                        [];
+                                                  });
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                              const SizedBox(height: 12),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () => _showConfirmDialog(
+                                          context, carIndex, "Save"),
+                                      child: const Text("Kaydet"),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    ElevatedButton(
+                                      onPressed: () => _showConfirmDialog(
+                                          context, carIndex, "Load"),
+                                      child: const Text("Yükle"),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    ElevatedButton(
+                                      onPressed: () => _showConfirmDialog(
+                                          context, carIndex, "Finish Job"),
+                                      child: const Text("İş Bitir"),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _showPauseDialog(context, carIndex),
+                                      child: const Text("Görev Duraklat"),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    statusSvgMap[car['taskStatusName']] ??
+                                        'assets/images/vector/stop.svg',
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    "${car['licensePlate']} - ${car['taskStatusName']}",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Icon(isExpanded
+                                  ? MdiIcons.chevronUp
+                                  : MdiIcons.chevronDown)
+                            ],
+                          ),
+                  ),
+                );
+              },
+            ),
+          ),
         ),
-      ),
+        if (isSaving) ...[
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

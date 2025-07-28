@@ -9,7 +9,6 @@ import '../features/dashboard/backend_services/ApiEndpoints.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:intl/intl.dart';
 
-
 class InventoryTransactionsTable extends StatefulWidget {
   final List<InventoryTransactionResponseDTO>? transactions;
   final bool showDeleteIcon;
@@ -30,15 +29,16 @@ class InventoryTransactionsTable extends StatefulWidget {
 class _InventoryTransactionsTableState
     extends State<InventoryTransactionsTable> {
   late List<InventoryTransactionResponseDTO> transactions;
+  PagedApiResponse<InventoryTransactionResponseDTO>? pagedResponse;
 
   bool _loading = false;
   DateTime? startDate;
   DateTime? endDate;
 
-
-
   int currentPage = 0;
   final int pageSize = 9;
+
+  int totalCount = 0;
 
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
@@ -50,6 +50,7 @@ class _InventoryTransactionsTableState
     super.initState();
     if (widget.transactions != null) {
       transactions = widget.transactions!;
+      totalCount = transactions.length;
     } else {
       transactions = [];
       fetchTransactions();
@@ -70,8 +71,33 @@ class _InventoryTransactionsTableState
     return DateFormat('yyyy-MM-dd HH:mm').format(localDate);
   }
 
+  Future<void> fetchTotalCount() async {
+
+    String? startDateStr;
+    String? endDateStr;
+
+    if(startDate != null && endDate != null){
+      startDateStr = _formatDateForBackend(startDate!, isStart: true);
+      endDateStr = _formatDateForBackend(endDate!, isStart: false);
+    }
+
+    final response = (startDate != null && endDate != null) ?
+    await InventoryTransactionApi().getTransactionsByDateRangeCount(
+      startDate: startDateStr!,
+      endDate: endDateStr!):
+    await InventoryTransactionApi().getAllTransactionsCount();
+
+    if (response.status == 'success' && response.data != null) {
+      totalCount = response.data!;
+    } else {
+      totalCount = 0;
+    }
+  }
+
   Future<void> fetchTransactions() async {
     setState(() => _loading = true);
+
+    await fetchTotalCount();
 
     ApiResponse<List<InventoryTransactionResponseDTO>> response;
 
@@ -79,7 +105,7 @@ class _InventoryTransactionsTableState
       final startDateStr = _formatDateForBackend(startDate!, isStart: true);
       final endDateStr = _formatDateForBackend(endDate!, isStart: false);
 
-      response = await InventoryTransactionApi().getTransactionsByDateRange(
+      response = await InventoryTransactionApi().getTransactionsByDateRangePaginated(
         startDate: startDateStr,
         endDate: endDateStr,
         page: currentPage,
@@ -112,7 +138,6 @@ class _InventoryTransactionsTableState
         : DateTime(date.year, date.month, date.day, 23, 59, 59);
     return dt.toUtc().toIso8601String();
   }
-
 
   Future<void> _pickStartDate() async {
     DateTime? picked = await showDatePicker(
@@ -175,7 +200,9 @@ class _InventoryTransactionsTableState
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView( // اسکرول عمودی کل محتوا
+    final totalPages = (totalCount / pageSize).ceil();
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -222,12 +249,12 @@ class _InventoryTransactionsTableState
                     });
                     fetchTransactions();
                   },
-                  child: const Text('Search'),
+                  child: const Text('Ara'),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _resetFilters,
-                  child: const Text('Reset'),
+                  child: const Text('Sıfırla'),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                 ),
               ],
@@ -236,9 +263,9 @@ class _InventoryTransactionsTableState
 
           const SizedBox(height: 16),
 
-          // قسمت جدول با محدودیت ارتفاع و اسکرول افقی داخلی
+          // جدول با اسکرول افقی
           SizedBox(
-            height: 500,  // می‌تونید ارتفاع دلخواه تنظیم کنید یا این مقدار رو متغیر کنید
+            height: 500,
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : transactions.isEmpty
@@ -249,8 +276,10 @@ class _InventoryTransactionsTableState
                     _horizontalScrollController.offset - details.delta.dx;
                 if (newOffset < 0) {
                   _horizontalScrollController.jumpTo(0);
-                } else if (newOffset > _horizontalScrollController.position.maxScrollExtent) {
-                  _horizontalScrollController.jumpTo(_horizontalScrollController.position.maxScrollExtent);
+                } else if (newOffset >
+                    _horizontalScrollController.position.maxScrollExtent) {
+                  _horizontalScrollController
+                      .jumpTo(_horizontalScrollController.position.maxScrollExtent);
                 } else {
                   _horizontalScrollController.jumpTo(newOffset);
                 }
@@ -314,20 +343,20 @@ class _InventoryTransactionsTableState
 
           const SizedBox(height: 16),
 
-          // دکمه‌های صفحه‌بندی
+          // دکمه‌های صفحه‌بندی و نمایش شماره صفحه
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
                 onPressed: currentPage > 0 ? _previousPage : null,
-                child: const Text('Previous'),
+                child: const Text('Önceki Sayfa'),
               ),
               const SizedBox(width: 16),
-              Text('Page ${currentPage + 1}'),
+              Text('Page ${currentPage + 1} of $totalPages'),
               const SizedBox(width: 16),
               ElevatedButton(
-                onPressed: transactions.length == pageSize ? _nextPage : null,
-                child: const Text('Next'),
+                onPressed: (currentPage+1) != totalPages ? _nextPage : null,
+                child: const Text('Sonraki Sayfa'),
               ),
             ],
           ),
@@ -335,5 +364,4 @@ class _InventoryTransactionsTableState
       ),
     );
   }
-
 }

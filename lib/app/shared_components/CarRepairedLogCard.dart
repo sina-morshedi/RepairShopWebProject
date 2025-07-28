@@ -26,6 +26,18 @@ class CarRepairedLogCard extends StatelessWidget {
   };
 
   void _showLogDetails(BuildContext context) {
+    final totalCost = log.partsUsed?.fold<double>(0, (sum, part) {
+      final unitPrice = part.partPrice ?? 0;
+      final quantity = part.quantity ?? 1;
+      return sum + unitPrice * quantity;
+    }) ?? 0;
+
+    final totalPaid = log.paymentRecords?.fold<double>(0, (sum, payment) {
+      return sum + (payment.amountPaid ?? 0);
+    }) ?? 0;
+
+    final remainingAmount = totalCost - totalPaid;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -56,7 +68,9 @@ class CarRepairedLogCard extends StatelessWidget {
               ],
 
               const SizedBox(height: 12),
-              if (log.description != null && log.description!.isNotEmpty && log.taskStatus.taskStatusName == 'DURAKLAT') ...[
+              if (log.description != null &&
+                  log.description!.isNotEmpty &&
+                  log.taskStatus.taskStatusName == 'DURAKLAT') ...[
                 const Text('Görev duraklama sebebi:', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text('- ${log.description}'),
@@ -67,7 +81,20 @@ class CarRepairedLogCard extends StatelessWidget {
                 const Text('Kullanılan Parçalar:', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 ...log.partsUsed!.map((part) => Text('- ${part.partName} (${part.quantity})')).toList(),
-              ]
+              ],
+
+              if (totalCost > 0) ...[
+                const SizedBox(height: 12),
+                const Text('Ücret Bilgileri:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text('Toplam Ücret: ${totalCost.toStringAsFixed(2)}₺'),
+                if (totalPaid > 0) ...[
+                  Text('Ödenen: ${totalPaid.toStringAsFixed(2)}₺'),
+                  Text('Kalan: ${remainingAmount.toStringAsFixed(2)}₺'),
+                ] else ...[
+                  const Text('Henüz ödeme yapılmamış.'),
+                ],
+              ],
             ],
           ),
         ),
@@ -89,15 +116,11 @@ class CarRepairedLogCard extends StatelessWidget {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final carInfo = log.carInfo;
     final statusName = log.taskStatus?.taskStatusName;
-    final svgPath = (statusName != null && statusSvgMap.containsKey(statusName))
-        ? statusSvgMap[statusName]
-        : null;
+    final svgPath = (statusName != null && statusSvgMap.containsKey(statusName)) ? statusSvgMap[statusName] : null;
 
     return Card(
       child: InkWell(

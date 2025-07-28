@@ -74,7 +74,7 @@ class _CarEntryDialogState extends State<CarEntryDialog> {
       latestLog = null;
     });
 
-    final carResponse = await backend_services().getCarInfoByLicensePlate(plate);
+    final carResponse = await CarInfoApi().getCarInfoByLicensePlate(plate);
 
     setState(() => isLoading = false);
 

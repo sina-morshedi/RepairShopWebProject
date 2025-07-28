@@ -104,7 +104,7 @@ class TaskFlowManagerState extends State<TaskFlowManager> {
 
     print('🔍 Searching plate2: $plate');
 
-    final carResponse = await backend_services().getCarInfoByLicensePlate(plate);
+    final carResponse = await CarInfoApi().getCarInfoByLicensePlate(plate);
     if (carResponse.status != 'success') {
       showInsertCarForm.value = true;
       isLoading.value = false;

@@ -50,8 +50,6 @@ class _InventoryAddItemState extends State<InventoryAddItem> {
     storName = userController.storeName.value;
 
     final barcode = sendBarcodeRequest();
-    print('barcode');
-    print(barcode);
   }
 
   @override
@@ -82,11 +80,10 @@ class _InventoryAddItemState extends State<InventoryAddItem> {
     final apiResponse = await InventoryApi().getNextBarcode(prefix);
 
     if (apiResponse.status == 'success') {
-      print('Barcode');
-      print(apiResponse.data);
+
       return apiResponse.data;  // بارکد به صورت String
     } else {
-      print('Error: ${apiResponse.message}');
+      StringHelper.showErrorDialog(context,apiResponse.message!);
       return null;
     }
   }

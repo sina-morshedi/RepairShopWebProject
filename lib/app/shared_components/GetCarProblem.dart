@@ -46,7 +46,7 @@ class _GetCarProblemState extends State<GetCarProblem>{
 
     setState(() => isLoading = true);
 
-    final response = await backend_services().getCarInfoByLicensePlate(plate);
+    final response = await CarInfoApi().getCarInfoByLicensePlate(plate);
 
     if (response.status == 'success' && response.data != null) {
       setState(() {
