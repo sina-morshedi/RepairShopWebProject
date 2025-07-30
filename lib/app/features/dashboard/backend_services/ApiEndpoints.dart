@@ -1,7 +1,7 @@
 class ApiEndpoints {
   // static const String _baseUrl = "https://fastapi-java-backend-production.up.railway.app";
-  //static const String _baseUrl = "https://fastapi-java-backend-jwt-production.up.railway.app";
-  static const String _baseUrl = "http://localhost:8080";
+  static const String _baseUrl = "https://fastapi-java-backend-jwt-production.up.railway.app";
+  //static const String _baseUrl = "http://localhost:8080";
 
   static const String login = "$_baseUrl/users/login";
   static const String register = "$_baseUrl/register";
