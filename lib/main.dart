@@ -34,7 +34,7 @@ class RepairShopApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       initialBinding: AppBinding(),
-      title: 'Project Management',
+      title: 'Nano Oto',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.basic,
       initialRoute: AppPages.initial,

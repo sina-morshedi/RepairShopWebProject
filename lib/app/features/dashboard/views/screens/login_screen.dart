@@ -171,6 +171,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -180,117 +182,151 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             fit: BoxFit.cover,
           ),
           Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Material(
-                        elevation: 6,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: screenHeight * 0.55,
+                  maxWidth: 500,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.85),
                         borderRadius: BorderRadius.circular(16),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset(
-                            'assets/Welcome.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Hoşgeldiniz',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      TextField(
-                        controller: _usernameController,
-                        style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600),
-                        decoration: InputDecoration(
-                          labelText: 'Kullanıcı Adı',
-                          labelStyle: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600),
-                          border: const OutlineInputBorder(),
-                          prefixIcon: Icon(MdiIcons.accountOutline, color: Colors.blueAccent),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600),
-                        decoration: InputDecoration(
-                          labelText: 'Şifre',
-                          labelStyle: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600),
-                          border: const OutlineInputBorder(),
-                          prefixIcon: Icon(MdiIcons.lockOutline, color: Colors.blueAccent),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextField(
-                        controller: _storeNameController,
-                        onSubmitted: (_) => _login(), // ← این خط اضافه شد
-                        style: TextStyle(color: Colors.grey[900], fontWeight: FontWeight.w600),
-                        decoration: InputDecoration(
-                          labelText: 'Tamirhane Adı',
-                          labelStyle: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.w600),
-                          border: const OutlineInputBorder(),
-                          prefixIcon: Icon(MdiIcons.homeOutline, color: Colors.blueAccent),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-                      Row(
+                      child: Column(
                         children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value ?? false;
-                              });
-                            },
+                          Material(
+                            elevation: 6,
+                            borderRadius: BorderRadius.circular(16),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.asset(
+                                'assets/Welcome.jpg',
+                                fit: BoxFit.cover,
+                                height: constraints.maxHeight * 0.18,
+                              ),
+                            ),
                           ),
+                          const SizedBox(height: 6),
                           const Text(
-                            "Giriş bilgilerini kaydet",
-                            style: TextStyle(color: Colors.black87),
+                            'Hoşgeldiniz',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-
+                          const SizedBox(height: 6),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // هر TextField درون Flexible
+                                Flexible(
+                                  child: TextField(
+                                    controller: _usernameController,
+                                    style: TextStyle(
+                                        color: Colors.grey[900],
+                                        fontWeight: FontWeight.w600),
+                                    decoration: InputDecoration(
+                                      labelText: 'Kullanıcı Adı',
+                                      labelStyle: TextStyle(
+                                          color: Colors.grey[800],
+                                          fontWeight: FontWeight.w600),
+                                      border: const OutlineInputBorder(),
+                                      prefixIcon: Icon(MdiIcons.accountOutline,
+                                          color: Colors.blueAccent),
+                                      filled: true,
+                                      fillColor: Colors.grey[100],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Flexible(
+                                  child: TextField(
+                                    controller: _passwordController,
+                                    obscureText: true,
+                                    style: TextStyle(
+                                        color: Colors.grey[900],
+                                        fontWeight: FontWeight.w600),
+                                    decoration: InputDecoration(
+                                      labelText: 'Şifre',
+                                      labelStyle: TextStyle(
+                                          color: Colors.grey[800],
+                                          fontWeight: FontWeight.w600),
+                                      border: const OutlineInputBorder(),
+                                      prefixIcon: Icon(MdiIcons.lockOutline,
+                                          color: Colors.blueAccent),
+                                      filled: true,
+                                      fillColor: Colors.grey[100],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Flexible(
+                                  child: TextField(
+                                    controller: _storeNameController,
+                                    onSubmitted: (_) => _login(),
+                                    style: TextStyle(
+                                        color: Colors.grey[900],
+                                        fontWeight: FontWeight.w600),
+                                    decoration: InputDecoration(
+                                      labelText: 'Tamirhane Adı',
+                                      labelStyle: TextStyle(
+                                          color: Colors.grey[800],
+                                          fontWeight: FontWeight.w600),
+                                      border: const OutlineInputBorder(),
+                                      prefixIcon: Icon(MdiIcons.homeOutline,
+                                          color: Colors.blueAccent),
+                                      filled: true,
+                                      fillColor: Colors.grey[100],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      value: _rememberMe,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _rememberMe = value ?? false;
+                                        });
+                                      },
+                                    ),
+                                    const Text(
+                                      "Giriş bilgilerini kaydet",
+                                      style: TextStyle(color: Colors.black87),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: _login,
+                                    icon: Icon(MdiIcons.login),
+                                    label: const Text('Login'),
+                                    style: ElevatedButton.styleFrom(
+                                      padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      elevation: 5,
+                                      backgroundColor: Colors.blueAccent,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 30),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _login,
-                          icon: Icon(MdiIcons.login),
-                          label: const Text('Login'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 5,
-                            backgroundColor: Colors.blueAccent,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -299,4 +335,5 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       ),
     );
   }
+
 }
