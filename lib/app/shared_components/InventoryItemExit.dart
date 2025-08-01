@@ -8,7 +8,7 @@ import '../features/dashboard/models/InventoryTransactionResponseDTO.dart';
 import '../features/dashboard/models/InventoryTransactionRequestDTO.dart';
 import '../features/dashboard/models/InventoryTransactionType.dart';
 import '../features/dashboard/models/InventoryChangeRequestDTO.dart';
-import '../features/dashboard/models/CustomerDTO.dart';  // فرض بر این که مدل مشتری داری
+import '../features/dashboard/models/CustomerDTO.dart';
 import '../features/dashboard/backend_services/backend_services.dart';
 import '../features/dashboard/controllers/UserController.dart';
 import '../features/dashboard/models/InventorySaleLogDTO.dart';
@@ -29,7 +29,6 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
   late VoidCallback _customerListener;
   late VoidCallback _partListener;
 
-
   ExitReason? _exitReason;
 
   // کنترلرها
@@ -46,7 +45,6 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
   InventoryItemDTO? selectedPart;
 
   List<InventoryItemDTO> selectedPartsList = [];
-
 
   // سرویس‌ها
   final userController = Get.find<UserController>();
@@ -75,7 +73,6 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
     };
     _partSearchController.addListener(_partListener);
   }
-
 
   Future<void> _searchCustomers(String keyword) async {
     final response = await CustomerApi().searchCustomerByName(keyword.toUpperCase());
@@ -109,58 +106,53 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
       setState(() {
         selectedPart = response.data!;
         partSearchResults = [];
-        _partSearchController.text = selectedPart!.partName;
+        _partSearchController.text = selectedPart!.partName ?? '';
       });
     } else {
       setState(() {
         selectedPart = null;
       });
-      StringHelper.showErrorDialog(context,'Parça bulunamadı.');
+      StringHelper.showErrorDialog(context, 'Parça bulunamadı.');
     }
   }
 
   Future<void> _processExit() async {
     if (_exitReason == null) {
-      StringHelper.showErrorDialog(context,'Lütfen çıkış nedenini seçin.');
+      StringHelper.showErrorDialog(context, 'Lütfen çıkış nedenini seçin.');
       return;
     }
 
     if (_exitReason == ExitReason.sale && selectedCustomer == null) {
-      StringHelper.showErrorDialog(context,'Lütfen müşteri seçin.');
+      StringHelper.showErrorDialog(context, 'Lütfen müşteri seçin.');
       return;
     }
 
     if (selectedPart == null) {
-      StringHelper.showErrorDialog(context,'Lütfen bir parça seçin.');
+      StringHelper.showErrorDialog(context, 'Lütfen bir parça seçin.');
       return;
     }
 
     final quantity = int.tryParse(_quantityController.text.trim());
     if (quantity == null || quantity <= 0) {
-      StringHelper.showErrorDialog(context,'Geçerli bir miktar girin.');
+      StringHelper.showErrorDialog(context, 'Geçerli bir miktar girin.');
       return;
     }
 
     if ((selectedPart!.quantity ?? 0) < quantity) {
-      StringHelper.showErrorDialog(context,'Yeterli stok yok.');
+      StringHelper.showErrorDialog(context, 'Yeterli stok yok.');
       return;
     }
 
-    final bool allSucceeded = true;
-    // ساخت DTO تراکنش
+    // ساخت تراکنش‌ها برای همه قطعات انتخاب‌شده
     for (InventoryItemDTO item in selectedPartsList) {
       final dto = InventoryTransactionRequestDTO(
         carInfoId: null,
         customerId: selectedCustomer?.id,
         creatorUserId: userController.currentUser?.userId ?? '',
         inventoryItemId: item.id ?? '',
-        quantity: item.quantity!,
-        type: _exitReason == ExitReason.sale
-            ? TransactionType.SALE
-            : TransactionType.DAMAGE,
-        description: _exitReason == ExitReason.sale
-            ? 'Satış çıkışı'
-            : 'Hasarlı parça çıkışı',
+        quantity: item.quantity ?? 0,
+        type: _exitReason == ExitReason.sale ? TransactionType.SALE : TransactionType.DAMAGE,
+        description: _exitReason == ExitReason.sale ? 'Satış çıkışı' : 'Hasarlı parça çıkışı',
         dateTime: DateTime.now(),
       );
 
@@ -197,21 +189,21 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
             (sum, item) => sum + ((item.quantity ?? 0) * (item.purchasePrice ?? 0)),
       ),
       saleDate: DateTime.now(),
-      paymentRecords: [], // در صورت نیاز مقدار بده
+      paymentRecords: [],
     );
 
-    // ۳. ارسال لاگ فروش به سرور
     final saleLogResponse = await InventorySaleLogApi().saveSaleLog(saleLogDto);
 
     if (saleLogResponse.status == 'success') {
       StringHelper.showInfoDialog(context, 'Satış kaydı başarıyla oluşturuldu.');
       setState(() {
-        // پاک‌کردن لیست انتخاب‌ها پس از موفقیت
         selectedPartsList.clear();
         selectedCustomer = null;
         _quantityController.clear();
         _partSearchController.clear();
         _customerSearchController.clear();
+        _barcodeController.clear();
+        _exitReason = null;
       });
     } else {
       StringHelper.showErrorDialog(context, saleLogResponse.message ?? 'Satış kaydı oluşturulamadı.');
@@ -305,18 +297,16 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
       return sum + (qty * unitPrice);
     });
   }
+
   bool get _isExitButtonActive {
     if (_exitReason == ExitReason.sale) {
       return selectedPartsList.isNotEmpty;
     }
     if (_exitReason == ExitReason.damage) {
-      // اگر شرایط دیگری برای فعال بودن در حالت damage نداری، میتونی true بذاری
       return true;
     }
-    return false;  // اگر اصلا exitReason انتخاب نشده
+    return false;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -341,7 +331,6 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
                 ),
             ],
           ),
-
           const SizedBox(height: 12),
 
           if (_exitReason == ExitReason.sale) ...[
@@ -362,7 +351,6 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
                     setState(() {
                       selectedCustomer = customer;
 
-                      // remove listener temporarily
                       _customerSearchController.removeListener(_customerListener);
                       _customerSearchController.text = customer.fullName;
                       _customerSearchController.addListener(_customerListener);
@@ -383,7 +371,7 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
               suffixIcon: IconButton(
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: () async {
-                  // TODO: اسکنر بارکد اضافه کن (در صورت نیاز)
+                  // TODO: اسکنر بارکد اضافه کن در صورت نیاز
                 },
               ),
               border: const OutlineInputBorder(),
@@ -401,20 +389,15 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
                     labelText: 'Barkod ile Ara',
                     border: OutlineInputBorder(),
                   ),
+                  onSubmitted: (value) {
+                    final barcode = value.trim();
+                    if (barcode.isNotEmpty) {
+                      _searchPartByBarcode(barcode);
+                    } else {
+                      StringHelper.showErrorDialog(context, 'Lütfen bir barkod girin.');
+                    }
+                  },
                 ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: () {
-                  final barcode = _barcodeController.text.trim();
-                  if (barcode.isNotEmpty) {
-                    _searchPartByBarcode(barcode);
-                  } else {
-                    StringHelper.showErrorDialog(context, 'Lütfen bir barkod girin.');
-                  }
-                },
-                icon: const Icon(Icons.search),
-                label: const Text('Ara'),
               ),
             ],
           ),
@@ -422,7 +405,7 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
           if (partSearchResults.isNotEmpty)
             ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: partSearchResults.length,
               itemBuilder: (context, index) {
                 final part = partSearchResults[index];
@@ -442,10 +425,14 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
                       setState(() {
                         selectedPart = part;
 
-                        // remove listener temporarily
                         _partSearchController.removeListener(_partListener);
                         _partSearchController.text = part.partName ?? '';
                         _partSearchController.addListener(_partListener);
+
+                        // اینجا مقدار بارکد رو ست می‌کنیم
+                        _barcodeController.text = (part.barcode != null && part.barcode!.isNotEmpty)
+                            ? part.barcode!
+                            : '-';
 
                         partSearchResults.clear();
                       });
@@ -468,7 +455,7 @@ class _InventoryItemExitState extends State<InventoryItemExit> {
 
           const SizedBox(height: 20),
 
-          if (selectedPartsList.isNotEmpty)...[
+          if (selectedPartsList.isNotEmpty) ...[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

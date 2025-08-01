@@ -111,7 +111,7 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
 
   Future<void> loadAssets() async {
     final fontData = await rootBundle.load("assets/fonts/Vazirmatn-Regular.ttf");
-    final imageData = await rootBundle.load("images/logo.png");
+    final imageData = await rootBundle.load("assets/images/logo.png");
 
     setState(() {
       customFont = pw.Font.ttf(fontData);
@@ -140,6 +140,8 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
         StringHelper.showErrorDialog(context, "${plate} numaralı plakanın işi henüz bitmedi");
         return;
       }
+      print('partUsedList');
+      print(partUsedList);
       if (partUsedList != null && partUsedList.isNotEmpty) {
         parts = partUsedList.map((part) {
           final price = part.partPrice?.toDouble() ?? 0.0;
@@ -150,11 +152,17 @@ class _InvoiceDailyState extends State<InvoiceDaily> {
             quantity: part.quantity ?? 1,
           );
         }).toList();
-
       } else {
-        // اگر partsUsed خالی بود، می‌تونید مقدار پیش‌فرض بذارید یا کاری نکنید
-        parts = [];
+        // اگر partUsedList خالی یا null بود، مقدار پیش‌فرض "işçilik" با قیمت 1 اضافه می‌شود
+        parts = [
+          PartUsed(
+            partName: 'işçilik',
+            partPrice: 1.0,
+            quantity: 1,
+          ),
+        ];
       }
+
 
       _syncControllersWithParts();
       _calcInvoicePrice();

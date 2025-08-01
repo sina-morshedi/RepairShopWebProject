@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -22,12 +23,38 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
 
   bool _showDeleteIcon = false;
 
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
     final userController = Get.find<UserController>();
     permissionName =
         userController.currentUser?.permission.permissionName ?? "";
+
+    // Live search listener for part name
+    //_partNameController.addListener(_onPartNameChanged);
+  }
+
+  void _onPartNameChanged(String value) {
+    final partName = value.trim();
+
+    // اگر رشته کمتر از 2 کاراکتر است یا خالی است
+    if (partName.isEmpty || partName.length < 2) {
+      // تایمر قبلی رو کنسل کن
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+      // نتایج جستجو رو خالی کن
+      setState(() => searchResults = []);
+      return;
+    }
+
+    // اگر تایمر قبلی هنوز فعال است لغو کن
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _onSearch('', partName);
+    });
   }
 
   void _submit() {
@@ -55,43 +82,36 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
 
     if (response.status == 'success') {
       StringHelper.showInfoDialog(context, response.message!);
+      // حذف از لیست محلی
+      setState(() {
+        searchResults.removeWhere((element) => element.id == item.id);
+      });
     } else {
       StringHelper.showErrorDialog(context, response.message!);
     }
   }
 
   void _onSearch(String barcode, String partName) async {
-    setState(() {
-      searchResults = [];
-    });
+    setState(() => searchResults = []);
 
     if (barcode.isNotEmpty) {
       final response = await InventoryApi().getItemByBarcode(barcode);
       if (response.status == 'success') {
-        final InventoryItemDTO item = response.data!;
         setState(() {
-          searchResults = [item];
+          searchResults = [response.data!];
         });
-        return;
       } else {
         StringHelper.showErrorDialog(context, response.message ?? 'Bir hata oluştu');
       }
     } else if (partName.isNotEmpty) {
       final response = await InventoryApi().getByPartName(partName);
       if (response.status == 'success') {
-        final results = response.data ?? [];
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              searchResults = results;
-            });
-          }
+        setState(() {
+          searchResults = response.data ?? [];
         });
       } else {
-        StringHelper.showErrorDialog(context, response.message!);
+        //StringHelper.showErrorDialog(context, response.message ?? 'Bir hata oluştu');
       }
-    } else {
-      StringHelper.showErrorDialog(context, 'Hiçbir arama kriteri girilmedi');
     }
   }
 
@@ -99,6 +119,7 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
   void dispose() {
     _barcodeController.dispose();
     _partNameController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -120,8 +141,11 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
                     labelText: 'Barkod ile Ara',
                     prefixIcon: Icon(MdiIcons.barcode),
                     isDense: true,
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                   ),
+                  onFieldSubmitted: (value) {
+                    _submit();
+                  },
                 ),
                 TextFormField(
                   controller: _partNameController,
@@ -131,6 +155,7 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
                     isDense: true,
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: _onPartNameChanged,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -151,11 +176,6 @@ class _InventorySearchItemState extends State<InventorySearchItem> {
                           const Text('Silme Modu'),
                         ],
                       ),
-                    ElevatedButton.icon(
-                      onPressed: _submit,
-                      icon: const Icon(EvaIcons.search),
-                      label: const Text('Ara'),
-                    ),
                   ],
                 ),
               ],

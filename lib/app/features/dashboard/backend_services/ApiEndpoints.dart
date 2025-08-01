@@ -39,6 +39,7 @@ class ApiEndpoints {
 
   static const String customerUrl = "$_baseUrl/customers";
   static const String customerSearchByName = "$_baseUrl/customers/search?name=";
+  static const String customerSearchByFullName = "$_baseUrl/customers/search/fullName?fullName=";
 
   static const String carRepairLogGetAll = "$_baseUrl/car-repair-log/all";
   static const String carRepairLogGetById = "$_baseUrl/car-repair-log/by-id";

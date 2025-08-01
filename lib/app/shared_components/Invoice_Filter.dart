@@ -44,7 +44,7 @@ class _InvoiceFilterState extends State<InvoiceFilter> {
 
   Future<void> loadAssets() async {
     final fontData = await rootBundle.load("assets/fonts/Vazirmatn-Regular.ttf");
-    final imageData = await rootBundle.load("images/logo.png");
+    final imageData = await rootBundle.load("assets/images/logo.png");
 
     setState(() {
       customFont = pw.Font.ttf(fontData);

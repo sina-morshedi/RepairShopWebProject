@@ -20,6 +20,7 @@ import '../features/dashboard/models/InventoryTransactionType.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../features/dashboard/controllers/UserController.dart';
 import 'package:get/get.dart';
+import 'RepairmanPartCard.dart';
 
 class RepairmanWorkespaceInFlow extends StatefulWidget {
   final UserProfileDTO user;
@@ -55,11 +56,17 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
   List<Map<String, dynamic>> cars = [];
   final TextEditingController _pauseReasonController = TextEditingController();
 
+  Map<int, TextEditingController> newPartControllers = {};
+  Map<int, TextEditingController> newBarcodControllers = {};
+
+  List<TextEditingController> partNames = [TextEditingController()];
+
   Map<int, List<TextEditingController>> partNameControllers = {};
   Map<int, List<TextEditingController>> quantityControllers = {};
+  Map<int, List<TextEditingController>> unitPriceControllers = {};
 
   // اینجا نگهداری نتایج جستجو autocomplete است: [ماشین][قطعه] => لیست پیشنهادات
-  Map<int, Map<int, List<InventoryItemDTO>>> partSearchResults = {};
+ Map<int, List<InventoryItemDTO>> partSearchResults = {};
 
   List<CarRepairLogResponseDTO>? logs;
 
@@ -92,17 +99,35 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
     super.dispose();
   }
 
+  // void addNewPart(String partName) {
+  //   if (partName.trim().isEmpty) return;
+  //   setState(() {
+  //     partNames.add(TextEditingController(text: partName));
+  //     newPartController.clear();
+  //   });
+  // }
+
   Future<void> _loadCarsFromBackend() async {
     final request = TaskStatusUserRequestDTO(
       assignedUserId: user.userId,
       taskStatusNames: ["BAŞLANGIÇ", "DURAKLAT"],
     );
 
+    print('widget.plate');
+    print(widget.plate!);
+    if(widget.plate == null || widget.plate!.isEmpty){
+      StringHelper.showErrorDialog(context, 'Bu plaka numarası bulunamadı.');
+      return;
+    }
+
+
     final response =
-        await CarRepairLogApi().getLatestLogsByTaskStatusesAndUserId(request);
+        await CarRepairLogApi().getLatestLogByLicensePlate(widget.plate!);
 
     if (response.status == 'success') {
-      logs = response.data!;
+      print('response.data');
+      print(response.data);
+      logs = [response.data!];
       print('logs');
       print(logs);
       final loadedCars = logs!.map<Map<String, dynamic>>((log) {
@@ -135,16 +160,20 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
             quantityControllers[i] = partsUsed
                 .map((p) => TextEditingController(text: p.quantity.toString()))
                 .toList();
+            unitPriceControllers[i] = partsUsed
+                .map((p) => TextEditingController(text: p.partPrice.toString()))
+                .toList();
+            newPartControllers[i] = TextEditingController();
+            newBarcodControllers[i] = TextEditingController();
           } else {
             partNameControllers[i] = [TextEditingController()];
             quantityControllers[i] = [TextEditingController(text: "1")];
+            unitPriceControllers[i] = [TextEditingController(text: "1")];
           }
 
           // مقداردهی اولیه لیست پیشنهادات برای هر قطعه خالی است
-          partSearchResults[i] = {};
-          for (int j = 0; j < partNameControllers[i]!.length; j++) {
-            partSearchResults[i]![j] = [];
-          }
+          partSearchResults[i] = [];
+
         }
       });
     } else {
@@ -152,13 +181,101 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
     }
   }
 
-  void addPartField(int index) {
+  Future<void> addPartFieldBySearchBarcode(int index, String barcode) async{
+    final part = await InventoryApi().getItemByBarcode(barcode);
+    if(part.status != 'success'){
+      StringHelper.showErrorDialog(context, part.message!);
+      return;
+    }
+    print('price');
+    print(part);
     setState(() {
-      partNameControllers[index]!.add(TextEditingController());
-      quantityControllers[index]!.add(TextEditingController(text: "1"));
-      partSearchResults[index]![partNameControllers[index]!.length - 1] = [];
+      if (!partNameControllers.containsKey(index) || partNameControllers[index] == null) {
+        partNameControllers[index] = <TextEditingController>[];
+        quantityControllers[index] = <TextEditingController>[];
+        unitPriceControllers[index] = <TextEditingController>[];
+        partSearchResults = <int, List<InventoryItemDTO>>{};
+      }
+
+      final controllers = partNameControllers[index]!;
+
+      // اگر لیست کنترلرها خالیه یا فقط یک کنترلر با مقدار خالی داره
+      if (controllers.isEmpty ||
+          (controllers.length == 1 && controllers[0].text.trim().isEmpty)) {
+        // کنترلر اول رو مقداردهی کن
+        if (controllers.isEmpty) {
+
+          // اگه خالی بود، ابتدا یه کنترلر جدید اضافه کن
+          controllers.add(TextEditingController(text: part.data!.partName));
+          quantityControllers[index]!.add(TextEditingController(text: "1"));
+          unitPriceControllers[index]!.add(TextEditingController(text: '${part.data!.salePrice}'));
+          partSearchResults[index] = [];
+        } else {
+          // اگه یک کنترلر هست ولی خالی، مقدارش رو ست کن
+          controllers[0].text = part.data!.partName;
+          unitPriceControllers[index]![0].text = '${part.data!.salePrice}';
+        }
+      } else {
+        // کارت جدید اضافه کن
+        controllers.add(TextEditingController(text: part.data!.partName));
+        quantityControllers[index]!.add(TextEditingController(text: "1"));
+        unitPriceControllers[index]!.add(TextEditingController(text: '${part.data!.salePrice}'));
+        partSearchResults[index] = [];
+      }
     });
+    newPartControllers[index]?.clear();
+    newBarcodControllers[index]?.clear();
   }
+
+  Future<void> addPartFieldBySearchName(int index, String part) async{
+    final price = await _fetchSalePriceForPart(part);
+    print('price');
+    print(price);
+    setState(() {
+      if (!partNameControllers.containsKey(index) || partNameControllers[index] == null) {
+        partNameControllers[index] = <TextEditingController>[];
+        quantityControllers[index] = <TextEditingController>[];
+        unitPriceControllers[index] = <TextEditingController>[];
+        partSearchResults = <int, List<InventoryItemDTO>>{};
+      }
+
+      final controllers = partNameControllers[index]!;
+
+      // اگر لیست کنترلرها خالیه یا فقط یک کنترلر با مقدار خالی داره
+      if (controllers.isEmpty ||
+          (controllers.length == 1 && controllers[0].text.trim().isEmpty)) {
+        // کنترلر اول رو مقداردهی کن
+        if (controllers.isEmpty) {
+
+          // اگه خالی بود، ابتدا یه کنترلر جدید اضافه کن
+          controllers.add(TextEditingController(text: part));
+          quantityControllers[index]!.add(TextEditingController(text: "1"));
+          unitPriceControllers[index]!.add(TextEditingController(text: '$price'));
+          partSearchResults[index] = [];
+        } else {
+          // اگه یک کنترلر هست ولی خالی، مقدارش رو ست کن
+          controllers[0].text = part;
+          unitPriceControllers[index]![0].text = '$price';
+        }
+      } else {
+        // کارت جدید اضافه کن
+        controllers.add(TextEditingController(text: part));
+        quantityControllers[index]!.add(TextEditingController(text: "1"));
+        unitPriceControllers[index]!.add(TextEditingController(text: '$price'));
+        partSearchResults[index] = [];
+      }
+    });
+    newPartControllers[index]?.clear();
+    newBarcodControllers[index]?.clear();
+  }
+
+  // void addPartField(int index) {
+  //   setState(() {
+  //     partNameControllers[index]!.add(TextEditingController());
+  //     quantityControllers[index]!.add(TextEditingController(text: "1"));
+  //     partSearchResults[index] = [];
+  //   });
+  // }
 
   void removePartField(int index, int partIndex) {
     setState(() {
@@ -172,21 +289,21 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
         // برای اصلاح ایندکس‌ها، کل map را دوباره تنظیم می‌کنیم:
         final newMap = <int, List<InventoryItemDTO>>{};
         for (int i = 0; i < partNameControllers[index]!.length; i++) {
-          newMap[i] = partSearchResults[index]![i] ?? [];
+          newMap[i] = partSearchResults[index] ?? [];
         }
-        partSearchResults[index] = newMap;
+        partSearchResults = newMap;
       }
     });
   }
 
   // متد جستجو با debounce
-  void searchParts(int carIndex, int partIndex, String query) {
+  void searchParts(int carIndex, String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
     _debounce = Timer(const Duration(milliseconds: 400), () async {
       if (query.length < 2) {
         setState(() {
-          partSearchResults[carIndex]![partIndex] = [];
+          partSearchResults[carIndex] = [];
         });
         return;
       }
@@ -199,11 +316,11 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
             .toList();
 
         setState(() {
-          partSearchResults[carIndex]![partIndex] = filtered;
+          partSearchResults[carIndex] = filtered;
         });
       } else {
         setState(() {
-          partSearchResults[carIndex]![partIndex] = [];
+          partSearchResults[carIndex] = [];
         });
       }
     });
@@ -319,9 +436,9 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
             [TextEditingController(text: "1")];
 
         // مقداردهی اولیه لیست پیشنهادات برای هر قطعه در حالت لود
-        partSearchResults[index] = {};
+        partSearchResults = {};
         for (int j = 0; j < partNameControllers[index]!.length; j++) {
-          partSearchResults[index]![j] = [];
+          partSearchResults[index] = [];
         }
       });
     } else {
@@ -330,8 +447,7 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
     }
   }
 
-  Future<void> saveRepairLog(int index, String newTaskStatusName,
-      {String? pauseReason}) async {
+  Future<void> saveRepairLog(int index, String newTaskStatusName, {String? pauseReason}) async {
     try {
       setState(() {
         isSaving = true;
@@ -362,7 +478,7 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
         }
 
         if (name.isEmpty) {
-          if (!isPause) {
+          if (!isPause && newTaskStatusName.toUpperCase() != 'İŞ BİTTİ') {
             StringHelper.showErrorDialog(
                 context, "Parça adı boş olamaz (satır ${i + 1})");
             return;
@@ -508,9 +624,9 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
                     .toList() ??
                 [TextEditingController(text: "1")];
 
-            partSearchResults[index] = {};
+            partSearchResults = {};
             for (int j = 0; j < partNameControllers[index]!.length; j++) {
-              partSearchResults[index]![j] = [];
+              partSearchResults[index] = [];
             }
           });
         }
@@ -566,7 +682,7 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
       });
     }
   }
-
+//------------------------------------------------------------
   Future<double> _fetchSalePriceForPart(String partName) async {
     if (!userController.isInventoryEnabled) {
       debugPrint("Inventory disabled; returning 0 price for part $partName");
@@ -643,10 +759,10 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
         newQuantityControllers[i] = [TextEditingController(text: "1")];
       }
 
-      newPartSearchResults[i] = {};
-      for (int j = 0; j < newPartNameControllers[i]!.length; j++) {
-        newPartSearchResults[i]![j] = [];
-      }
+      // newPartSearchResults[i] = {};
+      // for (int j = 0; j < newPartNameControllers[i]!.length; j++) {
+      //   newPartSearchResults[i]![j] = [];
+      // }
     }
 
     // دیسپوز کنترلرهای قدیمی که دیگه تو newMap نیستند
@@ -667,7 +783,7 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
 
     partNameControllers = newPartNameControllers;
     quantityControllers = newQuantityControllers;
-    partSearchResults = newPartSearchResults;
+    // partSearchResults = newPartSearchResults;
   }
 
   @override
@@ -688,7 +804,7 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
                     final car = cars[carIndex];
                     final isExpanded = car["isExpanded"] as bool? ?? false;
 
-                    final partNames =
+                    partNames =
                         partNameControllers.containsKey(carIndex) &&
                                 partNameControllers[carIndex] != null
                             ? partNameControllers[carIndex]!
@@ -730,134 +846,91 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
                                   Text("Model: ${car['model']}"),
                                   Text("Yıl: ${car['year']}"),
                                   const SizedBox(height: 8),
-                                  ...List.generate(partNames.length,
-                                      (partIndex) {
-                                    final suggestions =
-                                        partSearchMap.containsKey(partIndex) &&
-                                                partSearchMap[partIndex] != null
-                                            ? partSearchMap[partIndex]!
-                                            : <InventoryItemDTO>[];
 
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                flex: 2,
-                                                child: TextField(
-                                                  controller:
-                                                      partNames[partIndex],
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    hintText: "Parça adı",
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                  ),
-                                                  onChanged: (value) {
-                                                    if (userController
-                                                        .isInventoryEnabled)
-                                                      searchParts(carIndex,
-                                                          partIndex, value);
-                                                  },
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              SizedBox(
-                                                width: 50,
-                                                child: TextField(
-                                                  controller: quantityControllers
-                                                              .containsKey(
-                                                                  carIndex) &&
-                                                          quantityControllers[carIndex] !=
-                                                              null
-                                                      ? quantityControllers[
-                                                          carIndex]![partIndex]
-                                                      : TextEditingController(
-                                                          text: "1"),
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    hintText: "Adet",
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                  ),
-                                                ),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(
-                                                    EvaIcons.plusCircleOutline),
-                                                onPressed: () =>
-                                                    addPartField(carIndex),
-                                              ),
-                                              if (partNames.length > 1)
-                                                IconButton(
-                                                  icon: const Icon(
-                                                    EvaIcons.minusCircleOutline,
-                                                    color: Colors.red,
-                                                  ),
-                                                  onPressed: () =>
-                                                      removePartField(
-                                                          carIndex, partIndex),
-                                                ),
-                                            ],
-                                          ),
-                                          if (suggestions.isNotEmpty)
-                                            Container(
-                                              constraints: const BoxConstraints(
-                                                maxHeight: 150,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color:
-                                                        Colors.grey.shade800),
-                                                color: Colors.black,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 3,
-                                                    offset: const Offset(0, 1),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: ListView.builder(
-                                                shrinkWrap: true,
-                                                physics:
-                                                    const NeverScrollableScrollPhysics(),
-                                                itemCount: suggestions.length,
-                                                itemBuilder:
-                                                    (context, suggestionIndex) {
-                                                  final suggestion =
-                                                      suggestions[
-                                                          suggestionIndex];
-                                                  return ListTile(
-                                                    title: Text(
-                                                      suggestion.partName,
-                                                      style: const TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                    onTap: () {
-                                                      partNames[partIndex]
-                                                              .text =
-                                                          suggestion.partName;
-                                                      setState(() {
-                                                        partSearchMap[
-                                                            partIndex] = [];
-                                                      });
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                        ],
+                                  SizedBox(height: 50),
+
+                                  Column(
+                                    children: [
+                                      TextField(
+                                        controller: newPartControllers[carIndex],
+                                        decoration: InputDecoration(
+                                          labelText: "Parça ekle",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        onChanged: (value) {
+                                          searchParts(carIndex, value); // حذف اون پارامتر وسطی چون دیگه index نداری
+                                        },
+                                        onSubmitted: (value) {
+                                          addPartFieldBySearchName(carIndex, value);
+                                          newPartControllers[carIndex]?.clear();
+                                          setState(() {
+                                            partSearchResults[carIndex] = [];
+                                          });
+                                        },
                                       ),
-                                    );
-                                  }),
+
+                                      const SizedBox(height: 6),
+
+                                      ...partSearchResults[carIndex]?.map((item) => ListTile(
+                                        title: Text(item.partName),
+                                        onTap: () {
+                                          addPartFieldBySearchName(carIndex, item.partName);
+                                          newPartControllers[carIndex]?.clear();
+                                          setState(() {
+                                            partSearchResults[carIndex] = [];
+                                          });
+                                        },
+                                      )).toList() ?? [],
+
+                                      TextField(
+                                        controller: newBarcodControllers[carIndex],
+                                        decoration: InputDecoration(
+                                          labelText: "Parça ekle",
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        onSubmitted: (value) {
+                                          addPartFieldBySearchBarcode(carIndex, value);
+                                          newPartControllers[carIndex]?.clear();
+                                          setState(() {
+                                            partSearchResults[carIndex] = [];
+                                          });
+                                        },
+                                      ),
+
+                                      const SizedBox(height: 6),
+
+                                      ...partSearchResults[carIndex]?.map((item) => ListTile(
+                                        title: Text(item.partName),
+                                        onTap: () {
+                                          addPartFieldBySearchName(carIndex, item.partName);
+                                          newPartControllers[carIndex]?.clear();
+                                          setState(() {
+                                            partSearchResults[carIndex] = [];
+                                          });
+                                        },
+                                      )).toList() ?? [],
+
+
+                                      const SizedBox(height: 12),
+                                      ...List.generate(partNames.length, (partIndex) {
+                                        return Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            RepairmanPartCard(
+                                              partNameController: partNameControllers[carIndex]![partIndex],
+                                              quantityController: quantityControllers[carIndex]![partIndex],
+                                              unitPriceController: unitPriceControllers[carIndex]![partIndex],
+                                              onRemovePressed: () {
+                                                removePartField(carIndex, partIndex);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      }),
+
+                                    ],
+                                  ),
+
                                   const SizedBox(height: 12),
                                   SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,

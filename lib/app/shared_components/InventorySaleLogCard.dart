@@ -18,12 +18,15 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 class InventorySaleLogDetailCard extends StatefulWidget {
   final InventorySaleLogDTO log;
   final String customerId;
+  final void Function(String deletedId)? onDeleted;
 
   const InventorySaleLogDetailCard({
     required this.log,
-    required this.customerId, // 👈 اضافه شده
+    required this.customerId,
+    this.onDeleted,
     Key? key,
   }) : super(key: key);
+
 
 
   @override
@@ -55,7 +58,7 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
 
   Future<void> loadAssets() async {
     final fontData = await rootBundle.load("assets/fonts/Vazirmatn-Regular.ttf");
-    final imageData = await rootBundle.load("images/logo.png");
+    final imageData = await rootBundle.load("assets/images/logo.png");
 
     setState(() {
       customFont = pw.Font.ttf(fontData);
@@ -152,6 +155,14 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
     });
 
     try {
+      // ۱. اول حذف لاگ
+      final deleteResponse = await InventorySaleLogApi().deleteSaleLog(currentLog.id!);
+      if (deleteResponse.status != 'success') {
+        StringHelper.showErrorDialog(context, deleteResponse.message!);
+        return;
+      }
+
+      // ۳. سپس تراکنش برگشتی برای هر آیتم
       for (final item in currentLog.soldItems!) {
         final incrementDto = InventoryChangeRequestDTO(
           itemId: item.inventoryItemId!,
@@ -165,9 +176,16 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
           return;
         }
 
+        final response = await CustomerApi().searchCustomerByFullName(currentLog.customerName!);
+
+        if(response.status != 'success'){
+          StringHelper.showErrorDialog(context, response.message!);
+          return;
+        }
+
         final returnTransaction = InventoryTransactionRequestDTO(
           creatorUserId: user!.userId,
-          customerId: widget.customerId,
+          customerId: response.data!.id,
           inventoryItemId: item.inventoryItemId!,
           quantity: item.quantitySold ?? 0,
           type: TransactionType.RETURN_SALE,
@@ -177,17 +195,11 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
 
         final transactionResponse = await InventoryTransactionApi().addTransaction(returnTransaction);
         if (transactionResponse.status != 'success') {
-          StringHelper.showErrorDialog(context, transactionResponse.message!);
+          StringHelper.showErrorDialog(context, transactionResponse.message ?? 'İşlem kaydı başarısız.');
           return;
         }
       }
-
-      final deleteResponse = await InventorySaleLogApi().deleteSaleLog(currentLog.id!);
-      if (deleteResponse.status != 'success') {
-        StringHelper.showErrorDialog(context, deleteResponse.message!);
-        return;
-      }
-
+      widget.onDeleted?.call(currentLog.id!);
       StringHelper.showInfoDialog(context, 'Parça iadesi başarıyla tamamlandı.');
     } catch (e) {
       StringHelper.showErrorDialog(context, 'İade işlemi sırasında hata oluştu: $e');
@@ -197,6 +209,7 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
       });
     }
   }
+
 
   Future<void> _handleUpdateQuantities() async {
     setState(() {
@@ -419,6 +432,7 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
                   const SizedBox(height: 8),
                   Row(
                     children: [
+                      if (currentLog.remainingAmount != 0)
                       Expanded(
                         child: ElevatedButton(
                           onPressed: _isSavingPayment ? null : _savePayment,
@@ -428,6 +442,7 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
                         ),
                       ),
                       const SizedBox(width: 8),
+                      if (currentLog.remainingAmount != 0)
                       Expanded(
                         child: ElevatedButton(
                           onPressed: _isSavingPayment ? null : _handleReturnPart,
@@ -436,6 +451,7 @@ class _InventorySaleLogDetailCardState extends State<InventorySaleLogDetailCard>
                         ),
                       ),
                       const SizedBox(width: 8),
+                      if (currentLog.remainingAmount != 0)
                       Expanded(
                         child: ElevatedButton(
                           onPressed: _isSavingPayment ? null : _handleUpdateQuantities,

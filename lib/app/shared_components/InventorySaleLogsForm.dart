@@ -275,9 +275,20 @@ class _InventorySaleLogsFormState extends State<InventorySaleLogsForm> {
                   itemCount: customerSaleLogs.length,
                   itemBuilder: (context, index) {
                     final log = customerSaleLogs[index];
+                    print('CustomerId: ${selectedCustomer?.id}');
                     return InventorySaleLogDetailCard(
                       customerId: selectedCustomer?.id ?? '',
                       log: log,
+                      onDeleted: (String deletedId) {
+                        print('Removing log with id: $deletedId');
+                        setState(() {
+                          print('Before removal, logs: ${customerSaleLogs.map((e) => e.id).toList()}');
+                          setState(() {
+                            _fetchAllSaleLogs();
+                          });
+                          print('After removal, logs: ${customerSaleLogs.map((e) => e.id).toList()}');
+                        });
+                      },
                     );
                   },
                 ),

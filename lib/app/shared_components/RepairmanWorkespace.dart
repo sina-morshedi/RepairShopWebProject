@@ -350,7 +350,7 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
         }
 
         if (name.isEmpty) {
-          if (!isPause) {
+          if (!isPause && newTaskStatusName.toUpperCase() != 'İŞ BİTTİ') {
             StringHelper.showErrorDialog(
                 context, "Parça adı boş olamaz (satır ${i + 1})");
             return;
@@ -385,7 +385,7 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
       // گرفتن وضعیت وظیفه
       TaskStatusDTO? matchingStatus;
       final responseTask =
-          await TaskStatusApi().getTaskStatusByName(newTaskStatusName);
+      await TaskStatusApi().getTaskStatusByName(newTaskStatusName);
       if (responseTask.status == 'success') {
         matchingStatus = responseTask.data;
       } else {
@@ -465,7 +465,6 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
         if (newTaskStatusName.toUpperCase() == 'İŞ BİTTİ') {
           logs!.removeAt(index);
           cars.removeAt(index);
-
           _rebuildControllersAndSearchResults();
 
           setState(() {});
@@ -483,17 +482,17 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
             };
 
             partNameControllers[index] = updatedLog.partsUsed
-                    ?.map(
-                      (p) => TextEditingController(text: p.partName),
-                    )
-                    .toList() ??
+                ?.map(
+                  (p) => TextEditingController(text: p.partName),
+            )
+                .toList() ??
                 [TextEditingController()];
 
             quantityControllers[index] = updatedLog.partsUsed
-                    ?.map(
-                      (p) => TextEditingController(text: p.quantity.toString()),
-                    )
-                    .toList() ??
+                ?.map(
+                  (p) => TextEditingController(text: p.quantity.toString()),
+            )
+                .toList() ??
                 [TextEditingController(text: "1")];
 
             partSearchResults[index] = {};
@@ -509,7 +508,7 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
 
           for (var transaction in transactionsToAdd) {
             final transactionResponse =
-                await inventoryApi.addTransaction(transaction);
+            await inventoryApi.addTransaction(transaction);
             if (transactionResponse.status != 'success') {
               StringHelper.showErrorDialog(
                   context, transactionResponse.message!);
@@ -523,14 +522,14 @@ class _RepairmanWorkespaceState extends State<RepairmanWorkespace> {
 
               if (transaction.type == TransactionType.RETURN_CONSUMPTION) {
                 final incrementResponse =
-                    await InventoryApi().incrementQuantity(changeRequest);
+                await InventoryApi().incrementQuantity(changeRequest);
                 if (incrementResponse.status != 'success') {
                   StringHelper.showErrorDialog(context,
                       'Envanter artırma işlemi başarısız oldu: ${incrementResponse.message}');
                 }
               } else if (transaction.type == TransactionType.CONSUMPTION) {
                 final decrementResponse =
-                    await InventoryApi().decrementQuantity(changeRequest);
+                await InventoryApi().decrementQuantity(changeRequest);
                 if (decrementResponse.status != 'success') {
                   StringHelper.showErrorDialog(context,
                       'Envanter azaltma işlemi başarısız oldu: ${decrementResponse.message}');

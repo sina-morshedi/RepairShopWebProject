@@ -155,16 +155,15 @@ class _InventoryItemEntryState extends State<InventoryItemEntry> {
               children: [
                 TextFormField(
                   controller: _barcodeController,
+                  textInputAction: TextInputAction.search, // برای اینکه دکمه کیبورد بشه "Search"
                   decoration: InputDecoration(
                     labelText: 'Barkod',
                     prefixIcon: Icon(MdiIcons.barcodeScan),
                     border: const OutlineInputBorder(),
                   ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: _searchItem,
-                  icon: const Icon(EvaIcons.search),
-                  label: const Text('Ara'),
+                  onFieldSubmitted: (value) {
+                    _searchItem(); // تابع async رو صدا می‌زنیم، نیازی به await نیست
+                  },
                 ),
                 TextFormField(
                   controller: _partNameController,

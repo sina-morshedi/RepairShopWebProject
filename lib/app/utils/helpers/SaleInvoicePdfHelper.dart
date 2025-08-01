@@ -3,7 +3,14 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
 import '../../features/dashboard/models/InventorySaleLogDTO.dart';
-import '../../features/dashboard/models/SaleItem.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'dart:io' as io show Platform;
+
+import 'package:file_selector/file_selector.dart';
+
+import 'package:flutter/services.dart';
+import 'dart:io' as io;
 
 class SaleInvoicePdfHelper {
   static Future<void> generateAndDownloadSaleInvoicePdf({
@@ -148,11 +155,33 @@ class SaleInvoicePdfHelper {
     );
 
     final bytes = await pdf.save();
-    final blob = html.Blob([bytes]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute("download", "$invoiceNumber.pdf")
-      ..click();
-    html.Url.revokeObjectUrl(url);
+
+    await _savePdf(bytes, "$invoiceNumber.pdf");
+  }
+  /// Private helper to save the PDF depending on platform
+  static Future<void> _savePdf(Uint8List bytes, String filename) async {
+    if (kIsWeb) {
+      // Web: create Blob and auto-download
+      final blob = html.Blob([bytes]);
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.AnchorElement(href: url)
+        ..setAttribute("download", filename)
+        ..click();
+      html.Url.revokeObjectUrl(url);
+    } else if (io.Platform.isWindows) {
+      // Windows: ask user where to save
+      final location = await getSaveLocation(
+        acceptedTypeGroups: [
+          XTypeGroup(label: 'pdf', extensions: ['pdf']),
+        ],
+        suggestedName: filename,
+      );
+
+      final path = location?.path;
+      if (path != null) {
+        final file = io.File(path);
+        await file.writeAsBytes(bytes);
+      }
+    }
   }
 }

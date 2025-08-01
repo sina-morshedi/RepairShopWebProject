@@ -67,6 +67,35 @@ class CustomerApi {
     }
   }
 
+  Future<ApiResponse<CustomerDTO>> searchCustomerByFullName(String name) async {
+    final String url = "${ApiEndpoints.customerSearchByFullName}$name";
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: BackendUtils.buildHeader(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return ApiResponse(
+          status: 'success',
+          data: CustomerDTO.fromJson(data),
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
   // Insert new customer
   Future<ApiResponse<CustomerDTO>> insertCustomer(CustomerDTO customer) async {
     final String url = "${ApiEndpoints.customerUrl}/";

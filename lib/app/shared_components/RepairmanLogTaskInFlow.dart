@@ -8,6 +8,7 @@ import '../features/dashboard/models/CarRepairLogRequestDTO.dart';
 import '../features/dashboard/models/UserProfileDTO.dart';
 import '../utils/helpers/app_helpers.dart';
 import 'CarRepairLogListView.dart';
+import 'RepairmanPartCard.dart';
 
 class RepairmanLogTaskInFlow extends StatefulWidget {
   final UserProfileDTO user;
