@@ -129,6 +129,36 @@ part of 'backend_services.dart';
     }
   }
 
+  Future<ApiResponse<InventoryItemDTO>> getByFullPartName(String part) async {
+    final String backendUrl = '${ApiEndpoints.inventorySearchByFullPartName}?partName=$part';
+
+    try {
+      final response = await http.get(
+        Uri.parse(backendUrl),
+        headers: BackendUtils.buildHeader(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        return ApiResponse(
+          status: 'success',
+          data: InventoryItemDTO.fromJson(data),
+        );
+      } else {
+        return ApiResponse(
+          status: 'error',
+          message: response.body,
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        status: 'error',
+        message: 'Exception occurred: $e',
+      );
+    }
+  }
+
   Future<ApiResponse<InventoryItemDTO>> getItemByBarcode(String barcode) async {
     final String backendUrl = '${ApiEndpoints.inventorySearchByBarcode}?barcode=$barcode';
 

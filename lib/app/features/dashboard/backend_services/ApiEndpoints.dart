@@ -62,6 +62,7 @@ class ApiEndpoints {
   static const String inventoryGetAllItems = "$_baseUrl/inventory/list";
   static const String inventoryGetItemById = "$_baseUrl/inventory";
   static const String inventorySearchByPartName = "$_baseUrl/inventory/search";
+  static const String inventorySearchByFullPartName = "$_baseUrl/inventory/by-part-name";
   static const String inventorySearchByBarcode = "$_baseUrl/inventory/barcode";
   static const String inventoryUpdateItem = "$_baseUrl/inventory/update";
   static const String inventoryDeactivateItem = "$_baseUrl/inventory/deactivate";

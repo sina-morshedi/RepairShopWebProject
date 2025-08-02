@@ -125,11 +125,7 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
         await CarRepairLogApi().getLatestLogByLicensePlate(widget.plate!);
 
     if (response.status == 'success') {
-      print('response.data');
-      print(response.data);
       logs = [response.data!];
-      print('logs');
-      print(logs);
       final loadedCars = logs!.map<Map<String, dynamic>>((log) {
         final car = log.carInfo;
         return {
@@ -227,10 +223,15 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
     newBarcodControllers[index]?.clear();
   }
 
-  Future<void> addPartFieldBySearchName(int index, String part) async{
-    final price = await _fetchSalePriceForPart(part);
-    print('price');
-    print(price);
+  Future<void> addPartFieldBySearchName(int index, String partName) async{
+    final partResponse = await InventoryApi().getByFullPartName(partName);
+
+    if(partResponse.status != 'success'){
+      final confirm = await StringHelper.showConfirmDialog(context, 'Bu parça depoda bulunamadı. Listeye eklemek ister misiniz?');
+      if(!confirm)
+        return;
+    }
+
     setState(() {
       if (!partNameControllers.containsKey(index) || partNameControllers[index] == null) {
         partNameControllers[index] = <TextEditingController>[];
@@ -248,20 +249,20 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
         if (controllers.isEmpty) {
 
           // اگه خالی بود، ابتدا یه کنترلر جدید اضافه کن
-          controllers.add(TextEditingController(text: part));
+          controllers.add(TextEditingController(text: partName));
           quantityControllers[index]!.add(TextEditingController(text: "1"));
-          unitPriceControllers[index]!.add(TextEditingController(text: '$price'));
+          unitPriceControllers[index]!.add(TextEditingController(text: '${partResponse.data!.salePrice}'));
           partSearchResults[index] = [];
         } else {
           // اگه یک کنترلر هست ولی خالی، مقدارش رو ست کن
-          controllers[0].text = part;
-          unitPriceControllers[index]![0].text = '$price';
+          controllers[0].text = partName;
+          unitPriceControllers[index]![0].text = '${partResponse.data!.salePrice}';
         }
       } else {
         // کارت جدید اضافه کن
-        controllers.add(TextEditingController(text: part));
+        controllers.add(TextEditingController(text: partName));
         quantityControllers[index]!.add(TextEditingController(text: "1"));
-        unitPriceControllers[index]!.add(TextEditingController(text: '$price'));
+        unitPriceControllers[index]!.add(TextEditingController(text: '${partResponse.data!.salePrice}'));
         partSearchResults[index] = [];
       }
     });
@@ -885,7 +886,7 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
                                       TextField(
                                         controller: newBarcodControllers[carIndex],
                                         decoration: InputDecoration(
-                                          labelText: "Parça ekle",
+                                          labelText: "Barkod",
                                           border: OutlineInputBorder(),
                                         ),
                                         onSubmitted: (value) {
@@ -899,16 +900,16 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
 
                                       const SizedBox(height: 6),
 
-                                      ...partSearchResults[carIndex]?.map((item) => ListTile(
-                                        title: Text(item.partName),
-                                        onTap: () {
-                                          addPartFieldBySearchName(carIndex, item.partName);
-                                          newPartControllers[carIndex]?.clear();
-                                          setState(() {
-                                            partSearchResults[carIndex] = [];
-                                          });
-                                        },
-                                      )).toList() ?? [],
+                                      // ...partSearchResults[carIndex]?.map((item) => ListTile(
+                                      //   title: Text(item.partName),
+                                      //   onTap: () {
+                                      //     addPartFieldBySearchName(carIndex, item.partName);
+                                      //     newPartControllers[carIndex]?.clear();
+                                      //     setState(() {
+                                      //       partSearchResults[carIndex] = [];
+                                      //     });
+                                      //   },
+                                      // )).toList() ?? [],
 
 
                                       const SizedBox(height: 12),
