@@ -183,8 +183,8 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
       StringHelper.showErrorDialog(context, part.message!);
       return;
     }
-    print('price');
-    print(part);
+    print('part.data');
+    print(part.data);
     setState(() {
       if (!partNameControllers.containsKey(index) || partNameControllers[index] == null) {
         partNameControllers[index] = <TextEditingController>[];
@@ -900,16 +900,17 @@ class _RepairmanWorkespaceInFlowState extends State<RepairmanWorkespaceInFlow> {
 
                                       const SizedBox(height: 6),
 
-                                      // ...partSearchResults[carIndex]?.map((item) => ListTile(
-                                      //   title: Text(item.partName),
-                                      //   onTap: () {
-                                      //     addPartFieldBySearchName(carIndex, item.partName);
-                                      //     newPartControllers[carIndex]?.clear();
-                                      //     setState(() {
-                                      //       partSearchResults[carIndex] = [];
-                                      //     });
-                                      //   },
-                                      // )).toList() ?? [],
+                                      ...partSearchResults[carIndex]?.map((item) => ListTile(
+                                        title: Text(item.partName),
+                                        onTap: () {
+                                          addPartFieldBySearchName(carIndex, item.partName);
+
+                                          newPartControllers[carIndex]?.clear();
+                                          setState(() {
+                                            partSearchResults[carIndex] = [];
+                                          });
+                                        },
+                                      )).toList() ?? [],
 
 
                                       const SizedBox(height: 12),
